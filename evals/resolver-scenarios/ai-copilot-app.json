@@ -1,0 +1,51 @@
+{
+  "profile": {
+    "id": "ai-copilot-app",
+    "intent": "AI writing copilot inside an existing React app that already uses framer-motion.",
+    "domain": [
+      "ai",
+      "productivity"
+    ],
+    "brand_attributes": [
+      "innovative",
+      "calm",
+      "efficient",
+      "human"
+    ],
+    "avoid_attributes": [
+      "gimmicky"
+    ],
+    "visual_intensity": 3,
+    "interaction_intensity": 3,
+    "density": "medium",
+    "contexts": [
+      "application"
+    ],
+    "screens": [
+      "screen.ai-copilot",
+      "screen.ai-chat",
+      "screen.workspace"
+    ],
+    "content": [
+      "product-ui"
+    ],
+    "existing_dependencies": [
+      "react",
+      "framer-motion"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.ai-native",
+      "style.productivity"
+    ],
+    "reuse_technologies": [
+      "tech.motion"
+    ],
+    "forbid_tiers": [
+      "M4",
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

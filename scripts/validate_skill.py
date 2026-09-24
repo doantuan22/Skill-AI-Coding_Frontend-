@@ -68,6 +68,33 @@ INSPIRATION_FILES = {
 }
 REQUIRED_FILES |= INSPIRATION_FILES
 INSPIRATION_MODULES = ("phase-2/design-inspiration", "phase-2/typography", "phase-2/motion", "phase-2/web-patterns")
+KNOWLEDGE_FILES = {
+    "phase-2/knowledge/README.md", "phase-2/knowledge/schema.md", "phase-2/knowledge/retrieval.md", "phase-2/knowledge/INDEX.md",
+    "phase-2/knowledge/advanced-accessibility.md", "phase-2/knowledge/styles/README.md", "phase-2/knowledge/effects/README.md",
+    "phase-2/knowledge/interactions/README.md", "phase-2/knowledge/screens/README.md", "phase-2/knowledge/graphics/techniques.md",
+    "phase-2/knowledge/composition/README.md", "phase-2/knowledge/composition/recipes.md",
+    "phase-2/knowledge/composition/anti-homogenization.md", "phase-2/knowledge/composition/premium-quality-model.md",
+    "phase-2/capability-resolver/README.md", "phase-2/capability-resolver/resolver.md",
+    "phase-2/05-frontend-implementation/technology-resolver.md", "phase-2/05-frontend-implementation/performance-budget.md",
+    "phase-2/motion/layout-motion.md", "phase-2/motion/cinematic-motion.md", "phase-2/motion/responsive-motion.md",
+    "phase-2/web-patterns/grid/grid-patterns.md", "phase-2/web-patterns/storytelling/story-layouts.md",
+    "phase-2/web-patterns/application/application-layouts.md", "phase-2/visual-language/components/README.md",
+    "phase-2/visual-language/components/ai-interfaces.md", "phase-2/visual-language/components/command-search.md",
+    "phase-2/visual-language/components/data-display.md",
+    "templates/CAPABILITY-PLAN.md", "templates/DESIGN-QUALITY-REPORT.md", "evals/quality/README.md",
+    "docs/design-knowledge-system.md", "docs/benchmark-protocol.md", "evals/reports/DESIGN-KNOWLEDGE-DRY-RUN.md",
+    "scripts/knowledge_lib.py", "scripts/resolve_capabilities.py", "scripts/analyze_design_quality.py",
+    "scripts/test_knowledge.py", "scripts/test_quality_analyzer.py",
+    "evals/fixtures/quality/overanimated/index.html", "evals/fixtures/quality/restrained/index.html",
+}
+REQUIRED_FILES |= KNOWLEDGE_FILES
+KNOWLEDGE_MODULES = ("phase-2/knowledge", "phase-2/capability-resolver")
+DESIGN_QUALITY_SECTIONS = ("## Purpose", "## Input", "## Evidence", "## Heuristics", "## Pass / fail criteria",
+                           "## Limitations", "## False positives")
+KNOWLEDGE_CODES = ("SCROLL_HIJACKING", "MOTION_LAYOUT_INSTABILITY", "COMPETING_MOTION_DIRECTIONS", "CAPABILITY_PLAN_MISSING",
+                   "HOMOGENIZED_DESIGN", "STYLE_INCOHERENCE", "PREMIUM_BY_EFFECTS", "EFFECT_OVERUSE",
+                   "INTERACTION_FEEDBACK_MISSING", "HOVER_ONLY_INTERACTION", "HIDDEN_INTERACTION",
+                   "HEAVY_DEPENDENCY_FOR_SIMPLE_EFFECT")
 ARCHETYPES = ("premium-product", "modern-saas", "developer-tool", "technical-platform", "editorial-product",
               "creative-portfolio", "marketplace", "travel-commerce", "luxury", "consumer-tech",
               "data-heavy-product", "minimal-product")
@@ -132,9 +159,9 @@ def scenario_checks(root: Path) -> list[str]:
             errors.append(f"duplicate scenario id: {scenario_id} in {ids[scenario_id].name} and {path.name}")
         else:
             ids[scenario_id] = path
-    expected = {f"E{i:02d}" for i in range(1, 65)}
+    expected = {f"E{i:02d}" for i in range(1, 81)}
     if set(ids) != expected:
-        errors.append(f"scenario suite must contain E01-E64; found {', '.join(sorted(ids))}")
+        errors.append(f"scenario suite must contain E01-E80; found {', '.join(sorted(ids))}")
     return errors
 
 
@@ -285,7 +312,7 @@ def inspiration_checks(root: Path) -> list[str]:
     if "## Typography system" not in text(root / "templates/DESIGN-SYSTEM.md"):
         errors.append("DESIGN-SYSTEM template lacks Typography system section")
     # Knowledge only: no runtime dependency on external websites, no bundled/copied assets.
-    for module in INSPIRATION_MODULES:
+    for module in INSPIRATION_MODULES + KNOWLEDGE_MODULES:
         for path in (root / module).rglob("*"):
             if path.is_file() and path.suffix != ".md":
                 errors.append(f"non-knowledge file in {module}: {path.relative_to(root)}")
@@ -302,6 +329,55 @@ def inspiration_checks(root: Path) -> list[str]:
     return errors
 
 
+def knowledge_checks(root: Path) -> list[str]:
+    """Design Knowledge System: catalogs, routing, resolver scenarios, quality evals."""
+    errors: list[str] = []
+    try:
+        sys.path.insert(0, str(root / "scripts"))
+        import knowledge_lib  # noqa: PLC0415 - validator stays importable without the knowledge base
+        errors += [f"knowledge: {e}" for e in knowledge_lib.check(root)]
+    except Exception as exc:  # report, never crash the validator
+        errors.append(f"knowledge base could not be validated: {exc}")
+    router = text(root / "phase-2/router.md")
+    for phrase in ("capability-resolver/README.md", "knowledge/retrieval.md", "technology-resolver.md", "performance-budget.md",
+                   "cinematic-motion.md", "layout-motion.md", "evals/quality/README.md"):
+        if phrase not in router:
+            errors.append(f"Phase 2 router does not route to: {phrase}")
+    skill = text(root / "SKILL.md")
+    for phrase in ("phase-2/knowledge/README.md", "phase-2/capability-resolver/README.md"):
+        if phrase not in skill:
+            errors.append(f"SKILL.md does not link: {phrase}")
+    index = text(root / "workflow/reference-index.md")
+    for phrase in ("phase-2/knowledge/", "phase-2/capability-resolver/", "technology-resolver.md", "evals/quality/README.md"):
+        if phrase not in index:
+            errors.append(f"reference index missing entry for: {phrase}")
+    scenarios = list((root / "evals/resolver-scenarios").glob("*.json"))
+    if len(scenarios) < 8:
+        errors.append("at least 8 resolver scenarios are required")
+    for path in scenarios:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not {"profile", "expect"} <= set(data):
+                errors.append(f"resolver scenario lacks profile/expect: {path.name}")
+        except json.JSONDecodeError:
+            errors.append(f"resolver scenario is invalid JSON: {path.name}")
+    for number in range(65, 81):
+        matches = list((root / "evals/scenarios").glob(f"E{number}-*.md"))
+        if matches:
+            body = text(matches[0])
+            missing = [s for s in DESIGN_QUALITY_SECTIONS if s not in body]
+            if missing:
+                errors.append(f"design quality eval E{number} missing sections: {', '.join(missing)}")
+    taxonomy = text(root / "evals/failure-taxonomy.md")
+    for code in KNOWLEDGE_CODES:
+        if f"`{code}`" not in taxonomy:
+            errors.append(f"failure taxonomy missing code: {code}")
+    framework = text(root / "evals/framework.md")
+    if "DESIGN_QUALITY = E65–E80" not in framework or "FULL = E01–E80" not in framework:
+        errors.append("eval framework suites not updated for E65-E80")
+    return errors
+
+
 def main() -> int:
     root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
     errors = [f"missing required file: {item}" for item in REQUIRED_FILES if not (root / item).is_file()]
@@ -310,14 +386,16 @@ def main() -> int:
     errors += workflow_checks(root)
     errors += execution_checks(root)
     errors += inspiration_checks(root)
+    errors += knowledge_checks(root)
     if errors:
         print("Validation failed:")
         print("\n".join(f"- {error}" for error in errors))
         return 1
     print("Skill hardening validation passed.")
     print("- required files, links, workflow states/transitions, lock rule, and dependency DAG valid")
-    print("- E01-E64 IDs, required scenario fields, execution/runtime/accessibility/visual-language contracts, and fixtures valid")
+    print("- E01-E80 IDs, required scenario fields, execution/runtime/accessibility/visual-language contracts, and fixtures valid")
     print("- inspiration/typography/motion/web-pattern modules, routing, taxonomy, single source of truth, no vendored fonts or copied assets")
+    print("- design knowledge catalogs (schema, vocabularies, references, index), resolver scenarios, E65-E80 eval sections")
     return 0
 
 

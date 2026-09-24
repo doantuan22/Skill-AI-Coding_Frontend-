@@ -1,0 +1,43 @@
+{
+  "profile": {
+    "id": "creative-agency",
+    "intent": "Website for an independent creative studio showing case studies.",
+    "domain": [
+      "agency",
+      "creative",
+      "portfolio"
+    ],
+    "brand_attributes": [
+      "crafted",
+      "confident",
+      "bold",
+      "innovative"
+    ],
+    "avoid_attributes": [
+      "generic",
+      "cluttered"
+    ],
+    "visual_intensity": 4,
+    "interaction_intensity": 4,
+    "density": "low",
+    "contexts": [
+      "marketing",
+      "content"
+    ],
+    "content": [
+      "brand-photography",
+      "case-studies",
+      "video"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.creative-agency"
+    ],
+    "exclude_styles": [
+      "style.glassmorphism",
+      "style.enterprise-saas"
+    ],
+    "max_new_dependencies": 0
+  }
+}

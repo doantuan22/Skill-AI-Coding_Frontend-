@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "id": "experimental-portfolio",
+    "intent": "Portfolio of a creative technologist; should surprise visitors.",
+    "domain": [
+      "portfolio",
+      "creative"
+    ],
+    "brand_attributes": [
+      "experimental",
+      "bold",
+      "innovative",
+      "immersive"
+    ],
+    "avoid_attributes": [
+      "generic"
+    ],
+    "visual_intensity": 5,
+    "interaction_intensity": 4,
+    "density": "low",
+    "contexts": [
+      "marketing",
+      "content"
+    ],
+    "content": [
+      "video",
+      "illustrations",
+      "3d-assets"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.experimental"
+    ],
+    "require_tiers_any": [
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

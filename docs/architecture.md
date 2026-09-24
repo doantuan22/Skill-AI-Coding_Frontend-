@@ -7,7 +7,8 @@ SKILL.md (entry point and controller)
 ├─ workflow/ (routing, state, transitions, contracts, execution hardening)
 ├─ phase-1/ (router, UX structure engine, selectively loaded references)
 ├─ phase-2/ (router, eight frontend design engines, visual language, design inspiration,
-│            typography, motion, web patterns; all selectively loaded)
+│            typography, motion, web patterns, design knowledge system, capability resolver;
+│            all selectively loaded)
 ├─ review/ (gate-specific loops)
 ├─ templates/ (artifact shapes and hardening records)
 ├─ evals/ (agent-agnostic evaluation framework and fixtures)
@@ -28,3 +29,5 @@ The execution hardening layer runs after routing and before phase work. It selec
 The execution layer is selected only for rendered UI work when capability warrants it. It is independent of any agent API: adapters implement a browser contract, Playwright is reused only when already present, and manual fallback reports limitation honestly. Evidence flows into Phase 2 visual review and the final quality gate. See [docs/execution-layer.md](execution-layer.md).
 
 Browser runtime evidence may feed the accessibility runtime: local axe scan evidence plus manual review flows through the Accessibility Gate before Final Quality Gate. It reuses execution session/server/viewport contracts and does not create a second browser lifecycle. See [docs/accessibility-runtime.md](accessibility-runtime.md).
+
+The Design Knowledge System adds a knowledge layer (structured, schema-validated catalogs), a reasoning bridge (Capability Resolver), implementation intelligence (technology resolver, performance budget) and outcome evaluation (E65–E80 with a static analyzer and optional runtime motion probes). See [design-knowledge-system.md](design-knowledge-system.md).

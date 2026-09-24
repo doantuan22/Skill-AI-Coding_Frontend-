@@ -122,6 +122,61 @@ references:
     phase: 2
     triggers: [landing-page, marketing, product-showcase, section-composition, hero, storytelling, generic-template-composition]
     excludes: [dashboard-only, small-form]
+  phase_2_capability_resolver:
+    file: phase-2/capability-resolver/README.md
+    phase: 2
+    triggers: [new-build, visual-redesign, landing-page, product-site, make-it-premium, looks-generic, benchmark]
+    excludes: [small-form, single-component-polish, audit-only]
+  phase_2_design_knowledge:
+    file: phase-2/knowledge/retrieval.md
+    phase: 2
+    triggers: [capability-plan-retrieval, style-selection, screen-pattern, effect, interaction-pattern]
+    excludes: [structure-only]
+  phase_2_style_catalog:
+    file: phase-2/knowledge/styles/README.md
+    phase: 2
+    triggers: [style-selection, visual-language-choice, homogenized-design]
+    excludes: [small-form, targeted-polish-with-stable-system]
+  phase_2_screen_library:
+    file: phase-2/knowledge/screens/README.md
+    phase: 2
+    triggers: [dashboard, settings, onboarding, authentication, ai-chat, ai-copilot, kanban, calendar, editor, file-browser]
+    excludes: [marketing-only]
+  phase_2_interaction_library:
+    file: phase-2/knowledge/interactions/README.md
+    phase: 2
+    triggers: [drag, reorder, inline-edit, command-palette, gesture, undo, optimistic-update, keyboard-navigation]
+    excludes: [static-content-only]
+  phase_2_effect_library:
+    file: phase-2/knowledge/effects/README.md
+    phase: 2
+    triggers: [glass, glow, gradient, noise, blur, shader, lighting, visual-effect]
+    excludes: [dashboard-only, small-form]
+  phase_2_composition:
+    file: phase-2/knowledge/composition/README.md
+    phase: 2
+    triggers: [composition, recipe, premium, anti-homogenization]
+    excludes: [single-component]
+  phase_2_cinematic_motion:
+    file: phase-2/motion/cinematic-motion.md
+    phase: 2
+    triggers: [webgl, three-js, 3d, cinematic-hero, particles, shader-motion]
+    excludes: [dashboard, form, app-screen]
+  phase_2_technology_resolver:
+    file: phase-2/05-frontend-implementation/technology-resolver.md
+    phase: 2
+    triggers: [animation-library, gsap, framer-motion, rive, lottie, webgl, canvas, view-transitions, new-dependency]
+    excludes: []
+  phase_2_performance_budget:
+    file: phase-2/05-frontend-implementation/performance-budget.md
+    phase: 2
+    triggers: [visual-effect, continuous-animation, scroll-effect, webgl, backdrop-filter]
+    excludes: [static-content-only]
+  phase_2_design_quality_evals:
+    file: evals/quality/README.md
+    phase: 2
+    triggers: [design-quality, motion-quality, benchmark, premium-review]
+    excludes: [structure-only]
 ```
 
 This is an index, not an exhaustive catalog. Add entries only when routers need a new deterministic selection rule.

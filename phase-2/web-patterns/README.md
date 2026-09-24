@@ -9,6 +9,9 @@ Boundary: Phase 1 (`PAGE-SPEC`, `WIREFRAME-SPEC`) owns which blocks exist and th
 | Group | File | Load when |
 |---|---|---|
 | Hero | [hero/hero-patterns.md](hero/hero-patterns.md) | Landing, marketing, product pages |
+| Grid | [grid/grid-patterns.md](grid/grid-patterns.md) | Bento, masonry, editorial, broken, magazine, dashboard, card matrix, asymmetric, dense data |
+| Storytelling layouts | [storytelling/story-layouts.md](storytelling/story-layouts.md) | Sticky, scroll, pinned demo, alternating, layered, feature explorer, timeline, comparison, before/after |
+| Application | [application/application-layouts.md](application/application-layouts.md) | Sidebar, three-panel, master-detail, canvas, command-driven, dashboard shell, editor, inbox, split inspector |
 | Sections | [sections/section-patterns.md](sections/section-patterns.md) | Any multi-section marketing/content page |
 | Storytelling | [storytelling/storytelling-patterns.md](storytelling/storytelling-patterns.md) | Product narratives, launches, showcases |
 | Navigation | [navigation/navigation-patterns.md](navigation/navigation-patterns.md) | Header/nav presentation choices |
@@ -34,3 +37,5 @@ Boundary: Phase 1 (`PAGE-SPEC`, `WIREFRAME-SPEC`) owns which blocks exist and th
 - Adjacent sections vary pattern or density only for a narrative reason; uniform repetition of interchangeable blocks is `GENERIC_TEMPLATE_COMPOSITION`.
 - Floating pill navigation, bento grids, and three-card rows are allowed only with a recorded reason; none is a default.
 - Keep this library small. Add a pattern only when a real project needs one that no existing entry covers.
+
+Hero, grid, storytelling-layout and application entries are structured catalog entries of the [Design Knowledge System](../knowledge/README.md) (schema `layout`). They are ranked by the [Capability Resolver](../capability-resolver/README.md) from style compatibility, content requirements, density and motion cost.

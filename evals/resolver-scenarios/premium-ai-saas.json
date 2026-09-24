@@ -1,0 +1,51 @@
+{
+  "profile": {
+    "id": "premium-ai-saas",
+    "intent": "Futuristic AI product; premium, technical, impressive, not flashy.",
+    "domain": [
+      "ai",
+      "saas"
+    ],
+    "brand_attributes": [
+      "premium",
+      "technical",
+      "futuristic",
+      "impressive",
+      "calm"
+    ],
+    "avoid_attributes": [
+      "flashy",
+      "noisy"
+    ],
+    "visual_intensity": 3,
+    "interaction_intensity": 3,
+    "density": "medium",
+    "contexts": [
+      "marketing"
+    ],
+    "content": [
+      "product-ui",
+      "metrics"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.calm-futurism"
+    ],
+    "exclude_styles": [
+      "style.cyberpunk",
+      "style.gradient-heavy",
+      "style.glassmorphism"
+    ],
+    "exclude_effects": [
+      "effect.particles",
+      "effect.holographic",
+      "effect.chromatic",
+      "effect.mesh-gradient"
+    ],
+    "forbid_tiers": [
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

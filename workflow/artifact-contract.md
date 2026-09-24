@@ -16,9 +16,9 @@ Artifact templates use a simple `Status` and `Version` field. The active artifac
 | `DESIGN-BRIEF.md` | Phase 1 | Phase 1, Phase 2, reviews | Phase 1 | Locked at `STRUCTURE_LOCKED` |
 | `STRUCTURE-LOCK.md` | Structure-lock transition | Phase 2 and all reviews | Phase 1 / authorized structural transition | Active from `STRUCTURE_LOCKED`; superseded only by a later valid lock |
 | `DESIGN-SYSTEM.md` | Phase 2 | Phase 2 and final review | Phase 2 | Baseline complete at `PHASE_2_REVIEW` pass |
-| `DESIGN-DIRECTION.md`, `REFERENCE-ANALYSIS.md`, `DESIGN-INSPIRATION.md`, `CURRENT-DESIGN-SYSTEM.md` | Phase 2 | Phase 2, reviews | Phase 2 | Complete at the relevant direction/system decision |
+| `DESIGN-DIRECTION.md`, `REFERENCE-ANALYSIS.md`, `CAPABILITY-PLAN.md`, `DESIGN-INSPIRATION.md`, `CURRENT-DESIGN-SYSTEM.md` | Phase 2 | Phase 2, reviews | Phase 2 | Complete at the relevant direction/system decision |
 | `DESIGN-TOKENS.md`, `MOTION-SYSTEM.md`, `COMPONENT-SPEC.md`, `IMPLEMENTATION-MAP.md` | Phase 2 | Phase 2, reviews | Phase 2 | Complete at `PHASE_2_REVIEW` pass when in scope |
-| `VISUAL-REVIEW.md`, `ACCESSIBILITY-REVIEW.md`, `PHASE-2-REVIEW.md`, `FINAL-QUALITY-REPORT.md` | Phase 2 / review | Phase 2, final review | Phase 2 / review | Complete at the associated passing gate |
+| `VISUAL-REVIEW.md`, `ACCESSIBILITY-REVIEW.md`, `DESIGN-QUALITY-REPORT.md`, `PHASE-2-REVIEW.md`, `FINAL-QUALITY-REPORT.md` | Phase 2 / review | Phase 2, final review | Phase 2 / review | Complete at the associated passing gate |
 | `FINAL-REVIEW.md` | Final review | All states after final review | Final review | Complete at `DONE` when status is `passed` |
 
 The router selects a minimum sufficient set. The baseline handoff is `UX-FLOW.md`, `PAGE-MAP.md`, `WIREFRAME-SPEC.md`, `DESIGN-BRIEF.md`, and a passing review; it also includes whichever supporting artifacts are necessary to make the selected scope unambiguous. Small projects may merge compatible artifacts while retaining their fields and traceability.

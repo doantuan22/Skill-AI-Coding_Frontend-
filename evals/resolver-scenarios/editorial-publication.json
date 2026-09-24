@@ -1,0 +1,43 @@
+{
+  "profile": {
+    "id": "editorial-publication",
+    "intent": "Long-form Vietnamese knowledge publication.",
+    "domain": [
+      "editorial",
+      "media"
+    ],
+    "brand_attributes": [
+      "editorial",
+      "crafted",
+      "calm",
+      "human"
+    ],
+    "avoid_attributes": [
+      "flashy",
+      "cluttered"
+    ],
+    "visual_intensity": 2,
+    "interaction_intensity": 2,
+    "density": "medium",
+    "contexts": [
+      "content"
+    ],
+    "content": [
+      "long-form",
+      "brand-photography"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.editorial"
+    ],
+    "exclude_effects": [
+      "effect.glass",
+      "effect.glow"
+    ],
+    "forbid_tiers": [
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

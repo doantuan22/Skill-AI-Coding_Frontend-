@@ -1,0 +1,48 @@
+{
+  "profile": {
+    "id": "fintech-dashboard",
+    "intent": "Personal finance dashboard with balances and transactions.",
+    "domain": [
+      "fintech"
+    ],
+    "brand_attributes": [
+      "trustworthy",
+      "precise",
+      "calm",
+      "clean"
+    ],
+    "avoid_attributes": [
+      "unserious",
+      "flashy"
+    ],
+    "visual_intensity": 2,
+    "interaction_intensity": 3,
+    "density": "high",
+    "contexts": [
+      "application"
+    ],
+    "screens": [
+      "screen.dashboard",
+      "screen.data-table",
+      "screen.billing"
+    ],
+    "content": [
+      "data"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.fintech"
+    ],
+    "forbid_tiers": [
+      "M4",
+      "M5"
+    ],
+    "exclude_effects": [
+      "effect.chromatic",
+      "effect.particles",
+      "effect.glow"
+    ],
+    "max_new_dependencies": 0
+  }
+}

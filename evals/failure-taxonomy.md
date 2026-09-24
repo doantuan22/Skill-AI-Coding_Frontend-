@@ -64,3 +64,16 @@
 | `MOTION_STYLE_DRIFT` | Motion timing/easing/character inconsistent or contradicting the archetype; mixed animation systems. |
 | `UNJUSTIFIED_PARALLAX` | Parallax without a depth narrative or on text/mobile/multiple sections. |
 | `UNNECESSARY_DEPENDENCY` | Animation/font package added when native or existing tooling suffices, or without authorization. |
+
+| `SCROLL_HIJACKING` | Scroll speed/direction overridden or content force-snapped without reason. |
+| `MOTION_LAYOUT_INSTABILITY` | Motion animates layout properties or causes layout shift. |
+| `COMPETING_MOTION_DIRECTIONS` | Simultaneous motions move in conflicting directions. |
+| `CAPABILITY_PLAN_MISSING` | A new build/redesign chose styles, effects or technology without a resolved, explained capability plan. |
+| `HOMOGENIZED_DESIGN` | Default tech look (dark + purple gradient + glass + bento + huge heading, glow, particles) chosen without product reasons. |
+| `STYLE_INCOHERENCE` | Layers express different styles or mismatched intensities. |
+| `PREMIUM_BY_EFFECTS` | "Premium" pursued by adding effects instead of hierarchy, consistency, detail and restraint. |
+| `EFFECT_OVERUSE` | Effect budget or single-signature rule exceeded. |
+| `INTERACTION_FEEDBACK_MISSING` | Interactive elements lack hover/focus/pressed/loading feedback. |
+| `HOVER_ONLY_INTERACTION` | Information or actions reachable only by hover. |
+| `HIDDEN_INTERACTION` | Gestures/shortcuts without visible cues or alternatives. |
+| `HEAVY_DEPENDENCY_FOR_SIMPLE_EFFECT` | A library is used where native CSS/JS suffices. |

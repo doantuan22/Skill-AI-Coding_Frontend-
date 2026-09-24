@@ -10,18 +10,21 @@ Runs after Visual Grammar and before Web Pattern selection is finalized (pattern
 
 | File | Load when |
 |---|---|
-| [motion-principles.md](motion-principles.md) | Always, when motion is in scope: purposes, intensity budget, timing, easing, implementation strategy |
+| [motion-principles.md](motion-principles.md) | Always, when motion is in scope: motion grammar (purposes, hierarchy, tiers, duration scale, easing, springs, budget, anti-patterns) |
 | [motion-character.md](motion-character.md) | Choosing the motion personality |
-| [motion-vocabulary.md](motion-vocabulary.md) | Choosing entrance patterns and the vocabulary index |
-| [microinteractions.md](microinteractions.md) | Controls, hover/press/focus, feedback |
-| [spatial-motion.md](spatial-motion.md) | Modals, drawers, popovers, expand/collapse, shared movement |
-| [scroll-motion.md](scroll-motion.md) | Landing/storytelling scroll effects |
-| [text-motion.md](text-motion.md) | Headline/line/word/metric reveals |
+| [motion-vocabulary.md](motion-vocabulary.md) | Tier index and primitives (fade, fade-up, slide, scale, clip, stagger, ambient drift) |
+| [microinteractions.md](microinteractions.md) | M1 micro motion: controls, feedback, loading/success/error, skeleton, progress |
+| [spatial-motion.md](spatial-motion.md) | M2 component transitions: accordion, modal, drawer, tabs, menus, carousel, toast, command palette, filters |
+| [layout-motion.md](layout-motion.md) | M3 layout transitions: shared element, FLIP, list→detail, reorder, morphs, cross-page continuity |
+| [scroll-motion.md](scroll-motion.md) | M4 scroll choreography (marketing/content only) |
+| [text-motion.md](text-motion.md) | M4 typography motion: line/word/character reveals, counters |
+| [cinematic-motion.md](cinematic-motion.md) | M5 cinematic/immersive: 3D, WebGL, particles, physics, shaders (gated) |
+| [responsive-motion.md](responsive-motion.md) | Desktop/tablet/mobile/low-power/reduced-motion behavior for M3+ |
 | [reduced-motion.md](reduced-motion.md) | Always, when any motion exists |
 | [performance-safety.md](performance-safety.md) | Any scroll-linked, continuous, or large-area motion |
 | [motion-review.md](motion-review.md) | Review of rendered motion |
 
-Progressive disclosure: dashboards/forms load principles + microinteractions (+ spatial if overlays) + reduced-motion only. Scroll and text motion are for marketing/storytelling pages.
+Progressive disclosure: dashboards/forms load principles + M1 (+ M2 for overlays, M3 for list/detail) + reduced-motion only. M4 is for marketing/content pages; M5 only when the Capability Resolver allows it. Every entry is a structured catalog item of the [Design Knowledge System](../knowledge/README.md).
 
 ## Dependencies
 

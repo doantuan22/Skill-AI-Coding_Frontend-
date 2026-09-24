@@ -18,5 +18,5 @@ For existing UI, inventory representative patterns first and classify each as `K
 | Web Patterns | composition vocabulary | which content exists (Phase 1) |
 | Component Spec | variants, semantics, states, implementation location | new palette/direction decisions |
 
-Use [craft-review.md](craft-review.md) before browser QA and [adversarial-review.md](adversarial-review.md) for redesigns or suspected generic output.
+Component grammars are indexed in [components/README.md](components/README.md). Use [craft-review.md](craft-review.md) before browser QA and [adversarial-review.md](adversarial-review.md) for redesigns or suspected generic output.
 

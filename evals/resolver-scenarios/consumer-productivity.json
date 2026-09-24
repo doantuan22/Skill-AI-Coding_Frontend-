@@ -1,0 +1,52 @@
+{
+  "profile": {
+    "id": "consumer-productivity",
+    "intent": "Friendly task and habit app for individuals.",
+    "domain": [
+      "productivity",
+      "consumer"
+    ],
+    "brand_attributes": [
+      "friendly",
+      "approachable",
+      "efficient",
+      "calm"
+    ],
+    "avoid_attributes": [
+      "intimidating",
+      "cluttered"
+    ],
+    "visual_intensity": 3,
+    "interaction_intensity": 4,
+    "density": "medium",
+    "contexts": [
+      "application",
+      "marketing"
+    ],
+    "screens": [
+      "screen.workspace",
+      "screen.onboarding",
+      "screen.kanban"
+    ],
+    "content": [
+      "product-ui"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.playful",
+      "style.productivity",
+      "style.organic",
+      "style.tactile"
+    ],
+    "include_interactions_any": [
+      "interaction.optimistic-update",
+      "interaction.undo",
+      "interaction.drag"
+    ],
+    "forbid_tiers": [
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

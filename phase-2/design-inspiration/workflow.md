@@ -45,3 +45,12 @@ A tie is resolved by the **primary task**, then **content that actually exists**
 - Direction lines exist for type, composition, surfaces/color, imagery, motion.
 - Pattern shortlist reasoned from content; anti-copy constraints recorded when a reference exists.
 - Nothing contradicts the Structure Lock. A needed content/section change is a Phase 1 rollback request, not a pattern choice.
+
+## Inspiration pipeline (knowledge-backed)
+
+```text
+Reference → Decompose (style, layout, typography, color, motion, interaction, effect, composition)
+→ Extract principles (map each observation to catalog ids) → Adapt (Capability Resolver + anti-copying) → Implement
+```
+
+When a reference exists, [reference extraction](reference-extraction.md) maps observations to Design Knowledge ids (`style.*`, `layout.*`, `motion.*`, `interaction.*`, `effect.*`). The resolver profile then uses them as `explicit_styles` or overrides, which keeps the adaptation explainable and prevents cloning. This is the same pipeline as above, not a parallel workflow.

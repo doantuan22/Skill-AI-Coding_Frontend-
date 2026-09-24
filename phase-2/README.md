@@ -33,6 +33,8 @@ Never start CSS or frontend implementation before a `DESIGN-DIRECTION.md` exists
 
 | Owner | Owns |
 |---|---|
+| Design Knowledge System (`knowledge/`, motion, web-patterns catalogs) | design vocabulary: styles, layouts, screens, motion, interactions, effects, recipes, technologies |
+| Capability Resolver (`CAPABILITY-PLAN.md`) | ranked capability selection with why / why not |
 | Design Direction | desired experience |
 | Design Inspiration (`DESIGN-INSPIRATION.md`) | archetype, reference/design DNA, pattern selection |
 | Typography Intelligence (`DESIGN-SYSTEM.md` › Typography system) | type character, families, pairing, rhythm |
@@ -41,3 +43,5 @@ Never start CSS or frontend implementation before a `DESIGN-DIRECTION.md` exists
 | Motion System (`MOTION-SYSTEM.md` or grammar block) | temporal behavior |
 | Web Patterns | composition vocabulary (not which content exists) |
 | Component Spec | implementation contract |
+| Technology Resolver + Performance Budget | implementation technology and effect/motion/interaction budgets |
+| Design quality evals E65–E80 (`DESIGN-QUALITY-REPORT.md`) | runtime/visual/interaction evaluation of the outcome |

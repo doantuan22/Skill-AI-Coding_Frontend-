@@ -39,6 +39,24 @@ def has_dependency(data: dict[str, object], names: set[str]) -> bool:
     return False
 
 
+def design_runtime(data: dict[str, object]) -> dict[str, object]:
+    """Animation/graphics dependencies already present, mapped to technology-resolver ids (read-only)."""
+    installed: set[str] = set()
+    for field in ("dependencies", "devDependencies", "peerDependencies"):
+        values = data.get(field, {})
+        if isinstance(values, dict):
+            installed.update(values)
+    try:
+        import knowledge_lib  # same directory; catalogs are the single source of package names
+        entries, _ = knowledge_lib.load()
+        catalog = {e["id"]: knowledge_lib._as_list(e.get("packages")) for e in entries.values() if e["kind"] == "technology"}
+    except Exception:  # detector must never fail because of the knowledge base
+        return {"packages": [], "technologies": [], "confidence": "unknown"}
+    found = {tid: sorted(set(pkgs) & installed) for tid, pkgs in catalog.items() if set(pkgs) & installed}
+    return {"packages": sorted({p for pkgs in found.values() for p in pkgs}), "technologies": sorted(found),
+            "confidence": "confirmed"}
+
+
 def framework(data: dict[str, object], root: Path) -> dict[str, str]:
     dependencies = set()
     for field in ("dependencies", "devDependencies"):
@@ -103,6 +121,7 @@ def main() -> int:
         "accessibility": {"axe_playwright": {"status": "AVAILABLE" if axe_playwright else "NOT_AVAILABLE", "confidence": "confirmed"},
                           "axe_core": {"status": "AVAILABLE" if axe_core else "NOT_AVAILABLE", "confidence": "confirmed"},
                           "strategy": "axe-playwright" if axe_playwright else "axe-core-injection" if axe_core else "manual-fallback"},
+        "design_runtime": design_runtime(package),
         "application": {"known_url": args.url, "already_running": running_url(args.url)},
         "limitations": ["No packages installed, configuration modified, browser downloaded, or process started."],
     }

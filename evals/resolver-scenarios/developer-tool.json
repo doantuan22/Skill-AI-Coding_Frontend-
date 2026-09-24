@@ -1,0 +1,45 @@
+{
+  "profile": {
+    "id": "developer-tool",
+    "intent": "Marketing and docs site for a database migration CLI.",
+    "domain": [
+      "developer"
+    ],
+    "brand_attributes": [
+      "precise",
+      "technical",
+      "efficient",
+      "trustworthy"
+    ],
+    "avoid_attributes": [
+      "flashy",
+      "gimmicky"
+    ],
+    "visual_intensity": 2,
+    "interaction_intensity": 3,
+    "density": "medium",
+    "contexts": [
+      "marketing",
+      "content"
+    ],
+    "content": [
+      "code",
+      "product-ui"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.developer-tool"
+    ],
+    "forbid_tiers": [
+      "M4",
+      "M5"
+    ],
+    "exclude_effects": [
+      "effect.glass",
+      "effect.particles",
+      "effect.mesh-gradient"
+    ],
+    "max_new_dependencies": 0
+  }
+}

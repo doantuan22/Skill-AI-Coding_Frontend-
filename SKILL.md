@@ -46,6 +46,8 @@ Tokens alone do not define visual quality. Rendered UI must follow an approved V
 
 A strong interface needs intentional inspiration, not random styling: select design DNA with [Design Inspiration](phase-2/design-inspiration/README.md), and choose composition from content and product intent via the [Web Pattern Library](phase-2/web-patterns/README.md). References provide design DNA, not templates to clone. Typography is part of product character, not merely font sizing ([Typography Intelligence](phase-2/typography/README.md)). Motion must communicate, orient, or support storytelling, within a budget and with a reduced-motion equivalent ([Motion Engine](phase-2/motion/README.md)).
 
+Design decisions come from the [Design Knowledge System](phase-2/knowledge/README.md) through the [Capability Resolver](phase-2/capability-resolver/README.md): declare brand, product, audience, density, interaction model, content and intensity first, then retrieve only the resolved entries. Every chosen style, layout, motion, interaction, effect and technology needs a *why* and a *why not*. Premium does not mean more effects; prefer the simplest technology that meets the need, and never add a dependency or asset automatically.
+
 ## Phase 1 boundary
 
 Phase 1 resolves what exists, why, who uses it, where it lives, how users move through it, what information and actions each screen needs, and what happens next. It creates a specification-driven structural handoff, not visual styling. Do not choose colors, typography, visual effects, CSS, component appearance, or frontend implementation here.

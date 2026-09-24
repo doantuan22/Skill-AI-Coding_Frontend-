@@ -5,3 +5,5 @@ Each interactive component supports its relevant default, hover, focus, active, 
 Use modals for short, bounded work; use drawers for filters, secondary detail, or contextual configuration; do not put long or consequential workflows into either by default. Motion communicates change, hierarchy, or feedback and uses duration tokens. Respect `prefers-reduced-motion` whenever motion is present.
 
 Durations, easing, spatial direction and reduced-motion equivalents follow the [Motion Engine](../motion/README.md) (see [spatial-motion](../motion/spatial-motion.md) and [microinteractions](../motion/microinteractions.md)).
+
+Interaction patterns (drag, reorder, inline editing, optimistic update, undo, command palette, gestures) are catalogued in [knowledge/interactions](../knowledge/interactions/README.md) with input → feedback → state → motion → result models.

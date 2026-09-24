@@ -31,18 +31,18 @@ motion character    from motion system (if decided) or direction
 
 | Archetype | Hero candidates | Section/story candidates | Avoid by default |
 |---|---|---|---|
-| premium-product | product-stage, cinematic-product | sticky-storytelling, progressive product reveal, metric-story, technical-detail | feature-grid of equal cards |
-| modern-saas | feature-preview, split | feature-alternating, feature-switcher, capability → evidence, social-proof | immersive-fullscreen |
-| developer-tool | minimal-typographic, feature-preview (code/CLI) | technical-detail, capability → evidence, comparison, FAQ | cinematic-product, parallax |
-| technical-platform | feature-preview, minimal-typographic | technical deep-dive, metric-story, comparison, section navigation | playful hovers |
-| editorial-product | editorial-split, minimal-typographic | editorial-sections, asymmetric editorial | card grids |
-| creative-portfolio | immersive-fullscreen, media-led | full-bleed media, case-study narrative | feature-grid, pricing tables |
-| marketplace | search-led (media-led variant) | high-density grid/list, filters, social-proof | cinematic storytelling |
-| travel-commerce | media-led with search object | gallery, comparison, reassurance (policies/reviews) | sticky-storytelling |
-| luxury | immersive-fullscreen, editorial-split | editorial-sections, full-bleed media | metric-story, dense grids |
-| consumer-tech | product-stage, interactive-product | feature → benefit, visual demonstration, testimonial | technical deep-dive-first |
+| premium-product | `layout.hero-product`, `layout.hero-cinematic` | sticky-storytelling, progressive product reveal, metric-story, technical-detail | feature-grid of equal cards |
+| modern-saas | `layout.hero-dashboard`, `layout.hero-split` | feature-alternating, feature-switcher, capability → evidence, social-proof | immersive-fullscreen |
+| developer-tool | `layout.hero-centered`, `layout.hero-dashboard` (code/CLI) | technical-detail, capability → evidence, comparison, FAQ | cinematic-product, parallax |
+| technical-platform | `layout.hero-dashboard`, `layout.hero-centered` | technical deep-dive, metric-story, comparison, section navigation | playful hovers |
+| editorial-product | `layout.hero-editorial`, `layout.hero-centered` | editorial-sections, asymmetric editorial | card grids |
+| creative-portfolio | `layout.hero-full-bleed`, `layout.hero-asymmetric` | full-bleed media, case-study narrative | feature-grid, pricing tables |
+| marketplace | `layout.hero-media-led` | high-density grid/list, filters, social-proof | cinematic storytelling |
+| travel-commerce | `layout.hero-media-led` | gallery, comparison, reassurance (policies/reviews) | sticky-storytelling |
+| luxury | `layout.hero-full-bleed`, `layout.hero-editorial` | editorial-sections, full-bleed media | metric-story, dense grids |
+| consumer-tech | `layout.hero-product`, `layout.hero-interactive` | feature → benefit, visual demonstration, testimonial | technical deep-dive-first |
 | data-heavy-product | (app — no hero) | high-density product composition | all landing patterns |
-| minimal-product | minimal-typographic | short feature list, single CTA | multi-section storytelling |
+| minimal-product | `layout.hero-centered` | short feature list, single CTA | multi-section storytelling |
 
 ## Anti-template rule
 
@@ -61,3 +61,5 @@ navbar → centered hero → 3 equal cards → 3 equal cards → testimonials �
 | `PATTERN_MISUSE` | Pattern chosen without its content requirement (sticky storytelling with one sentence; carousel hiding critical content; comparison slider without before/after pairs). |
 | `VISUAL_STORYTELLING_WEAK` | Sections are independent claims with no progression (problem→solution, claim→evidence); proof never follows claims. |
 | `GENERIC_TEMPLATE_COMPOSITION` | See above. |
+
+Hero, grid, storytelling and application layouts are structured catalog entries (`layout.*` ids; earlier names are kept as `aliases`). When a `CAPABILITY-PLAN.md` exists, start from its ranked layouts and record here only the mapping to locked blocks and any override.

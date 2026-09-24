@@ -1,0 +1,49 @@
+{
+  "profile": {
+    "id": "luxury-ecommerce",
+    "intent": "Online store for a luxury jewelry house.",
+    "domain": [
+      "luxury",
+      "fashion",
+      "ecommerce"
+    ],
+    "brand_attributes": [
+      "luxurious",
+      "exclusive",
+      "crafted",
+      "timeless",
+      "premium"
+    ],
+    "avoid_attributes": [
+      "loud",
+      "cluttered",
+      "flashy"
+    ],
+    "visual_intensity": 2,
+    "interaction_intensity": 2,
+    "density": "low",
+    "contexts": [
+      "commerce",
+      "marketing"
+    ],
+    "content": [
+      "brand-photography",
+      "listings",
+      "product-media"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.luxury",
+      "style.ecommerce-premium"
+    ],
+    "exclude_effects": [
+      "effect.glow",
+      "effect.particles"
+    ],
+    "forbid_tiers": [
+      "M5"
+    ],
+    "max_new_dependencies": 0
+  }
+}

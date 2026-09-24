@@ -1,0 +1,45 @@
+{
+  "profile": {
+    "id": "hardware-launch",
+    "intent": "Launch page for premium wireless headphones; cinematic; new animation libraries authorized.",
+    "domain": [
+      "hardware"
+    ],
+    "brand_attributes": [
+      "premium",
+      "cinematic",
+      "impressive",
+      "immersive"
+    ],
+    "avoid_attributes": [
+      "cluttered"
+    ],
+    "visual_intensity": 5,
+    "interaction_intensity": 3,
+    "density": "low",
+    "contexts": [
+      "marketing"
+    ],
+    "content": [
+      "product-media",
+      "3d-assets",
+      "video",
+      "illustrations"
+    ],
+    "allow_new_dependencies": true
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.cinematic",
+      "style.spatial"
+    ],
+    "require_tiers_any": [
+      "M5"
+    ],
+    "new_dependencies_subset": [
+      "tech.gsap",
+      "tech.threejs",
+      "tech.motion"
+    ]
+  }
+}

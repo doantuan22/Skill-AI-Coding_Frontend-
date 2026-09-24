@@ -16,6 +16,8 @@ Review a rendered representative route against the active grammar.
 | motion purpose | Does each motion have a purpose, and is intensity controlled within the budget with reduced-motion equivalents? | [motion-review](../motion/motion-review.md) codes |
 | references | Are reference influences transformed rather than copied (distance test)? | [anti-copying](../design-inspiration/anti-copying.md) |
 | memorability | Is the experience memorable without becoming decorative noise? | one signature moment identified; AI-tell density |
+| premium quality | Do hierarchy, consistency, feedback, continuity, detail, responsiveness, performance, accessibility and restraint hold together? | [premium quality model](../knowledge/composition/premium-quality-model.md); E65–E80 |
+| homogenization | Does the page fall back on the default tech look without reasons? | [anti-homogenization](../knowledge/composition/anti-homogenization.md); `HOMOGENIZED_DESIGN` |
 
 Log each defect with grammar rule, affected component, severity, proposed smallest fix and verification target in `VISUAL-REVIEW.md`.
 

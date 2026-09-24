@@ -5,6 +5,7 @@
 - Structure Lock version:
 - Based on Design Direction version:
 - Reference Analysis version (if any):
+- Capability Plan version (if any):
 
 Produced by [Design Inspiration Engine](../phase-2/design-inspiration/workflow.md). Small single-page work may record the `archetype` and `direction_lines` blocks inside `DESIGN-DIRECTION.md` instead.
 

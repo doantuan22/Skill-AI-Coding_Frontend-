@@ -46,3 +46,7 @@ do_not_copy: [product renders, exact headline copy, section order, brand typefac
 ## Multiple references
 
 Extract each, then find the **shared** traits. Traits appearing in only one reference are candidates for a scoped accent or are dropped. Apply the compatibility rules in [archetypes.md](archetypes.md#compatibility); never merge every reference's signature.
+
+## Mapping to the Design Knowledge System
+
+After extraction, name the closest catalog entries for each dimension: style ([styles](../knowledge/styles/README.md)), layout ([web-patterns](../web-patterns/README.md)), motion (tier and entry id), interaction ([interactions](../knowledge/interactions/README.md)) and effect ([effects](../knowledge/effects/README.md)). Record them in REFERENCE-ANALYSIS as "maps to" ids. An observation with no catalog match is described in words and may justify a new catalog entry (see [docs/design-knowledge-system.md](../../docs/design-knowledge-system.md)).

@@ -31,6 +31,21 @@ Load only references signalled by the selected pages and task: `typography`, `co
 | Editorial / docs / content | archetypes (editorial), typography (editorial/body/composition), `content/content-patterns.md`, navigation patterns | cinematic hero, sticky storytelling |
 | Marketplace / travel | archetypes (marketplace/travel-commerce), `content/` listing/detail, `interaction-patterns.md`, conversion | cinematic/luxury patterns |
 
+### Design Knowledge System
+
+| Trigger in task | Load | Never load for this trigger |
+|---|---|---|
+| New build, visual redesign, landing/product site, "make it premium/distinctive", benchmark tasks | [capability-resolver](capability-resolver/README.md) + `resolver.md`; then **only** the files in the plan's retrieval list ([retrieval.md](knowledge/retrieval.md)) and the composition anchor in `knowledge/composition/recipes.md` | whole catalog folders |
+| Style/"look" questions, generic or homogenized output | the resolved `knowledge/styles/` entries, `knowledge/composition/anti-homogenization.md`, `premium-quality-model.md` | unrelated style families |
+| Screen types (dashboard, settings, AI chat, kanban, …) | the matching `knowledge/screens/` entry (structure stays locked) | marketing hero/storytelling layouts |
+| Application shells or grids | `web-patterns/application/application-layouts.md` or `grid/grid-patterns.md` entries | cinematic layouts |
+| Motion tiers | `motion/motion-principles.md` (grammar) + only the needed tier file: M1 `microinteractions.md`, M2 `spatial-motion.md`, M3 `layout-motion.md`, M4 `scroll-motion.md`/`text-motion.md`, M5 `cinematic-motion.md`; `responsive-motion.md` for M3+ | M4/M5 for apps, dashboards, forms |
+| Interactions (drag, command palette, inline edit, gestures) | the matching `knowledge/interactions/` entry | pointer-play entries for productivity tools |
+| Visual effects (glass, glow, gradient, noise, shader…) | the matching `knowledge/effects/` entry + `05-frontend-implementation/performance-budget.md` | effects from a style's `avoid_effects` |
+| Advanced graphics (WebGL, Three.js, Rive, Lottie, canvas) | `05-frontend-implementation/technology-resolver.md` + `knowledge/graphics/techniques.md` + `knowledge/advanced-accessibility.md` | — |
+| Before implementation of any motion/effect/graphic | `technology-resolver.md`, `performance-budget.md` | new packages without authorization |
+| Design quality evaluation / benchmark | `evals/quality/README.md`, `scripts/analyze_design_quality.py`, `templates/DESIGN-QUALITY-REPORT.md` | — |
+
 Existing coherent typography/motion is classified `KEEP` before any of these modules proposes change.
 
 Router output records: task mode, selected inspiration/typography/motion/pattern modules (or `none`), project/page types, frontend stack, existing-system state (`none`/`keep`/`refine`/`replace`/`migrate`), lock version, selected artifact set, selected references, viewport targets, assumptions, and blockers.

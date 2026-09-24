@@ -27,3 +27,5 @@ Load `references/decision-prompts.md`, `principle-cards.md`, `anti-patterns.md`,
 | Important feedback, errors, permissions | `feedback-states.md` |
 
 If an artifact, lock, or requirement is ambiguous, enter `BLOCKED` rather than guessing. Router output should state task type, project size, selected artifacts, selected references, assumptions, and unresolved questions.
+
+For screen types without a Phase 1 reference (e.g., AI copilot, kanban, calendar, file browser), the `anatomy`, `hierarchy`, `primary_actions` and `states` fields of the [screen library](../phase-2/knowledge/screens/README.md) may be consulted read-only as a checklist. Phase 1 still decides and locks the structure.

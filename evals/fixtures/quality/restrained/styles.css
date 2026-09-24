@@ -1,0 +1,20 @@
+:root { --motion-fast: 120ms; --motion-normal: 240ms; --ease-out: cubic-bezier(0.2, 0, 0, 1); --radius: 6px; }
+body { font-family: "Inter", system-ui, sans-serif; }
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); text-wrap: balance; }
+.button { border-radius: var(--radius); transition: background-color 120ms cubic-bezier(0.2, 0, 0, 1), transform 120ms cubic-bezier(0.2, 0, 0, 1); }
+.button:hover { background-color: #1f2937; }
+.button:active { transform: scale(0.98); }
+.button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.button:disabled { opacity: 0.5; }
+.num { font-variant-numeric: tabular-nums; }
+.hero img { aspect-ratio: 16 / 9; }
+.steps { display: grid; grid-template-areas: "title list"; }
+@media (max-width: 720px) { .steps { grid-template-areas: "title" "list"; } }
+@media (hover: hover) and (pointer: fine) { .card:hover { transform: translateY(-2px); } }
+.card { border-radius: var(--radius); transition: transform 240ms cubic-bezier(0.2, 0, 0, 1); }
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal { opacity: 0; transform: translateY(12px); transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1), transform 240ms cubic-bezier(0.2, 0, 0, 1); }
+  .js .reveal.is-visible { opacity: 1; transform: none; }
+}
+@supports not (backdrop-filter: blur(1px)) { .toast { background: #111827; } }
+[aria-busy="true"] { cursor: progress; }

@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "id": "enterprise-analytics-dashboard",
+    "intent": "Enterprise analytics dashboard for operations managers.",
+    "domain": [
+      "enterprise",
+      "analytics"
+    ],
+    "brand_attributes": [
+      "trustworthy",
+      "efficient",
+      "serious",
+      "dense"
+    ],
+    "avoid_attributes": [
+      "flashy",
+      "playful"
+    ],
+    "visual_intensity": 1,
+    "interaction_intensity": 3,
+    "density": "high",
+    "contexts": [
+      "application"
+    ],
+    "screens": [
+      "screen.dashboard",
+      "screen.analytics",
+      "screen.data-table"
+    ],
+    "content": [
+      "data"
+    ]
+  },
+  "expect": {
+    "primary_style_any": [
+      "style.data-dense",
+      "style.enterprise-saas"
+    ],
+    "forbid_tiers": [
+      "M4",
+      "M5"
+    ],
+    "exclude_effects": [
+      "effect.glow",
+      "effect.glass",
+      "effect.particles",
+      "effect.shader",
+      "effect.mesh-gradient"
+    ],
+    "retrieval_excludes": [
+      "phase-2/motion/cinematic-motion.md",
+      "phase-2/motion/scroll-motion.md",
+      "phase-2/knowledge/graphics/techniques.md"
+    ],
+    "max_new_dependencies": 0
+  }
+}
