@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "mcp",
+  "status": "experimental",
+  "description": "Shared, stdlib-only MCP stdio transport. It exposes registered public UI/UX tools through uiux.api and contains no host-specific integration.",
+  "adapter_contract_version": 1,
+  "core_api": {"module": "uiux.api", "plugin_api_version": 1, "core_version": ">=0.1.0,<1.0.0"},
+  "manifest_version": [1],
+  "transports": ["mcp-stdio"],
+  "tools": {"exposure": "all-public", "tool_map": {}, "source": "uiux.api.list_tools", "invoke": "uiux.api.call_tool"},
+  "knowledge": {"exposure": "progressive", "access": ["retrieve_knowledge"], "rule": "Load SKILL.md first; retrieve knowledge by id or collection through retrieve_knowledge, never whole folders."},
+  "runtime": {"optional": true, "detection": "on-demand", "blocked_is_result": true, "installs_dependencies": false, "downloads_browsers": false},
+  "errors": {"error_contract_version": 1, "source": "uiux.api.error_contract", "envelope": ["status", "error", "error_code", "category", "remediation", "details"]},
+  "capability_discovery": {"capability_map": "uiux.api.capability_map", "self_test": "uiux.api.self_test"},
+  "protocol": {"version": "2025-06-18", "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call"]},
+  "limitations": ["Tools only: resources, prompts, sampling and HTTP/SSE transports are intentionally unsupported.", "No host-specific adapter is included."]
+}

@@ -28,6 +28,8 @@ The valid happy path is `INITIAL → ANALYZING → PHASE_1 → PHASE_1_REVIEW �
 - In Phase 2, load [phase-2/README.md](phase-2/README.md), the active `STRUCTURE-LOCK.md`, and [phase-2/router.md](phase-2/router.md). The router verifies inputs and selects only the relevant engine modules, artifacts, and references, including Visual Language only when visual behavior/craft is in scope.
 - For review, load the applicable file in [review/](review/) and the artifacts it names. For final review, also load [review/final-review.md](review/final-review.md).
 
+Executable tools (capability resolver, knowledge retrieval, technology resolver, quality analyzer, runtime runner, evals, validation) are listed in `uiux/core/tools.json` and run with `python scripts/uiux_cli.py call <tool-id>`; see [docs/plugin-architecture.md](docs/plugin-architecture.md).
+
 Do not load the entire skill directory by default. Detailed contracts are in [workflow/artifact-contract.md](workflow/artifact-contract.md); the architectural rationale is in [docs/architecture.md](docs/architecture.md).
 
 ## Global execution invariants

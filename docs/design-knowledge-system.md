@@ -43,9 +43,10 @@ Entries are fenced `yaml` blocks whose first key is `id`. Schemas, vocabularies 
 ```bash
 python scripts/knowledge_lib.py check     # parse, schema, vocabularies, references, index freshness
 python scripts/knowledge_lib.py index     # regenerate phase-2/knowledge/INDEX.md after edits
-python scripts/test_knowledge.py          # parser, coverage, PyYAML parity (if installed), resolver scenarios, diversity
-python scripts/test_quality_analyzer.py   # analyzer fixtures and runtime-probe merging
+python tests/test_knowledge.py            # parser, coverage, PyYAML parity (if installed), resolver scenarios, diversity
+python tests/test_quality_analyzer.py     # analyzer fixtures and runtime-probe merging
 python scripts/validate_skill.py          # whole-skill validation (includes the knowledge check)
+python -m unittest discover -s tests       # full test suite (any working directory: add -t <root>/tests)
 ```
 
 ## Retrieval

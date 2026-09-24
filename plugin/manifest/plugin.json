@@ -1,0 +1,79 @@
+{
+  "manifest_version": 1,
+  "name": "ui-ux-design",
+  "display_name": "UI/UX Design Skill",
+  "version": "0.1.0",
+  "description": "Two-phase web UI/UX workflow (structure lock, then design and frontend delivery) with a Design Knowledge System, capability and technology resolvers, a Playwright runtime runner and design quality evals.",
+  "license": "UNLICENSED",
+  "entrypoints": {
+    "skill": {"path": "SKILL.md", "type": "instructions", "description": "Workflow controller; agents start here."},
+    "knowledge": {"path": "phase-2/knowledge/README.md", "type": "instructions", "registry": "phase-2/knowledge/registry.json"},
+    "core_api": {"module": "uiux.api", "type": "python", "description": "Public, platform-neutral API"},
+    "cli": {"path": "scripts/uiux_cli.py", "type": "command", "usage": "python scripts/uiux_cli.py call <tool-id> --params '<json>'"},
+    "capability_resolver": {"tool": "resolve_capabilities"},
+    "technology_resolver": {"tool": "resolve_technology"},
+    "quality_analyzer": {"tool": "analyze_design_quality"},
+    "runtime_runner": {"tool": "run_runtime"},
+    "evals": {"tool": "run_evals"}
+  },
+  "capabilities": [
+    "ux-structure-workflow",
+    "structure-lock",
+    "design-direction-and-inspiration",
+    "typography-intelligence",
+    "design-knowledge-retrieval",
+    "capability-resolution",
+    "technology-resolution",
+    "design-quality-analysis",
+    "browser-runtime-evidence",
+    "accessibility-runtime",
+    "eval-execution"
+  ],
+  "capability_map": {"registry": "uiux/core/capabilities.json"},
+  "knowledge": {
+    "registry": "phase-2/knowledge/registry.json",
+    "index": "phase-2/knowledge/INDEX.md",
+    "collections": ["styles", "layouts", "screens", "motion", "interactions", "effects", "recipes", "graphics", "technologies", "components"]
+  },
+  "tools": {"registry": "uiux/core/tools.json"},
+  "evals": {
+    "scenarios": "evals/scenarios",
+    "suites": {"automated": ["structure", "knowledge", "resolver", "quality-fixtures"], "agent_run": ["E01-E80"]},
+    "entry_tool": "run_evals"
+  },
+  "runtime": {
+    "contracts": "execution/README.md",
+    "optional": true,
+    "states": ["NOT_DECLARED", "DECLARED_NOT_INSTALLED", "PACKAGE_AVAILABLE_BROWSER_MISSING", "READY"],
+    "policy": "Uses only the target project's own Playwright; never installs packages or downloads browsers; reports BLOCKED when not READY."
+  },
+  "configuration": {
+    "defaults": "uiux/core/defaults.json",
+    "override_file": "uiux.config.json",
+    "override_env": "UIUX_CONFIG",
+    "root_env": "UIUX_ROOT",
+    "path_policy": "all paths are relative to the package root"
+  },
+  "requirements": {
+    "python": ">=3.9",
+    "python_packages": [],
+    "tested_with": {"python": "3.11"}
+  },
+  "optional_dependencies": {
+    "node": {"used_for": ["run_runtime", "accessibility_scan"], "installed_by_skill": false},
+    "playwright": {"scope": "target project (package.json)", "used_for": ["run_runtime"], "installed_by_skill": false},
+    "@axe-core/playwright or axe-core": {"scope": "target project", "used_for": ["accessibility_scan"], "installed_by_skill": false},
+    "pyyaml": {"scope": "development", "used_for": ["optional parser parity test"], "installed_by_skill": false}
+  },
+  "compatibility": {
+    "platforms": ["platform-neutral"],
+    "adapters": {"generic": "skeleton", "mcp": "experimental", "claude-code": "experimental", "codex": "planned", "cline": "planned", "opencode": "planned", "copilot": "planned"},
+    "operating_systems": ["windows", "macos", "linux"],
+    "backward_compatible_cli": [
+      "scripts/validate_skill.py", "scripts/knowledge_lib.py", "scripts/resolve_capabilities.py",
+      "scripts/analyze_design_quality.py", "scripts/run_browser_execution.py", "scripts/detect_capabilities.py",
+      "scripts/run_accessibility_scan.py", "scripts/validate_runtime_evidence.py", "scripts/validate_accessibility_evidence.py"
+    ]
+  },
+  "packaging": {"rules": "plugin/packaging/package-rules.json", "status": "build and verification tooling available (plugin/packaging); no release published"}
+}

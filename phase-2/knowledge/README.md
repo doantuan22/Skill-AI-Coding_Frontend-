@@ -37,7 +37,7 @@ RUNTIME / VISUAL / INTERACTION EVALUATION   Browser runtime evidence · Accessib
 - [retrieval.md](retrieval.md): how to load only what a task needs.
 - [INDEX.md](INDEX.md): the generated id index (never edited by hand).
 
-Tools (standard library only): `scripts/knowledge_lib.py` (validate, index), `scripts/resolve_capabilities.py` (resolver), `scripts/test_knowledge.py` (schema, retrieval, resolver, diversity tests). Extension guide: [docs/design-knowledge-system.md](../../docs/design-knowledge-system.md).
+Tools (standard library only): `scripts/knowledge_lib.py` (validate, index), `scripts/resolve_capabilities.py` (resolver), `tests/test_knowledge.py` (schema, retrieval, resolver, diversity tests). Extension guide: [docs/design-knowledge-system.md](../../docs/design-knowledge-system.md).
 
 ## Principles
 

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "build-info.json: environment record of one build (published next to the artifact, not inside it)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "version",
+    "build_mode",
+    "release",
+    "source",
+    "source_date_epoch",
+    "content_sha256",
+    "archives",
+    "environment",
+    "tool"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$"
+    },
+    "build_mode": {
+      "enum": [
+        "release",
+        "dev"
+      ]
+    },
+    "release": {
+      "type": "boolean"
+    },
+    "source": {
+      "type": "object"
+    },
+    "source_date_epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 of PACKAGE-MANIFEST.json; identical for identical content on every OS"
+    },
+    "archives": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "file",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "python",
+        "platform",
+        "zlib"
+      ]
+    },
+    "tool": {
+      "type": "object",
+      "required": [
+        "name",
+        "archive_format_version"
+      ]
+    }
+  }
+}

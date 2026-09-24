@@ -35,4 +35,4 @@ Catalog entries flagged `default_tell: true` (styles: glassmorphism, bento, grad
 
 ## Diversity check across projects
 
-When the same agent designs several products, their compositions must differ in primary style, hero/section layout and signature effect. `scripts/test_knowledge.py` enforces this for the resolver scenario set: no two scenarios share the same style, layout and effect selection, and the bento + gradient + glass combination may appear in at most one scenario.
+When the same agent designs several products, their compositions must differ in primary style, hero/section layout and signature effect. `tests/test_knowledge.py` enforces this for the resolver scenario set: no two scenarios share the same style, layout and effect selection, and the bento + gradient + glass combination may appear in at most one scenario.

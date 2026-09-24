@@ -40,9 +40,9 @@ Use the profiles in `evals/resolver-scenarios/` as briefs (their `intent`, attri
 
 ## Readiness checklist
 
-- [x] Deterministic resolver with scenario tests and a diversity test (`scripts/test_knowledge.py`)
+- [x] Deterministic resolver with scenario tests and a diversity test (`tests/test_knowledge.py`)
 - [x] Quality evals E65–E80 with evidence, heuristics, limitations and false positives
-- [x] Static analyzer with discriminating fixtures (`scripts/test_quality_analyzer.py`)
+- [x] Static analyzer with discriminating fixtures (`tests/test_quality_analyzer.py`)
 - [x] Runner options for motion probes and reduced-motion captures (unit-tested; browser execution pending a project-local Playwright)
 - [ ] Starter project and briefs frozen for the benchmark run (to be created when the benchmark is scheduled)
 - [ ] Live runtime verification of `motion_probe` in an environment with project-local Playwright

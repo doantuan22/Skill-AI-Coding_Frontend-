@@ -35,4 +35,4 @@ User intent → product/domain → brand attributes (+ avoided attributes) → v
 
 ## Limits
 
-The resolver ranks catalog knowledge; it does not see the brand's visual assets, user research or competitors. Treat its output as a strong, explainable default, and record overrides. Scenario tests in `evals/resolver-scenarios/` pin its behavior (`python scripts/test_knowledge.py`).
+The resolver ranks catalog knowledge; it does not see the brand's visual assets, user research or competitors. Treat its output as a strong, explainable default, and record overrides. Scenario tests in `evals/resolver-scenarios/` pin its behavior (`python tests/test_knowledge.py`).

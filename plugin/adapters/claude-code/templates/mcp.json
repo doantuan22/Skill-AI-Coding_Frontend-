@@ -1,0 +1,7 @@
+{
+  "ui-ux-design-mcp": {
+    "command": "{python_command}",
+    "args": ["{mcp_server_path}"],
+    "env": {}
+  }
+}

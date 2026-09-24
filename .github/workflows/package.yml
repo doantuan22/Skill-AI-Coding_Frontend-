@@ -1,0 +1,55 @@
+# Release artifact build + verification on two operating systems, then a cross-OS reproducibility check (V14).
+# Builds never publish; a human creates the release from the uploaded artifacts.
+name: package
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build release artifact (clean checkout of the pushed commit)
+        run: python plugin/packaging/build.py --out out
+      - name: Verify extracted artifact (V1-V13, tests from the checkout)
+        run: python plugin/packaging/verify.py out/ui-ux-design-*.zip --require-release --tests tests
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.os }}
+          path: out/
+
+  reproducibility:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Compare content digests and checksums across operating systems (V14)
+        shell: bash
+        run: |
+          set -euo pipefail
+          lin=package-ubuntu-latest; win=package-windows-latest
+          # Content equality is required: identical PACKAGE-MANIFEST (every file hash) on both OSes.
+          diff $lin/*.package-manifest.json $win/*.package-manifest.json
+          # Archive bytes are identical when both runners use the same zlib implementation; report either way.
+          if diff $lin/SHA256SUMS $win/SHA256SUMS; then echo "archives byte-identical across OSes"; \
+          else echo "::warning::archive bytes differ (compression library differs); content digest is identical"; fi

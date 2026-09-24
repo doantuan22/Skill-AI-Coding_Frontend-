@@ -27,4 +27,4 @@ Requirement → Capability Resolver → selected categories → candidate entrie
 
 ## Verification
 
-`scripts/test_knowledge.py` asserts that the resolver's retrieval list for an enterprise dashboard contains no cinematic, scroll or graphics files, and that every retrieval list contains only existing files.
+`tests/test_knowledge.py` asserts that the resolver's retrieval list for an enterprise dashboard contains no cinematic, scroll or graphics files, and that every retrieval list contains only existing files.

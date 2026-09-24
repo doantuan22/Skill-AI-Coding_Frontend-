@@ -1,0 +1,39 @@
+# Continuous integration: the full test suite, validation and evals on Windows, Linux and macOS.
+# No Node.js/Playwright is installed: this also proves the runtime dependency is optional.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit tests
+        run: python -m unittest discover -s tests -t tests
+      - name: Skill validation
+        run: python scripts/validate_skill.py
+      - name: Knowledge catalogs and registry
+        run: python scripts/knowledge_lib.py check
+      - name: Packaging boundary
+        run: python plugin/packaging/package_files.py
+      - name: Automated evals
+        run: python scripts/uiux_cli.py call run_evals

@@ -13,7 +13,10 @@ SKILL.md (entry point and controller)
 ├─ templates/ (artifact shapes and hardening records)
 ├─ evals/ (agent-agnostic evaluation framework and fixtures)
 ├─ execution/ (capability-driven rendered UI verification contracts)
-└─ scripts/ (dependency-free structural validation)
+├─ uiux/ (platform-neutral Python core: core foundation, knowledge, engine, runtime, evals, tooling, Core API)
+├─ scripts/ (backward-compatible CLIs + unified CLI scripts/uiux_cli.py)
+├─ plugin/ (plugin layer: manifest, adapters, packaging boundary; the core never depends on it)
+└─ tests/ (standard-library test suite; not packaged)
 ```
 
 `SKILL.md` remains a router. Each operational state loads only the relevant file(s), which keeps context narrow and makes future specialization additive. `workflow/` is the source of truth for lifecycle behavior; phase folders define responsibilities without embedding specialist methods; review files define gates; templates carry stable handoff metadata.
@@ -31,3 +34,5 @@ The execution layer is selected only for rendered UI work when capability warran
 Browser runtime evidence may feed the accessibility runtime: local axe scan evidence plus manual review flows through the Accessibility Gate before Final Quality Gate. It reuses execution session/server/viewport contracts and does not create a second browser lifecycle. See [docs/accessibility-runtime.md](accessibility-runtime.md).
 
 The Design Knowledge System adds a knowledge layer (structured, schema-validated catalogs), a reasoning bridge (Capability Resolver), implementation intelligence (technology resolver, performance budget) and outcome evaluation (E65–E80 with a static analyzer and optional runtime motion probes). See [design-knowledge-system.md](design-knowledge-system.md).
+
+The repository is plugin-ready: a layered `uiux` package exposes a public Core API, knowledge and tool registries, and portable resource discovery and configuration, while `plugin/` holds only integration metadata. See [plugin-architecture.md](plugin-architecture.md).

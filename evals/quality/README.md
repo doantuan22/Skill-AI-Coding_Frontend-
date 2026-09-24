@@ -45,4 +45,4 @@ Statuses: `PASS`, `WARN`, `FAIL`, `NEEDS_REVIEW` (judgment required) and `NEEDS_
 
 ## Validation
 
-`scripts/test_quality_analyzer.py` checks that the analyzer marks the `overanimated` fixture as non-passing on E66, E67, E68, E69, E72, E77 and E79, and gives the `restrained` fixture passing or review statuses.
+`tests/test_quality_analyzer.py` checks that the analyzer marks the `overanimated` fixture as non-passing on E66, E67, E68, E69, E72, E77 and E79, and gives the `restrained` fixture passing or review statuses.

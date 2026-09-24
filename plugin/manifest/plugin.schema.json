@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UI/UX design skill plugin manifest (platform-neutral)",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "name",
+    "version",
+    "description",
+    "entrypoints",
+    "capabilities",
+    "capability_map",
+    "knowledge",
+    "tools",
+    "evals",
+    "runtime",
+    "requirements",
+    "optional_dependencies",
+    "compatibility"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entrypoints": {
+      "type": "object",
+      "required": [
+        "skill",
+        "knowledge",
+        "core_api",
+        "capability_resolver",
+        "technology_resolver",
+        "quality_analyzer",
+        "runtime_runner",
+        "evals"
+      ],
+      "properties": {
+        "skill": {
+          "type": "object",
+          "required": [
+            "path",
+            "type"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^/\\\\:][^:]*$"
+            },
+            "type": {
+              "const": "instructions"
+            }
+          }
+        },
+        "knowledge": {
+          "type": "object",
+          "required": [
+            "path",
+            "registry"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^/\\\\:][^:]*$"
+            },
+            "registry": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^/\\\\:][^:]*$"
+            }
+          }
+        },
+        "core_api": {
+          "type": "object",
+          "required": [
+            "module"
+          ],
+          "properties": {
+            "module": {
+              "const": "uiux.api"
+            }
+          }
+        },
+        "cli": {
+          "type": "object",
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^/\\\\:][^:]*$"
+            }
+          }
+        },
+        "capability_resolver": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "properties": {
+            "tool": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "technology_resolver": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "properties": {
+            "tool": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "quality_analyzer": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "properties": {
+            "tool": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "runtime_runner": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "properties": {
+            "tool": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "evals": {
+          "type": "object",
+          "required": [
+            "tool"
+          ],
+          "properties": {
+            "tool": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$"
+      }
+    },
+    "capability_map": {
+      "type": "object",
+      "required": [
+        "registry"
+      ],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "const": "uiux/core/capabilities.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "required": [
+        "registry",
+        "collections"
+      ],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        },
+        "index": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        },
+        "collections": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "required": [
+        "registry"
+      ],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        }
+      }
+    },
+    "evals": {
+      "type": "object",
+      "required": [
+        "scenarios",
+        "entry_tool"
+      ],
+      "properties": {
+        "scenarios": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        },
+        "entry_tool": {
+          "type": "string"
+        },
+        "suites": {
+          "type": "object"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "optional",
+        "states",
+        "policy"
+      ],
+      "properties": {
+        "contracts": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        },
+        "optional": {
+          "const": true
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "NOT_DECLARED",
+              "DECLARED_NOT_INSTALLED",
+              "PACKAGE_AVAILABLE_BROWSER_MISSING",
+              "READY"
+            ]
+          }
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "configuration": {
+      "type": "object"
+    },
+    "requirements": {
+      "type": "object",
+      "required": [
+        "python"
+      ],
+      "properties": {
+        "python": {
+          "type": "string",
+          "pattern": "^>=\\d+\\.\\d+$"
+        },
+        "python_packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "optional_dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "installed_by_skill"
+        ],
+        "properties": {
+          "installed_by_skill": {
+            "const": false
+          }
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "required": [
+        "platforms",
+        "adapters"
+      ],
+      "properties": {
+        "platforms": {
+          "type": "array",
+          "minItems": 1
+        },
+        "adapters": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "planned",
+              "skeleton",
+              "experimental",
+              "supported"
+            ]
+          }
+        },
+        "backward_compatible_cli": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^/\\\\:][^:]*$"
+          }
+        }
+      }
+    },
+    "packaging": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\:][^:]*$"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

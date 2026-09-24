@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "description": "Architecture layers. 'paths' classify repository files (first match wins, POSIX globs relative to the package root); 'imports' are the allowed dependencies between Python modules (enforced by tests/test_architecture.py). Nothing in a lower layer may import a higher one, and no core module may import the plugin layer.",
+  "layers": [
+    {"id": "plugin", "title": "Plugin Layer", "package": true, "paths": ["plugin/**"]},
+    {"id": "core-api", "title": "Core API", "package": true, "paths": ["uiux/api.py", "uiux/cli.py", "uiux/__main__.py", "uiux/__init__.py"]},
+    {"id": "core-foundation", "title": "Core foundation (resources, config, registries)", "package": true, "paths": ["uiux/core/**", "VERSION"]},
+    {"id": "knowledge", "title": "Knowledge Layer", "package": true,
+     "paths": ["uiux/knowledge/**", "phase-2/knowledge/**", "phase-2/motion/**", "phase-2/web-patterns/**", "phase-2/visual-language/components/**"]},
+    {"id": "engine", "title": "Design Engine", "package": true,
+     "paths": ["uiux/engine/**", "phase-2/capability-resolver/**", "phase-2/05-frontend-implementation/technology-resolver.md", "phase-2/05-frontend-implementation/performance-budget.md"]},
+    {"id": "runtime", "title": "Runtime Engine", "package": true, "paths": ["uiux/runtime/**", "execution/**"]},
+    {"id": "evals", "title": "Evaluation", "package": true, "paths": ["uiux/evals/**", "evals/**"]},
+    {"id": "tooling", "title": "Tooling", "package": true, "paths": ["uiux/tooling/**", "scripts/**"]},
+    {"id": "core-skill", "title": "Core Skill (workflow, reasoning, contracts, templates)", "package": true,
+     "paths": ["SKILL.md", "workflow/**", "phase-1/**", "phase-2/**", "review/**", "templates/**"]},
+    {"id": "docs", "title": "Documentation", "package": true, "paths": ["docs/**", "CHANGELOG.md", "README.md"]},
+    {"id": "tests", "title": "Tests", "package": false, "paths": ["tests/**"]},
+    {"id": "development", "title": "Development-only research, CI and repository metadata", "package": false,
+     "paths": ["external-references/**", ".github/**", ".gitignore", ".gitattributes", "uiux.config.json"]},
+    {"id": "artifact-metadata", "title": "Metadata generated into built artifacts (never in the source tree)", "package": false,
+     "paths": ["PACKAGE-MANIFEST.json"]}
+  ],
+  "imports": {
+    "uiux.core": [],
+    "uiux.knowledge": ["uiux.core"],
+    "uiux.engine": ["uiux.core", "uiux.knowledge"],
+    "uiux.runtime": ["uiux.core", "uiux.knowledge"],
+    "uiux.tooling": ["uiux.core", "uiux.knowledge"],
+    "uiux.evals": ["uiux.core", "uiux.knowledge", "uiux.engine", "uiux.runtime", "uiux.tooling"],
+    "uiux.api": ["uiux", "uiux.core", "uiux.knowledge", "uiux.engine", "uiux.runtime", "uiux.tooling", "uiux.evals"],
+    "uiux.cli": ["uiux", "uiux.api", "uiux.core"],
+    "uiux.__main__": ["uiux.cli"],
+    "plugin": ["uiux", "uiux.api"]
+  },
+  "internal_modules": [
+    "uiux.knowledge.catalog", "uiux.core.registry", "uiux.runtime.evidence", "uiux.runtime.probes", "uiux.tooling.validate",
+    "uiux.engine.retrieval"
+  ]
+}

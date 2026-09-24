@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "error_contract_version": 1,
+  "description": "Single source of error codes and categories (spec §13, error_contract_version 1). Error envelope: {status, error, error_code, category, remediation[, details]}; status/error keep their 0.x meaning. Every category except 'internal' keeps the 0.x CLI behaviour status INVALID_CALL / exit 3; 'internal' is status ERROR / exit 1 (an uncaught exception also exited 1 before). scope: 'envelope' = raised as an error; 'result' = reported inside a BLOCKED/INVALID tool result; 'runtime-report' = written to runtime evidence reports (execution/runtime/runtime-errors.md).",
+  "categories": {
+    "validation": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "The call itself is malformed: unknown tool, missing/unexpected/mistyped arguments, invalid values."
+    },
+    "configuration": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "Caller-supplied configuration (UIUX_CONFIG, uiux.config.json, overrides) is invalid or asks for something unsupported."
+    },
+    "unsupported": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "The operation is valid in general but not supported by this package/adapter."
+    },
+    "package": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "The installed package is incomplete or inconsistent (manifest, version, package root)."
+    },
+    "registry": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "A registry (tools, knowledge, layers, capabilities, errors) is missing, unreadable or corrupt."
+    },
+    "runtime": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "The optional runtime could not execute (server, readiness, capture), or a filesystem operation failed."
+    },
+    "dependency": {
+      "status": "INVALID_CALL",
+      "exit_code": 3,
+      "description": "An optional runtime dependency of the target project is absent (never installed by the skill). Reported inside BLOCKED results; runtime_state tells declared-vs-installed apart."
+    },
+    "internal": {
+      "status": "ERROR",
+      "exit_code": 1,
+      "description": "Unexpected failure inside the skill. No traceback in public output; set UIUX_DEBUG=1 to print it to stderr."
+    }
+  },
+  "codes": {
+    "UNKNOWN_TOOL": {
+      "category": "validation",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Call `list_tools` (CLI: `uiux_cli.py tools`) and use a registered tool id."
+    },
+    "MISSING_REQUIRED_ARGUMENT": {
+      "category": "validation",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Provide every argument listed in the tool's input.required."
+    },
+    "UNEXPECTED_ARGUMENT": {
+      "category": "validation",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Remove arguments that are not declared in the tool's input.properties."
+    },
+    "INVALID_ARGUMENT_TYPE": {
+      "category": "validation",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Pass a value of the JSON type declared in the tool's input schema."
+    },
+    "INVALID_ARGUMENT": {
+      "category": "validation",
+      "scope": [
+        "envelope",
+        "result"
+      ],
+      "remediation": "Use a value allowed by the tool's input schema and documentation (enum, range, vocabulary, existing path or id)."
+    },
+    "CONFIG_INVALID": {
+      "category": "configuration",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Fix the configuration file: package-relative paths without '..', valid types, schema_version 1."
+    },
+    "CONFIG_UNSUPPORTED": {
+      "category": "configuration",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Remove the unsupported setting (e.g. dependency_policy.auto_install cannot be enabled)."
+    },
+    "UNSUPPORTED_OPERATION": {
+      "category": "unsupported",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Use an operation listed by the adapter or the capability map."
+    },
+    "PACKAGE_ROOT_NOT_FOUND": {
+      "category": "package",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Run from an intact package or set UIUX_ROOT to a directory containing SKILL.md."
+    },
+    "MANIFEST_INVALID": {
+      "category": "package",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Reinstall the package; the plugin manifest does not match plugin/manifest/plugin.schema.json."
+    },
+    "VERSION_MISMATCH": {
+      "category": "package",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Use matching components: VERSION, plugin manifest, CHANGELOG and adapter core_version must agree."
+    },
+    "REGISTRY_INVALID": {
+      "category": "registry",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Reinstall the package or, in a source checkout, regenerate with `python scripts/knowledge_lib.py index`."
+    },
+    "FILESYSTEM_ERROR": {
+      "category": "runtime",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Check that the given paths exist and are readable/writable by the current user."
+    },
+    "PLAYWRIGHT_IMPORT_FAILURE": {
+      "category": "dependency",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Declare and install Playwright in the target project yourself (e.g. npm i -D @playwright/test) and make Node available; the skill never installs it."
+    },
+    "PLAYWRIGHT_BROWSER_UNAVAILABLE": {
+      "category": "dependency",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Install a Playwright browser build yourself (e.g. npx playwright install chromium); the skill never downloads browsers."
+    },
+    "AXE_NOT_AVAILABLE": {
+      "category": "dependency",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Add @axe-core/playwright or axe-core to the target project yourself; the skill never installs it."
+    },
+    "SERVER_START_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Start the application yourself, or pass allow_start with an explicit argv start.command."
+    },
+    "READINESS_TIMEOUT": {
+      "category": "runtime",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Make sure base_url responds before the readiness timeout."
+    },
+    "BROWSER_LAUNCH_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "Check the Playwright installation and browser build of the target project."
+    },
+    "NAVIGATION_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "Check the route, expected_selector and expected_text of the request."
+    },
+    "BLANK_RENDER": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "The page rendered no content; check the application and authentication."
+    },
+    "SCREENSHOT_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "Retry the capture; check timeouts and page stability."
+    },
+    "PARTIAL_EXECUTION": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "Some captures failed; re-run only the failed routes/viewports."
+    },
+    "RUNTIME_RUNNER_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "Unexpected runner failure; inspect execution-report.json."
+    },
+    "ACCESSIBILITY_SCAN_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "The axe scan failed for a route/viewport; inspect accessibility-manifest.json."
+    },
+    "AXE_RUNTIME_FAILURE": {
+      "category": "runtime",
+      "scope": [
+        "runtime-report"
+      ],
+      "remediation": "The axe helper failed; check Node, Playwright and axe in the target project."
+    },
+    "INTERNAL_ERROR": {
+      "category": "internal",
+      "scope": [
+        "envelope"
+      ],
+      "remediation": "Report the issue; re-run with UIUX_DEBUG=1 to print the traceback to stderr."
+    }
+  }
+}

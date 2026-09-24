@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "description": "Expected analyzer statuses for the quality fixtures without runtime evidence (visual intensity 3).",
+  "fixtures": {
+    "overanimated": {
+      "must_equal": {"E66": "FAIL", "E67": "FAIL", "E68": "FAIL", "E69": "FAIL", "E72": "FAIL", "E77": "FAIL", "E79": "FAIL"},
+      "must_be_one_of": {"E76": ["FAIL", "WARN"]}
+    },
+    "restrained": {
+      "must_equal": {"E65": "PASS", "E66": "PASS", "E67": "PASS", "E69": "PASS", "E72": "PASS", "E74": "PASS", "E76": "PASS",
+                     "E68": "NEEDS_RUNTIME", "E78": "NEEDS_RUNTIME"},
+      "never": ["FAIL"]
+    }
+  }
+}

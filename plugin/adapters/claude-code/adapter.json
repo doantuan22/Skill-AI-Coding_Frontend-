@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "claude-code",
+  "status": "experimental",
+  "description": "Claude Code plugin adapter. Bundles the platform-neutral UI/UX Skill as a Claude Code plugin with MCP tool exposure through the shared stdio transport. Contains no design, knowledge, eval or runtime logic.",
+  "adapter_contract_version": 1,
+  "core_api": {
+    "module": "uiux.api",
+    "plugin_api_version": 1,
+    "core_version": ">=0.1.0,<1.0.0"
+  },
+  "manifest_version": [1],
+  "transports": ["mcp-stdio"],
+  "host": {
+    "name": "Claude Code",
+    "docs_checked": "2026-09-25"
+  },
+  "tools": {
+    "exposure": "all-public",
+    "tool_map": {},
+    "source": "uiux.api.list_tools",
+    "invoke": "uiux.api.call_tool"
+  },
+  "knowledge": {
+    "exposure": "progressive",
+    "access": ["retrieve_knowledge"],
+    "rule": "Load SKILL.md first; retrieve knowledge by id or collection through retrieve_knowledge, never whole folders."
+  },
+  "runtime": {
+    "optional": true,
+    "detection": "on-demand",
+    "blocked_is_result": true,
+    "installs_dependencies": false,
+    "downloads_browsers": false
+  },
+  "errors": {
+    "error_contract_version": 1,
+    "source": "uiux.api.error_contract",
+    "envelope": ["status", "error", "error_code", "category", "remediation", "details"]
+  },
+  "capability_discovery": {
+    "capability_map": "uiux.api.capability_map",
+    "self_test": "uiux.api.self_test"
+  },
+  "rendered_files": [
+    {"template": "templates/claude-plugin.json", "target": ".claude-plugin/plugin.json"},
+    {"template": "templates/mcp.json", "target": ".mcp.json"}
+  ],
+  "bundle_layout": {
+    "payload_dir": ".",
+    "skill_at_root": true,
+    "note": "The full generic package is the plugin root; SKILL.md and all relative links stay unchanged."
+  },
+  "limitations": [
+    "Claude Code live host test has not been executed; structural and subprocess verification only.",
+    "No min_version for Claude Code is declared: the plugin structure has been verified against docs as of 2026-09-25 but not against a pinned host release.",
+    "Python 3 must be available on PATH; the plugin does not bundle or install a Python runtime."
+  ]
+}
