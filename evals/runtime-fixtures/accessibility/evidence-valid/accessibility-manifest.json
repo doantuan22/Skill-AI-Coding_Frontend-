@@ -1,0 +1,1 @@
+{"schema_version":1,"session_id":"a11y-fixture","iteration":1,"status":"COMPLETED","scans":[{"id":"PAGE-HOME:mobile:1","page_id":"PAGE-HOME","route":"/","viewport":"mobile","width":375,"height":812,"iteration":1,"status":"SCANNED","file":"PAGE-HOME__mobile__iter-01__axe.json","violations":0,"incomplete":0}],"errors":[]}

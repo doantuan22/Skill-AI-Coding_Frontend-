@@ -1,0 +1,1 @@
+{"schema_version":1,"session_id":"fixture-valid","strategy":"playwright","base_url":"http://127.0.0.1:4173","iteration":1,"status":"COMPLETED","captures":[{"id":"PAGE-HOME:mobile:1","page_id":"PAGE-HOME","route":"/","viewport":"mobile","width":375,"height":812,"iteration":1,"status":"CAPTURED","file":"pages/PAGE-HOME__mobile__iter-01.png"}]}
