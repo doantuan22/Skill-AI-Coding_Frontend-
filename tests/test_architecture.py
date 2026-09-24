@@ -109,6 +109,8 @@ class PortabilityTests(unittest.TestCase):
         allowed_files = {"uiux/core/resources.py", "uiux/__init__.py", "scripts/_bootstrap.py",
                          "plugin/adapters/generic/adapter.py", "plugin/adapters/mcp/server.py",
                          "plugin/adapters/claude-code/export.py", "plugin/adapters/claude-code/verify.py",
+                         "plugin/adapters/codex/export.py", "plugin/adapters/codex/verify.py",
+                         "plugin/adapters/common/bundle.py",
                          "plugin/packaging/package_files.py"}
         pattern = re.compile(r"__file__\)\.resolve\(\)\.parents\[")
         for path in [*(ROOT / "uiux").rglob("*.py"), *(ROOT / "scripts").glob("*.py"), *(ROOT / "plugin").rglob("*.py")]:

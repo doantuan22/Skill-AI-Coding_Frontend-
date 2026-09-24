@@ -494,7 +494,7 @@ def verify(archive: Path | None = None, installed: Path | None = None, require_r
             outcome("V9", check_compat_scripts(v, root))
             if (root / "plugin/adapters/generic/adapter.py").is_file():
                 outcome("V10", check_generic_adapter(v, root) + check_mcp_transport(v, root),
-                        "generic adapter, shared MCP stdio transport, and claude-code adapter templates")
+                        "generic adapter, shared MCP stdio transport, and host adapter templates (claude-code, codex)")
             else:
                 record("V10", "NOT_APPLICABLE", "artifact has no plugin/ adapters")
             problems, mode = check_readonly(v, root)

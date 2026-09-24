@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ui-ux-design",
+  "version": "{version}",
+  "description": "UI/UX Design Skill for AI coding agents",
+  "type": "agent-plugin",
+  "skills": {
+    "ui-ux-workflow": {
+      "path": "skills/ui-ux-workflow/SKILL.md",
+      "description": "Guides the agent to design and implement premium UI/UX workflows"
+    }
+  },
+  "mcp": {
+    "config": "mcp.json"
+  }
+}

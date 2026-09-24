@@ -67,7 +67,7 @@
   },
   "compatibility": {
     "platforms": ["platform-neutral"],
-    "adapters": {"generic": "skeleton", "mcp": "experimental", "claude-code": "experimental", "codex": "planned", "cline": "planned", "opencode": "planned", "copilot": "planned"},
+    "adapters": {"generic": "skeleton", "mcp": "experimental", "claude-code": "experimental", "codex": "experimental", "cline": "planned", "opencode": "planned", "copilot": "planned"},
     "operating_systems": ["windows", "macos", "linux"],
     "backward_compatible_cli": [
       "scripts/validate_skill.py", "scripts/knowledge_lib.py", "scripts/resolve_capabilities.py",

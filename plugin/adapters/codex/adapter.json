@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "codex",
+  "status": "experimental",
+  "description": "Local Codex adapter (Agent Plugins format). Bundles the platform-neutral UI/UX Skill as a Codex/OpenAI Agent Plugin with MCP tool exposure through the shared stdio transport.",
+  "adapter_contract_version": 1,
+  "core_api": {
+    "module": "uiux.api",
+    "plugin_api_version": 1,
+    "core_version": ">=0.1.0,<1.0.0"
+  },
+  "manifest_version": [1],
+  "transports": ["mcp-stdio"],
+  "host": {
+    "name": "OpenAI Codex",
+    "docs_checked": "2026-09-25"
+  },
+  "tools": {
+    "exposure": "all-public",
+    "tool_map": {},
+    "source": "uiux.api.list_tools",
+    "invoke": "uiux.api.call_tool"
+  },
+  "knowledge": {
+    "exposure": "progressive",
+    "access": ["retrieve_knowledge"],
+    "rule": "Load SKILL.md first; retrieve knowledge by id or collection through retrieve_knowledge, never whole folders."
+  },
+  "runtime": {
+    "optional": true,
+    "detection": "on-demand",
+    "blocked_is_result": true,
+    "installs_dependencies": false,
+    "downloads_browsers": false
+  },
+  "errors": {
+    "error_contract_version": 1,
+    "source": "uiux.api.error_contract",
+    "envelope": ["status", "error", "error_code", "category", "remediation", "details"]
+  },
+  "capability_discovery": {
+    "capability_map": "uiux.api.capability_map",
+    "self_test": "uiux.api.self_test"
+  },
+  "rendered_files": [
+    {"template": "templates/plugin.json", "target": "plugin.json"},
+    {"template": "templates/mcp.json", "target": "mcp.json"},
+    {"template": "SKILL.md", "target": "skills/ui-ux-workflow/SKILL.md"}
+  ],
+  "bundle_layout": {
+    "payload_dir": ".",
+    "skill_at_root": true,
+    "note": "The full generic package is the plugin root; SKILL.md is copied to skills/ui-ux-workflow/SKILL.md."
+  },
+  "limitations": [
+    "Requires local Python environment to run the shared MCP server.",
+    "Not yet tested for public OpenAI Plugin distribution (local workspace testing only)."
+  ]
+}
