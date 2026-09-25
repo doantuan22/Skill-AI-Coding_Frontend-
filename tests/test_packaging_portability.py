@@ -97,7 +97,7 @@ class SourceHygieneTests(unittest.TestCase):
                 self.assertIn("ubuntu-latest", text)
 
     def test_rules_are_the_single_packaging_contract(self) -> None:
-        rules = json.loads((S.ROOT / "plugin/packaging/package-rules.json").read_text(encoding="utf-8"))
+        rules = json.loads((S.ROOT / "packaging/package-rules.json").read_text(encoding="utf-8"))
         for key in ("exclude_layers", "exclude_dirs", "exclude_globs", "must_include", "must_exclude_prefixes", "artifact"):
             self.assertIn(key, rules)
         for path in PACKAGING_FILES:

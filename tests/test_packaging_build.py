@@ -51,7 +51,7 @@ class ReleaseBuildTests(unittest.TestCase):
 
     def test_version_and_identity_propagate(self) -> None:
         manifest = json.loads((self.out_a / f"{self.base}.package-manifest.json").read_text(encoding="utf-8"))
-        plugin = json.loads((self.repo / "plugin/manifest/plugin.json").read_text(encoding="utf-8"))
+        plugin = json.loads((self.repo / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["version"], self.version)
         self.assertEqual(manifest["name"], "ui-ux-design")
         self.assertEqual(manifest["skill_name"], "ui-ux-workflow")
@@ -149,19 +149,19 @@ class ProtectionTests(unittest.TestCase):
 
     def test_modified_tracked_file_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-modified")
-        (repo / "SKILL.md").write_text((repo / "SKILL.md").read_text(encoding="utf-8") + "\nlocal edit\n", encoding="utf-8")
+        (repo / "plugins" / "ui-engineering" / "SKILL.md").write_text((repo / "plugins" / "ui-engineering" / "SKILL.md").read_text(encoding="utf-8") + "\nlocal edit\n", encoding="utf-8")
         error = self.build_error(repo)
         self.assertEqual(error["code"], "DIRTY_TREE")
         self.assertEqual(error["details"]["hint"], "COMMIT_REQUIRED_BEFORE_RELEASE_BUILD")
 
     def test_untracked_file_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-untracked")
-        (repo / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
+        (repo / "development" / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
         self.assertEqual(self.build_error(repo)["code"], "DIRTY_TREE")
 
     def test_dev_build_of_dirty_tree_is_explicit_and_marked(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-dev")
-        (repo / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
+        (repo / "development" / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
         out = self.base / "out-dev"
         code, result = S.run_build(repo, out, "--dev")
         self.assertEqual(code, 0, result)
@@ -177,8 +177,8 @@ class ProtectionTests(unittest.TestCase):
     def test_not_a_git_repository(self) -> None:
         plain = self.base / "plain"
         plain.mkdir()
-        (plain / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
-        for rel in ("plugin/packaging/package-rules.json",):
+        (plain / "plugins" / "ui-engineering" / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
+        for rel in ("packaging/package-rules.json",):
             (plain / rel).parent.mkdir(parents=True, exist_ok=True)
             (plain / rel).write_bytes((self.repo / rel).read_bytes())
         self.assertIn(self.build_error(plain)["code"], {"NOT_A_GIT_REPOSITORY", "NOT_REPOSITORY_ROOT"})
@@ -192,29 +192,29 @@ class ProtectionTests(unittest.TestCase):
     def test_missing_changelog_section_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "changelog")
         (repo / "VERSION").write_text("9.9.9\n", encoding="utf-8")
-        manifest = json.loads((repo / "plugin/manifest/plugin.json").read_text(encoding="utf-8"))
+        manifest = json.loads((repo / "plugin.json").read_text(encoding="utf-8"))
         manifest["version"] = "9.9.9"
-        (repo / "plugin/manifest/plugin.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        (repo / "plugin.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
         S.commit_all(repo)
         self.assertEqual(self.build_error(repo)["code"], "CHANGELOG_MISSING")
 
     def test_stale_knowledge_registry_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "stale-registry")
-        path = repo / "phase-2/knowledge/registry.json"
+        path = repo / "plugins/ui-engineering/knowledge/domains/registry.json"
         path.write_text(path.read_text(encoding="utf-8").replace('"styles"', '"styles "', 1), encoding="utf-8")
         S.commit_all(repo)
         self.assertEqual(self.build_error(repo)["code"], "REGISTRY_STALE")
 
     def test_crlf_working_tree_produces_the_same_content_as_the_release(self) -> None:
         repo = S.clone(self.repo, self.base, "crlf")
-        target = repo / "phase-2/README.md"
+        target = repo / "plugins/ui-engineering/SKILL.md"
         target.write_bytes(target.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
         code_dev, dev = S.run_build(repo, self.base / "out-crlf-dev", "--dev")
         code_rel, rel = S.run_build(self.repo, self.base / "out-crlf-rel")
         self.assertEqual((code_dev, code_rel), (0, 0), (dev, rel))
         def files(result: dict) -> dict:
             return {f["path"]: f["sha256"] for f in json.loads(Path(result["package_manifest"]).read_text(encoding="utf-8"))["files"]}
-        self.assertEqual(files(dev)["phase-2/README.md"], files(rel)["phase-2/README.md"])
+        self.assertEqual(files(dev)["SKILL.md"], files(rel)["SKILL.md"])
         png = "evals/runtime-fixtures/evidence-valid/pages/PAGE-HOME__mobile__iter-01.png"
         self.assertEqual(files(dev)[png], artifact.sha256_file(repo / png), "binary files must not be transformed")
 

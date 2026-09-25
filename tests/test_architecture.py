@@ -77,7 +77,7 @@ class ImportDirectionTests(unittest.TestCase):
                 self.assertNotRegex(text, r"(?m)^\s*(from|import)\s+plugin\b", "core imports plugin")
                 if path.name not in conditional_checker:
                     self.assertNotIn("plugin/manifest", text)
-                    self.assertNotIn("plugin/adapters", text)
+                    self.assertNotIn("adapters", text)
 
     def test_adapters_use_only_the_public_api(self) -> None:
         for path in sorted((ROOT / "plugin").rglob("*.py")):
@@ -86,7 +86,7 @@ class ImportDirectionTests(unittest.TestCase):
                     self.assertIn(target, {"uiux", "uiux.api", "uiux.__version__"})
 
     def test_mcp_transport_has_no_dynamic_execution_or_internal_api_bypass(self) -> None:
-        source = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "plugin/adapters/mcp").glob("*.py"))
+        source = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "adapters/mcp").glob("*.py"))
         for forbidden in ("uiux.core", "uiux.engine", "uiux.runtime", "uiux.knowledge", "uiux.evals",
                           "importlib", "eval(", "exec(", "subprocess", "os.system", "shell=True"):
             with self.subTest(forbidden=forbidden):
@@ -107,11 +107,11 @@ class PortabilityTests(unittest.TestCase):
 
     def test_only_resources_and_bootstraps_derive_the_root_from_file_location(self) -> None:
         allowed_files = {"uiux/core/resources.py", "uiux/__init__.py", "scripts/_bootstrap.py",
-                         "plugin/adapters/generic/adapter.py", "plugin/adapters/mcp/server.py",
-                         "plugin/adapters/claude-code/export.py", "plugin/adapters/claude-code/verify.py",
-                         "plugin/adapters/codex/export.py", "plugin/adapters/codex/verify.py",
-                         "plugin/adapters/common/bundle.py",
-                         "plugin/packaging/package_files.py"}
+                         "adapters/generic/adapter.py", "adapters/mcp/server.py",
+                         ".claude-plugin/export.py", ".claude-plugin/verify.py",
+                         ".codex-plugin/export.py", ".codex-plugin/verify.py",
+                         "adapters/common/bundle.py",
+                         "packaging/package_files.py"}
         pattern = re.compile(r"__file__\)\.resolve\(\)\.parents\[")
         for path in [*(ROOT / "uiux").rglob("*.py"), *(ROOT / "scripts").glob("*.py"), *(ROOT / "plugin").rglob("*.py")]:
             rel = path.relative_to(ROOT).as_posix()

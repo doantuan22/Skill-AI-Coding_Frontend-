@@ -15,7 +15,7 @@ from pathlib import Path
 import _paths
 
 ROOT = _paths.PACKAGE_ROOT
-ADAPTER_DIR = ROOT / "plugin" / "adapters" / "claude-code"
+ADAPTER_DIR = ROOT / ".claude-plugin"
 
 
 class ArchitectureTests(unittest.TestCase):
@@ -25,7 +25,7 @@ class ArchitectureTests(unittest.TestCase):
         return sorted(ADAPTER_DIR.glob("*.py"))
 
     def test_adapter_files_exist(self) -> None:
-        self.assertTrue(ADAPTER_DIR.is_dir(), "plugin/adapters/claude-code/ must exist")
+        self.assertTrue(ADAPTER_DIR.is_dir(), ".claude-plugin/ must exist")
         self.assertTrue((ADAPTER_DIR / "adapter.json").is_file())
         self.assertTrue((ADAPTER_DIR / "export.py").is_file())
         self.assertTrue((ADAPTER_DIR / "verify.py").is_file())
@@ -71,10 +71,10 @@ class ArchitectureTests(unittest.TestCase):
 
 class AdapterMetadataTests(unittest.TestCase):
     def test_adapter_json_is_schema_valid(self) -> None:
-        schema = json.loads((ROOT / "plugin/schemas/adapter.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((ROOT / "schemas/adapter.schema.json").read_text(encoding="utf-8"))
         data = json.loads((ADAPTER_DIR / "adapter.json").read_text(encoding="utf-8"))
         # Use the packaging artifact validator
-        sys.path.insert(0, str(ROOT / "plugin/packaging"))
+        sys.path.insert(0, str(ROOT / "packaging"))
         import artifact
         problems = artifact.validate_schema(data, schema)
         self.assertEqual(problems, [], f"adapter.json schema errors: {problems}")
@@ -147,7 +147,7 @@ class ExportTests(unittest.TestCase):
                     f"{base}/SKILL.md",
                     f"{base}/VERSION",
                     f"{base}/uiux/api.py",
-                    f"{base}/plugin/adapters/mcp/server.py",
+                    f"{base}/adapters/mcp/server.py",
                 ]
                 for req in required:
                     self.assertIn(req, names, f"missing in bundle: {req}")
@@ -210,7 +210,7 @@ class BundleStructureTests(unittest.TestCase):
         server_config = mcp["ui-ux-design-mcp"]
         args = server_config.get("args", [])
         # At least one arg should reference the shared MCP server
-        server_refs = [a for a in args if "plugin/adapters/mcp/server.py" in str(a)]
+        server_refs = [a for a in args if "adapters/mcp/server.py" in str(a)]
         self.assertTrue(len(server_refs) > 0, "MCP config must reference the shared transport")
         # Check for ${CLAUDE_PLUGIN_ROOT} portability
         for arg in args:
@@ -243,12 +243,12 @@ class BundleStructureTests(unittest.TestCase):
     def test_generic_payload_present(self) -> None:
         for required in ("SKILL.md", "VERSION", "CHANGELOG.md",
                          "uiux/__init__.py", "uiux/api.py", "uiux/core/tools.json",
-                         "plugin/manifest/plugin.json", "plugin/adapters/mcp/server.py"):
+                         "plugin.json", "adapters/mcp/server.py"):
             self.assertTrue((self._root / required).is_file(), f"missing: {required}")
 
     def test_mcp_server_works_from_extracted_bundle(self) -> None:
         """The shared MCP server must initialize and list tools from the extracted bundle."""
-        server = self._root / "plugin" / "adapters" / "mcp" / "server.py"
+        server = self._ROOT / "adapters" / "mcp" / "server.py"
         messages = [
             {"jsonrpc": "2.0", "id": 1, "method": "initialize",
              "params": {"protocolVersion": "2025-06-18", "capabilities": {},

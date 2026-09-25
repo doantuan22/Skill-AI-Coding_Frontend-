@@ -11,7 +11,7 @@ from pathlib import Path
 import _paths
 
 ROOT = _paths.PACKAGE_ROOT
-CODEX_ADAPTER = ROOT / "plugin" / "adapters" / "codex"
+CODEX_ADAPTER = ROOT / ".codex-plugin"
 
 
 class CodexAdapterTests(unittest.TestCase):
@@ -24,7 +24,15 @@ class CodexAdapterTests(unittest.TestCase):
 
     def test_export_success(self) -> None:
         # Import the export module and run it
-        from plugin.adapters.codex import export
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         
         result = export.export(ROOT, self.workspace, dev=True)
         self.assertEqual(result["status"], "BUILT")
@@ -49,7 +57,15 @@ class CodexAdapterTests(unittest.TestCase):
             self.assertIn(f"{base}/uiux/__init__.py", names)
 
     def test_verify_checks(self) -> None:
-        from plugin.adapters.codex import export, verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         import sys
         
         # First export a valid bundle
@@ -76,7 +92,15 @@ class CodexAdapterTests(unittest.TestCase):
         self.assertEqual(x5["status"], "PASS")
 
     def test_verify_x5_failure_when_skill_mutated(self) -> None:
-        from plugin.adapters.codex import export, verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         import sys
         
         result = export.export(ROOT, self.workspace, dev=True)
@@ -97,7 +121,15 @@ class CodexAdapterTests(unittest.TestCase):
         self.assertIn("X5", report["failed"])
 
     def test_verify_missing_python(self) -> None:
-        from plugin.adapters.codex import export, verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         import sys
         
         result = export.export(ROOT, self.workspace, dev=True)
@@ -119,7 +151,15 @@ class CodexAdapterTests(unittest.TestCase):
         self.assertIn("(Missing Python runtime)", x10["detail"])
 
     def test_verify_placeholder_and_cwd_rules(self) -> None:
-        from plugin.adapters.codex import export, verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         import sys
         
         result = export.export(ROOT, self.workspace, dev=True)
@@ -190,7 +230,15 @@ class CodexMarketplaceTests(unittest.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def _extract_marketplace(self) -> tuple[dict, Path]:
-        from plugin.adapters.codex import export
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         from plugin.packaging import artifact
         result = export.export(ROOT, self.workspace, dev=True)
         extract_dir = self.workspace / "marketplace"
@@ -199,7 +247,15 @@ class CodexMarketplaceTests(unittest.TestCase):
         return result, root
 
     def test_marketplace_bundle_and_k_checks(self) -> None:
-        from plugin.adapters.codex import verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         result, marketplace_root = self._extract_marketplace()
         self.assertTrue(Path(result["marketplace_bundle"]).is_file())
         manifest = json.loads((marketplace_root / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
@@ -213,13 +269,29 @@ class CodexMarketplaceTests(unittest.TestCase):
         self.assertEqual({check["id"] for check in report["checks"]}, {f"K{i}" for i in range(1, 17)})
 
     def test_marketplace_export_is_deterministic(self) -> None:
-        from plugin.adapters.codex import export
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         first = export.export(ROOT, self.workspace / "first", dev=True)
         second = export.export(ROOT, self.workspace / "second", dev=True)
         self.assertEqual(first["marketplace_sha256"], second["marketplace_sha256"])
 
     def test_marketplace_rejects_invalid_metadata_and_paths(self) -> None:
-        from plugin.adapters.codex import verify
+        import importlib.util
+        spec1 = importlib.util.spec_from_file_location("export", str(ROOT / ".codex-plugin" / "export.py"))
+        export = importlib.util.module_from_spec(spec1)
+        spec1.loader.exec_module(export)
+        
+        spec2 = importlib.util.spec_from_file_location("verify", str(ROOT / ".codex-plugin" / "verify.py"))
+        verify = importlib.util.module_from_spec(spec2)
+        if (ROOT / ".codex-plugin" / "verify.py").exists():
+            spec2.loader.exec_module(verify)
         _, marketplace_root = self._extract_marketplace()
         manifest_path = marketplace_root / ".agents/plugins/marketplace.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

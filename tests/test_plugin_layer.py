@@ -15,9 +15,9 @@ import _paths
 from uiux import __version__, api
 
 ROOT = _paths.PACKAGE_ROOT
-MANIFEST = json.loads((ROOT / "plugin/manifest/plugin.json").read_text(encoding="utf-8"))
-SCHEMA = json.loads((ROOT / "plugin/manifest/plugin.schema.json").read_text(encoding="utf-8"))
-sys.path.insert(0, str(ROOT / "plugin/packaging"))
+MANIFEST = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
+SCHEMA = json.loads((ROOT / "schemas/plugin.schema.json").read_text(encoding="utf-8"))
+sys.path.insert(0, str(ROOT / "packaging"))
 import package_files  # noqa: E402
 
 
@@ -59,7 +59,7 @@ class ManifestTests(unittest.TestCase):
 
 
 class GenericAdapterTests(unittest.TestCase):
-    ADAPTER = str(ROOT / "plugin/adapters/generic/adapter.py")
+    ADAPTER = str(ROOT / "adapters/generic/adapter.py")
 
     def test_describe_and_call_from_another_directory(self) -> None:
         with tempfile.TemporaryDirectory() as cwd:
@@ -94,7 +94,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_required_content_present(self) -> None:
         for rel in ("SKILL.md", "VERSION", "uiux/api.py", "uiux/core/tools.json", "phase-2/knowledge/registry.json",
-                    "plugin/manifest/plugin.json", "evals/scenarios/E80-composition-quality.md", "scripts/run_browser_execution.py"):
+                    "plugin.json", "evals/scenarios/E80-composition-quality.md", "scripts/run_browser_execution.py"):
             self.assertIn(rel, self.result["included"])
 
     def test_generated_artifacts_are_excluded(self) -> None:

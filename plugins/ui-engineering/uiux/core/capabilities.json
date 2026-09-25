@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "description": "Capability map (spec section 6.3): every capability id declared in the plugin manifest 'capabilities' list maps to the registered tools (uiux/core/tools.json) and instruction entrypoints (package-relative files) that provide it. Owned by the core so a distribution without plugin/ keeps the same discovery; the manifest references this file. Whether a capability is static or runtime-dependent is derived from its tools' annotations (requires_node/requires_browser), never declared here.",
+  "capabilities": {
+    "ux-structure-workflow": {"tools": [], "instructions": ["SKILL.md", "workflows/overview.md", "skills/ux-structure/README.md"]},
+    "structure-lock": {"tools": [], "instructions": ["skills/ux-structure/structure-lock.md", "workflows/phase-transition.md"]},
+    "design-direction-and-inspiration": {"tools": ["retrieve_knowledge"], "instructions": ["skills/ui-orchestrator/README.md", "skills/design-inspiration/README.md"]},
+    "typography-intelligence": {"tools": ["retrieve_knowledge"], "instructions": ["skills/typography/README.md"]},
+    "design-knowledge-retrieval": {"tools": ["retrieve_knowledge"], "instructions": ["knowledge/domains/README.md"]},
+    "capability-resolution": {"tools": ["resolve_capabilities"], "instructions": ["skills/capability-resolver/README.md"]},
+    "technology-resolution": {"tools": ["resolve_technology"], "instructions": ["skills/capability-resolver/resolver.md"]},
+    "design-quality-analysis": {"tools": ["analyze_design_quality"], "instructions": ["evals/quality/README.md"]},
+    "browser-runtime-evidence": {"tools": ["detect_runtime", "run_runtime"], "instructions": ["execution/README.md"]},
+    "accessibility-runtime": {"tools": ["accessibility_scan"], "instructions": ["execution/accessibility/README.md"]},
+    "eval-execution": {"tools": ["run_evals", "validate_skill"], "instructions": ["evals/README.md"]}
+  }
+}

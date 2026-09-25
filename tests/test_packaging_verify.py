@@ -120,9 +120,9 @@ class VerificationTests(unittest.TestCase):
 
     def test_invalid_manifest_fails(self) -> None:
         def break_manifest(files: dict) -> None:
-            manifest = json.loads(files["plugin/manifest/plugin.json"])
+            manifest = json.loads(files["plugin.json"])
             del manifest["tools"]
-            files["plugin/manifest/plugin.json"] = json.dumps(manifest).encode("utf-8")
+            files["plugin.json"] = json.dumps(manifest).encode("utf-8")
         report = self.quick(self.mutated("manifest", break_manifest))
         self.assertEqual(self.status(report)["V5"], "FAIL")
 

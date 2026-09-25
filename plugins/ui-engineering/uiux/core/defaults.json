@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "paths": {
+    "skill_entry": "SKILL.md",
+    "workflow": "workflows",
+    "knowledge_roots": ["knowledge/domains", "knowledge/motion", "knowledge/web-patterns", "skills/frontend-implementation"],
+    "knowledge_readme": "knowledge/domains/README.md",
+    "knowledge_index": "knowledge/domains/INDEX.md",
+    "knowledge_registry": "knowledge/domains/registry.json",
+    "components": "knowledge/visual-language/components",
+    "runtime_contracts": "execution",
+    "viewports": "execution/viewports.json",
+    "evals": "evals",
+    "scenarios": "evals/scenarios",
+    "resolver_scenarios": "evals/resolver-scenarios",
+    "quality_fixtures": "evals/fixtures/quality",
+    "templates": "templates",
+    "docs": "docs",
+    "plugin": ".",
+    "tool_registry": "uiux/core/tools.json",
+    "capability_map": "uiux/core/capabilities.json",
+    "layer_map": "uiux/core/layers.json"
+  },
+  "browser": {
+    "default_browser": "chromium",
+    "headless": true,
+    "allow_start": false,
+    "evidence_dir": ".evidence",
+    "default_viewports": ["desktop", "mobile"],
+    "navigation_timeout_ms": 30000,
+    "screenshot_timeout_ms": 30000,
+    "probe_wait_ms": 1500,
+    "preflight_browser_check": true
+  },
+  "dependency_policy": {
+    "auto_install": false,
+    "allow_new_dependencies": false,
+    "reuse_existing": true
+  },
+  "motion_budget": {
+    "max_high_regions": 1,
+    "max_motion_patterns": 12,
+    "max_interactions": 10,
+    "max_section_layouts": 3
+  },
+  "performance_budget": {
+    "cost_points": {"none": 0, "low": 1, "medium": 2, "high": 4, "very-high": 6},
+    "effect_budget_by_visual_intensity": {"1": 2, "2": 3, "3": 5, "4": 8, "5": 12}
+  },
+  "feature_flags": {
+    "motion_probe": false,
+    "reduced_motion_capture": false,
+    "anti_homogenization_guard": true,
+    "attribute_conflict_penalty": true
+  }
+}

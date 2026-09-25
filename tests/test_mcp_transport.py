@@ -11,11 +11,11 @@ from pathlib import Path
 from unittest import mock
 
 import _paths
-from plugin.adapters.mcp import protocol, server
+from adapters.mcp import protocol, server
 from uiux import api
 
 ROOT = _paths.PACKAGE_ROOT
-SERVER = ROOT / "plugin/adapters/mcp/server.py"
+SERVER = ROOT / "adapters/mcp/server.py"
 
 
 def message(identifier: int, method: str, params: dict | None = None) -> dict:

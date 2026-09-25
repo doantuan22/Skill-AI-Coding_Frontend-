@@ -17,7 +17,7 @@ from pathlib import Path
 import _paths
 
 ROOT = _paths.PACKAGE_ROOT
-PACKAGING = ROOT / "plugin" / "packaging"
+PACKAGING = ROOT / "packaging"
 if str(PACKAGING) not in sys.path:
     sys.path.insert(0, str(PACKAGING))
 
