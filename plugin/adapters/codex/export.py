@@ -23,7 +23,7 @@ from common import bundle, descriptor
 
 
 def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
-    """Build the Codex plugin bundle."""
+    """Build the Codex plugin bundle and its local marketplace bundle."""
     source = source.resolve()
     
     # Delegate to common bundle utilities
@@ -57,7 +57,7 @@ def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
     payload = bundle.collect_generic_payload(source)
 
     # Delegate safe assembly to common framework
-    return bundle.assemble_bundle(
+    plugin_result = bundle.assemble_bundle(
         name=name,
         version=version,
         adapter_id="codex",
@@ -66,6 +66,29 @@ def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
         out_dir=out_dir,
         dev=dev
     )
+    # Build from the same exact payload and overlay as the verified Codex bundle.
+    marketplace_manifest = {
+        "name": "uiux-local",
+        "interface": {"displayName": "UIUX Local Plugins"},
+        "plugins": [{
+            "name": name,
+            "source": {"source": "local", "path": f"./plugins/{name}"},
+            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+            "category": "Developer Tools",
+        }],
+    }
+    plugin_result.update(bundle.assemble_marketplace_bundle(
+        name=name,
+        version=version,
+        adapter_id="codex",
+        marketplace_manifest_path=".agents/plugins/marketplace.json",
+        marketplace_manifest=marketplace_manifest,
+        plugin_payload=payload + overlay,
+        plugin_name=name,
+        out_dir=out_dir,
+        dev=dev,
+    ))
+    return plugin_result
 
 
 def main(argv: list[str] | None = None) -> int:

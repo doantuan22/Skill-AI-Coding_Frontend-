@@ -20,7 +20,7 @@ _COMMON = _HERE.parent / "common"
 if str(_COMMON.parent) not in sys.path:
     sys.path.insert(0, str(_COMMON.parent))
 
-from common import verify, mcp_smoke
+from common import bundle, verify, mcp_smoke
 
 
 # Ensure packaging is importable for artifact.safe_extract
@@ -143,12 +143,100 @@ def verify_bundle(root: Path, python: str = sys.executable) -> dict:
     }
 
 
+def verify_marketplace(root: Path, python: str = sys.executable) -> dict:
+    """Run M1-M16 on an extracted Claude Code marketplace bundle."""
+    checks: list[dict] = []
+
+    def record(cid: str, status: str, detail: str = "") -> None:
+        checks.append({"id": cid, "name": cid, "status": status, "detail": detail})
+
+    def ok(cid: str, problems: list[str]) -> None:
+        record(cid, "FAIL" if problems else "PASS", "; ".join(problems) if problems else "")
+
+    expected_marketplace = "uiux-local"
+    expected_plugin = "ui-ux-design"
+    ok("M1", [] if root.is_dir() else [f"{root} not found"])
+    mp_json_path = root / ".claude-plugin" / "marketplace.json"
+    ok("M2", [] if mp_json_path.is_file() else [f"{mp_json_path} not found"])
+
+    mp_json: dict = {}
+    m3_problems: list[str] = []
+    if mp_json_path.is_file():
+        try:
+            mp_json = json.loads(mp_json_path.read_text(encoding="utf-8"))
+            if not isinstance(mp_json, dict):
+                m3_problems.append("marketplace manifest must be a JSON object")
+        except (json.JSONDecodeError, OSError) as exc:
+            m3_problems.append(f"cannot parse: {exc}")
+    ok("M3", m3_problems)
+
+    marketplace_name = mp_json.get("name") if isinstance(mp_json, dict) else None
+    ok("M4", [] if marketplace_name == expected_marketplace else [
+        f"marketplace name must be '{expected_marketplace}', got {marketplace_name!r}"
+    ])
+    owner = mp_json.get("owner") if isinstance(mp_json, dict) else None
+    owner_problems: list[str] = []
+    if not isinstance(owner, dict):
+        owner_problems.append("owner must be an object")
+    elif not isinstance(owner.get("name"), str) or not owner["name"].strip():
+        owner_problems.append("owner.name must be a non-empty string")
+    ok("M5", owner_problems)
+
+    plugins = mp_json.get("plugins") if isinstance(mp_json, dict) else None
+    ok("M6", [] if isinstance(plugins, list) and len(plugins) == 1 and isinstance(plugins[0], dict)
+       else ["plugins must contain exactly one plugin object"])
+    plugin = plugins[0] if isinstance(plugins, list) and len(plugins) == 1 and isinstance(plugins[0], dict) else {}
+    plugin_name = plugin.get("name")
+    ok("M7", [] if plugin_name == expected_plugin else [
+        f"plugin name must be '{expected_plugin}', got {plugin_name!r}"
+    ])
+    install_id = f"{plugin_name}@{marketplace_name}" if isinstance(plugin_name, str) and isinstance(marketplace_name, str) else ""
+    ok("M8", [] if install_id == f"{expected_plugin}@{expected_marketplace}" else [
+        f"install identifier mismatch: {install_id or '<unavailable>'}"
+    ])
+
+    source = plugin.get("source")
+    plugin_root, source_problems = bundle.validate_marketplace_source_path(source, root)
+    ok("M9", source_problems)
+    ok("M10", [] if plugin_root and plugin_root.is_dir() else [
+        f"referenced plugin not found at {source!r}"
+    ])
+    # validate_marketplace_source_path resolves symlinks before checking containment.
+    ok("M11", [] if not any("escapes marketplace root" in problem for problem in source_problems)
+       else source_problems)
+
+    # The embedded plugin is validated by the normal C1-C16 verifier.
+    if plugin_root and plugin_root.is_dir():
+        plugin_report = verify_bundle(plugin_root, python)
+        by_id = {check["id"]: check for check in plugin_report["checks"]}
+        for marketplace_id, source_ids in {
+            "M12": ("C1", "C2"), "M13": ("C3",), "M14": ("C4", "C5", "C6", "C7"),
+            "M15": ("C8", "C9", "C10", "C11"), "M16": ("C15", "C16"),
+        }.items():
+            selected = [by_id[cid] for cid in source_ids if cid in by_id]
+            problems = [f"{item['id']}: {item['detail']}" for item in selected if item["status"] == "FAIL"]
+            not_run = [item["id"] for item in selected if item["status"] == "NOT_RUN"]
+            record(marketplace_id, "FAIL" if problems else ("NOT_RUN" if not_run else "PASS"), "; ".join(problems or not_run))
+    else:
+        for cid in ("M12", "M13", "M14", "M15", "M16"):
+            record(cid, "FAIL", "embedded plugin is unavailable")
+
+    failed = [c["id"] for c in checks if c["status"] == "FAIL"]
+    return {
+        "status": "FAIL" if failed else "PASS",
+        "failed": failed,
+        "not_run": [c["id"] for c in checks if c["status"] == "NOT_RUN"],
+        "checks": checks,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description="Verify a Claude Code plugin bundle (C1-C16)")
+    parser = argparse.ArgumentParser(description="Verify a Claude Code plugin bundle (C1-C16) or marketplace (M1-M16)")
     parser.add_argument("root", nargs="?", type=Path, help="extracted bundle root")
     parser.add_argument("--bundle", type=Path, help="bundle ZIP to extract and verify")
+    parser.add_argument("--marketplace", action="store_true", help="verify a marketplace bundle instead of a plugin bundle")
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--keep", action="store_true")
     args = parser.parse_args(argv)
@@ -164,7 +252,10 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"status": "ERROR", "error": "give a bundle root or --bundle <zip>"}))
             return 1
 
-        report = verify_bundle(root, args.python)
+        if args.marketplace:
+            report = verify_marketplace(root, args.python)
+        else:
+            report = verify_bundle(root, args.python)
         print(json.dumps(report, indent=2))
         return 0 if report["status"] == "PASS" else 2
     except PackagingError as exc:
@@ -177,4 +268,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

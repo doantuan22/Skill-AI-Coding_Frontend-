@@ -177,5 +177,72 @@ class CodexAdapterTests(unittest.TestCase):
             data["mcpServers"]["ui-ux-design-mcp"]["command"] = "${PLUGIN_ROOT}/bin/python3"
         check_mcp_mutation(mutate_command_placeholder, "command cannot contain placeholders")
         restore_mcp()
+
+
+class CodexMarketplaceTests(unittest.TestCase):
+    """Codex local marketplace metadata, path safety, and deterministic export."""
+
+    def setUp(self) -> None:
+        self.tmpdir = tempfile.mkdtemp(prefix="codex-marketplace-test-")
+        self.workspace = Path(self.tmpdir)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _extract_marketplace(self) -> tuple[dict, Path]:
+        from plugin.adapters.codex import export
+        from plugin.packaging import artifact
+        result = export.export(ROOT, self.workspace, dev=True)
+        extract_dir = self.workspace / "marketplace"
+        artifact.safe_extract(Path(result["marketplace_bundle"]), extract_dir)
+        root = extract_dir / f"{result['name']}-{result['version']}-dev-codex-marketplace"
+        return result, root
+
+    def test_marketplace_bundle_and_k_checks(self) -> None:
+        from plugin.adapters.codex import verify
+        result, marketplace_root = self._extract_marketplace()
+        self.assertTrue(Path(result["marketplace_bundle"]).is_file())
+        manifest = json.loads((marketplace_root / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["name"], "uiux-local")
+        self.assertEqual(manifest["interface"]["displayName"], "UIUX Local Plugins")
+        self.assertEqual(manifest["plugins"][0]["source"], {"source": "local", "path": "./plugins/ui-ux-design"})
+        self.assertEqual(manifest["plugins"][0]["policy"], {"installation": "AVAILABLE", "authentication": "ON_INSTALL"})
+        self.assertTrue((marketplace_root / "plugins/ui-ux-design/plugin.json").is_file())
+        report = verify.verify_marketplace(marketplace_root)
+        self.assertEqual(report["status"], "PASS", report)
+        self.assertEqual({check["id"] for check in report["checks"]}, {f"K{i}" for i in range(1, 17)})
+
+    def test_marketplace_export_is_deterministic(self) -> None:
+        from plugin.adapters.codex import export
+        first = export.export(ROOT, self.workspace / "first", dev=True)
+        second = export.export(ROOT, self.workspace / "second", dev=True)
+        self.assertEqual(first["marketplace_sha256"], second["marketplace_sha256"])
+
+    def test_marketplace_rejects_invalid_metadata_and_paths(self) -> None:
+        from plugin.adapters.codex import verify
+        _, marketplace_root = self._extract_marketplace()
+        manifest_path = marketplace_root / ".agents/plugins/marketplace.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+        cases = [
+            (lambda data: data.pop("name"), "K4"),
+            (lambda data: data.pop("interface"), "K5"),
+            (lambda data: data.__setitem__("plugins", [{}]), "K7"),
+            (lambda data: data["plugins"][0].pop("policy"), "K11"),
+            (lambda data: data["plugins"][0].__setitem__("category", ""), "K13"),
+            (lambda data: data["plugins"][0]["source"].__setitem__("path", "plugins/ui-ux-design"), "K9"),
+            (lambda data: data["plugins"][0]["source"].__setitem__("path", "../plugin"), "K9"),
+            (lambda data: data["plugins"][0]["source"].__setitem__("path", "C:\\plugin"), "K9"),
+            (lambda data: data["plugins"][0]["source"].__setitem__("path", "/root/plugin"), "K9"),
+            (lambda data: data["plugins"][0]["source"].__setitem__("path", "\\\\server\\share"), "K9"),
+        ]
+        for mutate, expected in cases:
+            with self.subTest(expected=expected):
+                candidate = json.loads(json.dumps(manifest))
+                mutate(candidate)
+                manifest_path.write_text(json.dumps(candidate), encoding="utf-8")
+                report = verify.verify_marketplace(marketplace_root)
+                self.assertIn(expected, report["failed"], report)
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 if __name__ == "__main__":
     unittest.main()

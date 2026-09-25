@@ -20,7 +20,7 @@ _COMMON = _HERE.parent / "common"
 if str(_COMMON.parent) not in sys.path:
     sys.path.insert(0, str(_COMMON.parent))
 
-from common import verify, mcp_smoke
+from common import bundle, verify, mcp_smoke
 
 # Ensure packaging is importable for artifact.safe_extract
 _PACKAGING = _HERE.parents[1] / "packaging"
@@ -188,12 +188,98 @@ def verify_bundle(root: Path, python: str = sys.executable) -> dict:
     }
 
 
+def verify_marketplace(root: Path, python: str = sys.executable) -> dict:
+    """Run K1-K16 on an extracted Codex local marketplace bundle."""
+    checks: list[dict] = []
+
+    def record(cid: str, status: str, detail: str = "") -> None:
+        checks.append({"id": cid, "name": cid, "status": status, "detail": detail})
+
+    def ok(cid: str, problems: list[str]) -> None:
+        record(cid, "FAIL" if problems else "PASS", "; ".join(problems))
+
+    expected_marketplace = "uiux-local"
+    expected_plugin = "ui-ux-design"
+    ok("K1", [] if root.is_dir() else [f"{root} not found"])
+    manifest_path = root / ".agents" / "plugins" / "marketplace.json"
+    ok("K2", [] if manifest_path.is_file() else [f"{manifest_path} not found"])
+
+    marketplace: dict = {}
+    k3_problems: list[str] = []
+    if manifest_path.is_file():
+        try:
+            marketplace = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(marketplace, dict):
+                k3_problems.append("marketplace manifest must be a JSON object")
+        except (json.JSONDecodeError, OSError) as exc:
+            k3_problems.append(f"cannot parse marketplace JSON: {exc}")
+    ok("K3", k3_problems)
+
+    marketplace_name = marketplace.get("name") if isinstance(marketplace, dict) else None
+    ok("K4", [] if marketplace_name == expected_marketplace else [
+        f"marketplace name must be '{expected_marketplace}', got {marketplace_name!r}"
+    ])
+    interface = marketplace.get("interface") if isinstance(marketplace, dict) else None
+    ok("K5", [] if isinstance(interface, dict) and isinstance(interface.get("displayName"), str)
+       and interface["displayName"].strip() else ["interface.displayName must be a non-empty string"])
+
+    plugins = marketplace.get("plugins") if isinstance(marketplace, dict) else None
+    ok("K6", [] if isinstance(plugins, list) and len(plugins) == 1 and isinstance(plugins[0], dict)
+       else ["plugins must contain exactly one plugin object"])
+    plugin = plugins[0] if isinstance(plugins, list) and len(plugins) == 1 and isinstance(plugins[0], dict) else {}
+    plugin_name = plugin.get("name")
+    ok("K7", [] if plugin_name == expected_plugin else [
+        f"plugin name must be '{expected_plugin}', got {plugin_name!r}"
+    ])
+
+    source = plugin.get("source")
+    ok("K8", [] if isinstance(source, dict) and source.get("source") == "local"
+       else ["source.source must equal 'local'"])
+    source_path = source.get("path") if isinstance(source, dict) else None
+    plugin_root, path_problems = bundle.validate_marketplace_source_path(source_path, root)
+    ok("K9", path_problems)
+    ok("K10", [] if not any("escapes marketplace root" in problem for problem in path_problems)
+       else path_problems)
+
+    policy = plugin.get("policy")
+    installation = policy.get("installation") if isinstance(policy, dict) else None
+    ok("K11", [] if installation in {"AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"}
+       else ["policy.installation must be AVAILABLE, INSTALLED_BY_DEFAULT, or NOT_AVAILABLE"])
+    authentication = policy.get("authentication") if isinstance(policy, dict) else None
+    ok("K12", [] if authentication in {"ON_INSTALL", "ON_FIRST_USE"}
+       else ["policy.authentication must be ON_INSTALL or ON_FIRST_USE"])
+    category = plugin.get("category")
+    ok("K13", [] if isinstance(category, str) and category.strip() else ["category must be a non-empty string"])
+    ok("K14", [] if plugin_root and plugin_root.is_dir() else [
+        f"referenced plugin not found at {source_path!r}"
+    ])
+
+    if plugin_root and plugin_root.is_dir():
+        plugin_report = verify_bundle(plugin_root, python)
+        failed = [check["id"] for check in plugin_report["checks"] if check["status"] == "FAIL"]
+        record("K15", "FAIL" if failed else "PASS", ", ".join(failed))
+        self_contained = verify.check_forbidden_files(plugin_root) + verify.check_generic_contract(plugin_root)
+        record("K16", "FAIL" if self_contained else "PASS", "; ".join(self_contained))
+    else:
+        record("K15", "FAIL", "embedded plugin is unavailable")
+        record("K16", "FAIL", "embedded plugin is unavailable")
+
+    failed = [check["id"] for check in checks if check["status"] == "FAIL"]
+    return {
+        "status": "FAIL" if failed else "PASS",
+        "failed": failed,
+        "not_run": [check["id"] for check in checks if check["status"] == "NOT_RUN"],
+        "checks": checks,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description="Verify a Codex plugin bundle (X1-X16)")
+    parser = argparse.ArgumentParser(description="Verify a Codex plugin bundle (X1-X16) or marketplace (K1-K16)")
     parser.add_argument("root", nargs="?", type=Path, help="extracted bundle root")
     parser.add_argument("--bundle", type=Path, help="bundle ZIP to extract and verify")
+    parser.add_argument("--marketplace", action="store_true", help="verify a marketplace bundle instead of a plugin bundle")
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--keep", action="store_true")
     args = parser.parse_args(argv)
@@ -209,7 +295,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"status": "ERROR", "error": "give a bundle root or --bundle <zip>"}))
             return 1
 
-        report = verify_bundle(root, args.python)
+        report = verify_marketplace(root, args.python) if args.marketplace else verify_bundle(root, args.python)
         print(json.dumps(report, indent=2))
         return 0 if report["status"] == "PASS" else 2
     except PackagingError as exc:

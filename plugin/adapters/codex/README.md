@@ -10,6 +10,7 @@ This adapter enables the generic UI/UX Design skill to be used as a **local Open
 - **Live Host Test**: `NOT_RUN` (Wait for an actual Codex workspace installation).
 - **Public Directory Ready**: NOT CLAIMED. This adapter uses local MCP standard I/O for secure, internal workspace operations. It is not currently configured for public HTTP/SSE distribution.
 - **Overall Status**: `experimental`
+- **Marketplace**: IMPLEMENTED and STRUCTURALLY VERIFIED (K1-K16); live install remains `NOT_RUN`.
 
 ## Portability Contract
 
@@ -48,6 +49,11 @@ To generate a self-contained development ZIP for testing:
 # From the repository root
 python plugin/adapters/codex/export.py --dev --out dist/dev/adapters
 ```
+
+This produces both `ui-ux-design-<version>-dev-codex.zip` and
+`ui-ux-design-<version>-dev-codex-marketplace.zip`. See
+[MARKETPLACE_INSTALL.md](MARKETPLACE_INSTALL.md) for the exact local marketplace flow,
+repo config template, supported surfaces, and known host limitations.
 
 ## Testing Locally
 

@@ -41,6 +41,8 @@ The plugin root IS the package root. `SKILL.md` and all its relative links work 
 
 ## Installation
 
+See [VSCODE_INSTALL.md](VSCODE_INSTALL.md) for full installation and VS Code setup instructions.
+
 ### Development (recommended for testing)
 
 ```bash
@@ -49,16 +51,17 @@ claude --plugin-dir <path-to-extracted-bundle>
 
 The agent will discover `SKILL.md`, connect to the MCP server, and expose all public tools.
 
-### Local packaged bundle
+### Local Marketplace Installation
 
-1. Build the generic artifact: `python plugin/packaging/build.py --dev`
-2. Build the Claude bundle: `python plugin/adapters/claude-code/export.py --source . --out dist/dev/adapters/ --dev`
-3. Extract the bundle ZIP to a directory
-4. `claude --plugin-dir <extracted-directory>`
+1. Build the marketplace bundle: `python plugin/adapters/claude-code/export.py --source . --out dist/dev/adapters/ --dev`
+2. Extract `dist/dev/adapters/ui-ux-design-<version>-dev-claude-marketplace.zip`
+3. Add marketplace: `claude plugin marketplace add <extracted-directory>`
+4. Install plugin: `claude plugin install ui-ux-design@uiux-local`
 
-### Marketplace / distribution
-
-**NOT IMPLEMENTED.** The architecture supports future marketplace distribution through the Claude plugin ecosystem. The bundle is self-contained and can be distributed as a ZIP archive.
+Marketplace metadata uses the stable identity `uiux-local` and the required owner
+object `{ "name": "UIUX Local" }`. The installation identifier is therefore
+always `ui-ux-design@uiux-local`; the marketplace verifier (M1-M16) rejects a
+name, owner, or source-path drift.
 
 ## MCP configuration
 
@@ -152,6 +155,12 @@ claude --plugin-dir <extracted-bundle>
 
 If Claude Code is not available: `CLAUDE_CODE_LIVE_TEST = NOT_RUN`
 
+Marketplace verification is structural and does not claim a live install:
+
+```bash
+python plugin/adapters/claude-code/verify.py --marketplace --bundle dist/dev/adapters/ui-ux-design-0.1.0-dev-claude-marketplace.zip
+```
+
 ## Limitations
 
 - Claude Code live host test has not been executed; structural and subprocess verification only
@@ -169,3 +178,16 @@ Claude Code plugin documentation verified: **2026-09-25**
 - `claude --plugin-dir`: local plugin testing
 - `skills/` auto-discovery: subdirectories with `SKILL.md`
 - Plugin validation: `claude plugin validate`
+- Marketplace contract: `.claude-plugin/marketplace.json` has a kebab-case `name`,
+  an object `owner` with `owner.name`, and relative `./plugins/...` sources.
+- Marketplace CLI: `claude plugin marketplace add <marketplace-root>` then
+  `claude plugin install ui-ux-design@uiux-local`.
+
+## Marketplace status
+
+```text
+Claude Marketplace: IMPLEMENTED / SCHEMA VERIFIED / INSTALL IDENTIFIER CONSISTENT
+Claude VS Code Installation: READY
+Claude Live VS Code: NOT_RUN
+CLAUDE_MARKETPLACE_LIVE_VALIDATE = NOT_RUN
+```

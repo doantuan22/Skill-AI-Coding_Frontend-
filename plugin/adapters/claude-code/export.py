@@ -34,7 +34,7 @@ def _mcp_json_content() -> str:
 
 
 def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
-    """Build the Claude Code plugin bundle."""
+    """Build the Claude Code plugin bundle and marketplace bundle."""
     source = source.resolve()
     
     # Delegate to common bundle utilities
@@ -63,8 +63,8 @@ def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
     # Collect generic payload using common utility
     payload = bundle.collect_generic_payload(source)
 
-    # Delegate safe assembly to common framework
-    return bundle.assemble_bundle(
+    # Delegate safe assembly to common framework for standard plugin bundle
+    plugin_result = bundle.assemble_bundle(
         name=name,
         version=version,
         adapter_id="claude-code",
@@ -73,6 +73,28 @@ def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
         out_dir=out_dir,
         dev=dev
     )
+
+    marketplace_manifest = {
+        "name": "uiux-local",
+        "owner": {"name": "UIUX Local"},
+        "plugins": [{
+            "name": name,
+            "source": f"./plugins/{name}",
+            "description": description,
+        }],
+    }
+    plugin_result.update(bundle.assemble_marketplace_bundle(
+        name=name,
+        version=version,
+        adapter_id="claude",
+        marketplace_manifest_path=".claude-plugin/marketplace.json",
+        marketplace_manifest=marketplace_manifest,
+        plugin_payload=payload + overlay,
+        plugin_name=name,
+        out_dir=out_dir,
+        dev=dev,
+    ))
+    return plugin_result
 
 
 def main(argv: list[str] | None = None) -> int:

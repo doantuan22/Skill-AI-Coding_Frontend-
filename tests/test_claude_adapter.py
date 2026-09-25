@@ -321,5 +321,107 @@ class VerificationTests(unittest.TestCase):
         self.assertEqual(failed, [], f"verification failures: {failed}\n{json.dumps(report, indent=2)}")
 
 
+class MarketplaceTests(unittest.TestCase):
+    """Test the Claude local marketplace structure and verification."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._tmpdir = tempfile.mkdtemp(prefix="claude-marketplace-test-")
+        result = subprocess.run(
+            [sys.executable, str(ADAPTER_DIR / "export.py"),
+             "--source", str(ROOT), "--out", cls._tmpdir, "--dev"],
+            capture_output=True, text=True, encoding="utf-8",
+            cwd=cls._tmpdir, timeout=120,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"export failed: {result.stdout + result.stderr}")
+        data = json.loads(result.stdout)
+        bundle_path = Path(data["marketplace_bundle"])
+        cls._extract_dir = Path(cls._tmpdir) / "extracted"
+        with zipfile.ZipFile(bundle_path) as zf:
+            zf.extractall(cls._extract_dir)
+        dirs = [d for d in cls._extract_dir.iterdir() if d.is_dir()]
+        cls._root = dirs[0] if len(dirs) == 1 else cls._extract_dir
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        import shutil
+        shutil.rmtree(cls._tmpdir, ignore_errors=True)
+
+    def test_marketplace_structure_valid(self) -> None:
+        mp_json_path = self._root / ".claude-plugin" / "marketplace.json"
+        self.assertTrue(mp_json_path.is_file())
+        mp_json = json.loads(mp_json_path.read_text(encoding="utf-8"))
+        self.assertEqual(mp_json["name"], "uiux-local")
+        self.assertEqual(mp_json["owner"], {"name": "UIUX Local"})
+        self.assertEqual(len(mp_json["plugins"]), 1)
+        self.assertEqual(mp_json["plugins"][0]["name"], "ui-ux-design")
+        self.assertEqual(mp_json["plugins"][0]["source"], "./plugins/ui-ux-design")
+
+        plugin_root = self._root / "plugins" / "ui-ux-design"
+        self.assertTrue(plugin_root.is_dir())
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").is_file())
+        self.assertTrue((plugin_root / "SKILL.md").is_file())
+
+    def test_verify_marketplace_success(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(ADAPTER_DIR / "verify.py"), str(self._root), "--marketplace"],
+            capture_output=True, text=True, encoding="utf-8",
+            cwd=str(Path(self._tmpdir)), timeout=120,
+        )
+        self.assertEqual(result.returncode, 0, f"verification failed: {result.stdout + result.stderr}")
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "PASS")
+
+    def test_verify_marketplace_failures(self) -> None:
+        # We need a copy of the root to mutate
+        with tempfile.TemporaryDirectory() as mut_dir:
+            import shutil
+            shutil.copytree(self._root, mut_dir, dirs_exist_ok=True)
+            mut_root = Path(mut_dir)
+
+            mp_json_path = mut_root / ".claude-plugin" / "marketplace.json"
+
+            # Helper
+            def run_verify() -> dict:
+                result = subprocess.run(
+                    [sys.executable, str(ADAPTER_DIR / "verify.py"), str(mut_root), "--marketplace"],
+                    capture_output=True, text=True, encoding="utf-8",
+                    cwd=str(Path(self._tmpdir)), timeout=120,
+                )
+                return json.loads(result.stdout)
+
+            # Mutate: missing manifest
+            mp_json_path.unlink()
+            r = run_verify()
+            self.assertEqual(r["status"], "FAIL")
+            self.assertIn("M2", r["failed"])
+
+            # Mutate: invalid plugin source
+            mp_json_path.write_text(json.dumps({"name": "uiux-local", "owner": {"name": "UIUX Local"}, "plugins": [{"name": "ui-ux-design"}]}), encoding="utf-8")
+            r = run_verify()
+            self.assertIn("M9", r["failed"])
+
+            # Mutate: absolute source path
+            mp_json_path.write_text(json.dumps({"name": "uiux-local", "owner": {"name": "UIUX Local"}, "plugins": [{"name": "ui-ux-design", "source": "/absolute/path"}]}), encoding="utf-8")
+            r = run_verify()
+            self.assertIn("M9", r["failed"])
+
+            # Mutate: missing plugin directory
+            mp_json_path.write_text(json.dumps({"name": "uiux-local", "owner": {"name": "UIUX Local"}, "plugins": [{"name": "ui-ux-design", "source": "./plugins/does-not-exist"}]}), encoding="utf-8")
+            r = run_verify()
+            self.assertIn("M10", r["failed"])
+
+            # Owner must use the current object schema and contain owner.name.
+            mp_json_path.write_text(json.dumps({"name": "uiux-local", "owner": "uiux-local", "plugins": [{"name": "ui-ux-design", "source": "./plugins/ui-ux-design"}]}), encoding="utf-8")
+            self.assertIn("M5", run_verify()["failed"])
+            mp_json_path.write_text(json.dumps({"name": "wrong-marketplace", "owner": {}, "plugins": [{"name": "ui-ux-design", "source": "plugins/ui-ux-design"}]}), encoding="utf-8")
+            failed = run_verify()["failed"]
+            self.assertIn("M4", failed)
+            self.assertIn("M5", failed)
+            self.assertIn("M8", failed)
+            self.assertIn("M9", failed)
+
+
 if __name__ == "__main__":
     unittest.main()
