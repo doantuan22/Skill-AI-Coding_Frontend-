@@ -83,11 +83,36 @@ def resolve_styling_pack(styling_name: str) -> dict[str, Any] | None:
     return None
 
 
+def resolve_domain_pack(domain_name: str) -> dict[str, Any] | None:
+    """Resolve a specific domain pack by domain identifier or alias."""
+    from uiux.engine.knowledge_router.domain_registry import resolve_domain_pack as _resolve
+    return _resolve(domain_name)
+
+
+def detect_domain(
+    user_request: str = "",
+    repo_profile: dict[str, Any] | None = None,
+    explicit_domain: str | None = None,
+    requested_scope: str = "global",
+) -> dict[str, Any]:
+    """Detect and classify project domain with evidence and confidence."""
+    from uiux.engine.knowledge_router.domain_classifier import classify_domain
+    return classify_domain(
+        user_request=user_request,
+        repo_profile=repo_profile,
+        explicit_domain=explicit_domain,
+        requested_scope=requested_scope,
+    )
+
+
 def get_pack_registry() -> dict[str, Any]:
     """Return all registered packs across categories."""
+    from uiux.engine.knowledge_router.domain_registry import DOMAIN_PACKS
+
     return {
         "frameworks": dict(FRAMEWORK_PACKS),
         "styling": dict(STYLING_PACKS),
+        "domains": dict(DOMAIN_PACKS),
         "preservation": dict(PRESERVATION_PACKS),
         "runtime_validation": dict(RUNTIME_VALIDATION_PACKS),
         "skills": dict(DESIGN_SKILLS),
@@ -99,6 +124,8 @@ __all__ = [
     "build_knowledge_plan",
     "resolve_framework_pack",
     "resolve_styling_pack",
+    "resolve_domain_pack",
+    "detect_domain",
     "get_pack_registry",
     "KnowledgeRouter",
     "KnowledgeResolver",

@@ -12,6 +12,7 @@ from uiux.core import resources
 from uiux.core.errors import RegistryError
 from uiux.engine.knowledge_router.metadata import (
     DESIGN_SKILLS,
+    DOMAIN_PACKS,
     FRAMEWORK_PACKS,
     PRESERVATION_PACKS,
     RUNTIME_VALIDATION_PACKS,
@@ -27,6 +28,7 @@ class KnowledgeResolver:
         self._pack_registry: dict[str, dict[str, Any]] = {}
         self._pack_registry.update(FRAMEWORK_PACKS)
         self._pack_registry.update(STYLING_PACKS)
+        self._pack_registry.update(DOMAIN_PACKS)
         self._pack_registry.update(PRESERVATION_PACKS)
         self._pack_registry.update(RUNTIME_VALIDATION_PACKS)
         self._pack_registry.update(DESIGN_SKILLS)

@@ -38,6 +38,7 @@ __all__ = [
     "orchestrate_ui", "detect_ui_state", "analyze_repository", "detect_framework",
     "analyze_existing_ui", "build_preservation_profile", "evaluate_preservation",
     "route_knowledge", "build_knowledge_plan", "resolve_framework_pack",
+    "detect_domain", "resolve_domain_pack",
 ]
 
 API_VERSION = 1
@@ -263,6 +264,36 @@ def resolve_framework_pack(framework_name: str, version: str | None = None) -> d
 
     try:
         return knowledge_router.resolve_framework_pack(framework_name, version)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def detect_domain(
+    user_request: str = "",
+    repo_profile: dict | None = None,
+    explicit_domain: str | None = None,
+    requested_scope: str = "global",
+) -> dict:
+    """Detect and classify project domain with multi-signal evidence and confidence."""
+    from uiux.engine import knowledge_router
+
+    try:
+        return knowledge_router.detect_domain(
+            user_request=user_request,
+            repo_profile=repo_profile,
+            explicit_domain=explicit_domain,
+            requested_scope=requested_scope,
+        )
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def resolve_domain_pack(domain_name: str) -> dict | None:
+    """Resolve a specific domain pack metadata by domain identifier or alias."""
+    from uiux.engine import knowledge_router
+
+    try:
+        return knowledge_router.resolve_domain_pack(domain_name)
     except Exception as exc:
         raise _tool_error(exc) from exc
 

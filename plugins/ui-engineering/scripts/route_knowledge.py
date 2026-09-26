@@ -50,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         fw_packs = [p["id"] for p in plan["selected_packs"]["framework"]]
         st_packs = [p["id"] for p in plan["selected_packs"]["styling"]]
         ui_packs = [p["id"] for p in plan["selected_packs"]["ui_library"]]
+        dom_packs = [p["id"] for p in plan["selected_packs"].get("domain", [])]
         rt_packs = [p["id"] for p in plan["selected_packs"]["runtime"]]
         skills = [s["id"] for s in plan["selected_skills"]]
         knowledge = [k["id"] for k in plan["selected_knowledge"]]
@@ -60,6 +61,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"styling: {', '.join(st_packs) or 'none'}")
         if ui_packs:
             print(f"ui_library: {', '.join(ui_packs)}")
+        if dom_packs:
+            print(f"domain: {', '.join(dom_packs)}")
         print("selected:")
         for item_id in plan["load_order"]:
             print(f"  - {item_id}")

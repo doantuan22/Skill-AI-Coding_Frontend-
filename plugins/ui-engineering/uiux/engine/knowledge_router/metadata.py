@@ -5,7 +5,10 @@ task affinities, priority tiers, and package-relative source paths.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
+
+from uiux.engine.knowledge_router.domain_registry import DOMAIN_PACKS
 
 # Context weight points: small=1, medium=2, large=4
 WEIGHT_POINTS = {
@@ -13,6 +16,68 @@ WEIGHT_POINTS = {
     "medium": 2,
     "large": 4,
 }
+
+
+def check_version_compatibility(
+    detected_version: str | None,
+    version_features: dict[str, dict[str, str]] | None,
+) -> dict[str, Any]:
+    """Determine compatible framework features based on detected version.
+    
+    Hardening:
+    - version known + compatible -> allows version-specific features.
+    - version unknown -> generic safe tier, version-specific features suppressed.
+    - version incompatible -> version-specific features suppressed.
+    """
+    if not version_features:
+        return {
+            "active_guidance_tier": "standard",
+            "compatible_features": [],
+            "suppressed_features": [],
+        }
+
+    if not detected_version or not detected_version.strip():
+        return {
+            "active_guidance_tier": "generic_safe",
+            "compatible_features": [],
+            "suppressed_features": [
+                {"feature": f_name, "reason": "version_unknown_generic_safe"}
+                for f_name in version_features
+            ],
+        }
+
+    raw_nums = re.findall(r"\d+", detected_version)
+    if not raw_nums:
+        return {
+            "active_guidance_tier": "generic_safe",
+            "compatible_features": [],
+            "suppressed_features": [
+                {"feature": f_name, "reason": "version_unparseable_generic_safe"}
+                for f_name in version_features
+            ],
+        }
+
+    det_tuple = tuple(int(n) for n in raw_nums[:3])
+    compatible: list[str] = []
+    suppressed: list[dict[str, str]] = []
+
+    for f_name, f_info in version_features.items():
+        min_v = f_info.get("min_version", "0.0.0")
+        min_nums = tuple(int(n) for n in re.findall(r"\d+", min_v)[:3])
+        if det_tuple >= min_nums:
+            compatible.append(f_name)
+        else:
+            suppressed.append({
+                "feature": f_name,
+                "reason": f"incompatible_version (requires >={min_v}, detected {detected_version})",
+            })
+
+    return {
+        "active_guidance_tier": "compatible" if compatible else "generic_safe",
+        "compatible_features": compatible,
+        "suppressed_features": suppressed,
+    }
+
 
 FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
     "framework.react": {
@@ -22,6 +87,9 @@ FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
         "framework": "react",
         "version": "1.0.0",
         "version_range": ">=16.8.0",
+        "version_features": {
+            "hooks": {"min_version": "16.8.0", "description": "React Hooks"},
+        },
         "tasks": ["create_ui", "improve_ui", "responsive_fix", "component_refactor", "page_redesign", "full_redesign", "accessibility_fix", "form_ux", "navigation_ux", "visual_polish"],
         "priority": "high",
         "source": "knowledge/frameworks/react.md",
@@ -38,6 +106,9 @@ FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
         "framework": "nextjs",
         "version": "1.0.0",
         "version_range": ">=12.0.0",
+        "version_features": {
+            "app_router": {"min_version": "13.0.0", "description": "Next.js App Router conventions"},
+        },
         "tasks": ["create_ui", "improve_ui", "responsive_fix", "component_refactor", "page_redesign", "full_redesign", "navigation_ux", "accessibility_fix", "visual_polish"],
         "priority": "high",
         "source": "knowledge/frameworks/nextjs.md",
@@ -54,6 +125,9 @@ FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
         "framework": "vue",
         "version": "1.0.0",
         "version_range": ">=3.0.0",
+        "version_features": {
+            "composition_api_setup": {"min_version": "3.0.0", "description": "Vue 3 <script setup> Composition API"},
+        },
         "tasks": ["create_ui", "improve_ui", "responsive_fix", "component_refactor", "page_redesign", "full_redesign", "accessibility_fix", "form_ux", "visual_polish"],
         "priority": "high",
         "source": "knowledge/frameworks/vue.md",
@@ -86,6 +160,9 @@ FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
         "framework": "svelte",
         "version": "1.0.0",
         "version_range": ">=4.0.0",
+        "version_features": {
+            "runes_reactivity": {"min_version": "5.0.0", "description": "Svelte 5 runes ($state, $derived, $props)"},
+        },
         "tasks": ["create_ui", "improve_ui", "responsive_fix", "component_refactor", "page_redesign", "full_redesign", "accessibility_fix", "visual_polish"],
         "priority": "high",
         "source": "knowledge/frameworks/svelte.md",
@@ -150,6 +227,10 @@ FRAMEWORK_PACKS: dict[str, dict[str, Any]] = {
         "framework": "angular",
         "version": "1.0.0",
         "version_range": ">=14.0.0",
+        "version_features": {
+            "modern_control_flow": {"min_version": "17.0.0", "description": "Angular @if/@for syntax"},
+            "standalone_components": {"min_version": "14.0.0", "description": "Angular standalone component architecture"},
+        },
         "tasks": ["create_ui", "improve_ui", "responsive_fix", "component_refactor", "page_redesign", "full_redesign", "accessibility_fix", "form_ux", "visual_polish"],
         "priority": "high",
         "source": "knowledge/frameworks/angular.md",

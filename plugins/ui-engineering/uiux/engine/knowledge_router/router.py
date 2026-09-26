@@ -9,7 +9,12 @@ from __future__ import annotations
 from typing import Any
 
 from uiux.engine.knowledge_router.budget import ContextBudgetManager
-from uiux.engine.knowledge_router.domain_extension import resolve_domain_pack
+from uiux.engine.knowledge_router.domain_extension import (
+    classify_domain,
+    get_domain_pack,
+    query_domain_subtopics,
+    resolve_domain_pack,
+)
 from uiux.engine.knowledge_router.intent import (
     ACCESSIBILITY_FIX,
     AUDIT_ONLY,
@@ -31,10 +36,12 @@ from uiux.engine.knowledge_router.intent import (
 )
 from uiux.engine.knowledge_router.metadata import (
     DESIGN_SKILLS,
+    DOMAIN_PACKS,
     FRAMEWORK_PACKS,
     PRESERVATION_PACKS,
     RUNTIME_VALIDATION_PACKS,
     STYLING_PACKS,
+    check_version_compatibility,
 )
 from uiux.engine.knowledge_router.resolver import KnowledgeResolver
 from uiux.engine.preservation import L1, L2, L3
@@ -97,14 +104,18 @@ class KnowledgeRouter:
 
         if framework_pack_id in FRAMEWORK_PACKS:
             pack_entry = dict(FRAMEWORK_PACKS[framework_pack_id])
+            v_check = check_version_compatibility(fw_version, pack_entry.get("version_features"))
+            pack_entry["version_guidance"] = v_check["active_guidance_tier"]
+            pack_entry["compatible_features"] = v_check["compatible_features"]
+            pack_entry["suppressed_features"] = v_check["suppressed_features"]
             if fw_version:
                 pack_entry["version"] = str(fw_version)
-                pack_entry["reason"] = f"Detected {pack_entry['name']} (version {fw_version}) in repository profile."
+                pack_entry["reason"] = f"Detected {pack_entry['name']} (version {fw_version}, guidance: {v_check['active_guidance_tier']}) in repository profile."
             else:
                 pack_entry["version"] = None
-                pack_entry["reason"] = f"Detected {pack_entry['name']} (unspecified version) in repository profile."
+                pack_entry["reason"] = f"Detected {pack_entry['name']} (unspecified version, using generic safe guidance) in repository profile."
             selected_framework_packs.append(pack_entry)
-            rationale.append(f"Selected framework pack '{framework_pack_id}'.")
+            rationale.append(f"Selected framework pack '{framework_pack_id}' with guidance tier '{v_check['active_guidance_tier']}'.")
         else:
             fallback_pack = dict(FRAMEWORK_PACKS["framework.fallback"])
             fallback_pack["reason"] = f"Framework '{fw_name}' has no specific pack; loaded safe universal frontend fallback."
@@ -128,6 +139,8 @@ class KnowledgeRouter:
             "plain_css": "styling.plain_css",
             "css_modules": "styling.css_modules",
             "sass_scss": "styling.sass_scss",
+            "sass": "styling.sass_scss",
+            "scss": "styling.sass_scss",
             "styled_components": "styling.styled_components",
             "emotion": "styling.emotion",
             "mui": "styling.mui",
@@ -322,17 +335,139 @@ class KnowledgeRouter:
             rt_entry["reason"] = "Validates clean page render without console errors."
             selected_runtime_packs.append(rt_entry)
 
-        # 8. Check Phase 5 Domain Extension Point (if domain requested)
-        if "domain" in request:
-            domain_res = resolve_domain_pack(request["domain"])
-            if domain_res:
-                diagnostics["warnings"].append(f"Domain pack '{request['domain']}': {domain_res['message']}")
+        # 8. Domain Intelligence Integration (Phase 5)
+        # Deterministic, multi-signal domain classification with explicit user precedence
+        explicit_domain_input = request.get("domain")
+        domain_classification = classify_domain(
+            user_request=user_request,
+            repo_profile=repo_profile,
+            explicit_domain=explicit_domain_input,
+            requested_scope=requested_scope,
+        )
+
+        primary_domain_name = domain_classification.get("primary_domain", "general")
+        secondary_domain_names = domain_classification.get("secondary_domains", [])
+        domain_confidence = domain_classification.get("confidence", 0.0)
+        domain_evidence = domain_classification.get("evidence", [])
+        domain_conflicts = domain_classification.get("conflicts", [])
+        domain_source = domain_classification.get("source", "inferred")
+
+        for conf in domain_conflicts:
+            diagnostics["warnings"].append(conf)
+
+        selected_domain_packs: list[dict[str, Any]] = []
+        domain_context_primary: dict[str, Any] | None = None
+        domain_context_secondary: dict[str, Any] | None = None
+        all_domain_subtopics: list[str] = []
+        all_applied_patterns: list[str] = []
+        all_anti_patterns: list[str] = []
+        all_required_states: list[str] = []
+
+        if primary_domain_name and primary_domain_name != "general":
+            primary_pack_meta = get_domain_pack(primary_domain_name)
+            if primary_pack_meta:
+                # Query subtopics relevant to task intent and user request
+                subtopics = query_domain_subtopics(primary_domain_name, user_request, task_intent)
+                all_domain_subtopics.extend(subtopics)
+
+                # Determine if task is purely local/component without flow change
+                is_local_task = task_intent in (COMPONENT_REFACTOR, VISUAL_POLISH, CONSISTENCY_FIX) and not subtopics
+                domain_weight = "small" if is_local_task else primary_pack_meta.get("weight", "medium")
+
+                reason_text = (
+                    f"Domain design intelligence for {primary_pack_meta['name']} "
+                    f"(subtopics: {', '.join(subtopics) if subtopics else 'general conventions'})."
+                )
+
+                domain_entry = {
+                    "id": primary_pack_meta["id"],
+                    "category": "domain",
+                    "name": primary_pack_meta["name"],
+                    "reason": reason_text,
+                    "priority": "high",
+                    "source": primary_pack_meta["source"],
+                    "required": False,  # Non-mandatory so budget can prune if necessary
+                    "weight": domain_weight,
+                    "version": primary_pack_meta.get("version", "1.0.0"),
+                }
+                selected_domain_packs.append(domain_entry)
+
+                domain_context_primary = {
+                    "id": primary_pack_meta["id"],
+                    "domain": primary_domain_name,
+                    "confidence": domain_confidence,
+                    "evidence": domain_evidence,
+                    "selected_subtopics": subtopics,
+                }
+                all_applied_patterns.extend(primary_pack_meta.get("critical_flows", []))
+                all_anti_patterns.extend(primary_pack_meta.get("anti_patterns", []))
+                all_required_states.extend(primary_pack_meta.get("required_states", []))
+
+                # Add recommended runtime validation if applicable and not already present
+                rec_runtime = primary_pack_meta.get("recommended_runtime_validation", [])
+                for rt_id in rec_runtime:
+                    if rt_id in RUNTIME_VALIDATION_PACKS and not any(r["id"] == rt_id for r in selected_runtime_packs):
+                        rt_cand = dict(RUNTIME_VALIDATION_PACKS[rt_id])
+                        rt_cand["reason"] = f"Recommended by domain pack '{primary_domain_name}'."
+                        selected_runtime_packs.append(rt_cand)
+
+                # Rationale according to Precedence Hierarchy (Rule 19)
+                if workflow == "existing-ui":
+                    rationale.append(
+                        f"Domain knowledge '{primary_domain_name}' applied at Level 6 (best practice); "
+                        "cannot override existing brand palette, typography, or design tokens."
+                    )
+                else:
+                    rationale.append(
+                        f"Greenfield domain intelligence applied for '{primary_domain_name}' without violating explicit user constraints."
+                    )
+
+            # Secondary Domain (if detected with high confidence e.g. Beauty Ecommerce)
+            if secondary_domain_names:
+                sec_domain_name = secondary_domain_names[0]
+                sec_pack_meta = get_domain_pack(sec_domain_name)
+                if sec_pack_meta:
+                    sec_subtopics = query_domain_subtopics(sec_domain_name, user_request, task_intent)
+                    all_domain_subtopics.extend(sec_subtopics)
+
+                    sec_entry = {
+                        "id": sec_pack_meta["id"],
+                        "category": "domain",
+                        "name": sec_pack_meta["name"],
+                        "reason": f"Secondary domain intelligence for {sec_pack_meta['name']}.",
+                        "priority": "medium",
+                        "source": sec_pack_meta["source"],
+                        "required": False,
+                        "weight": "small",
+                        "version": sec_pack_meta.get("version", "1.0.0"),
+                    }
+                    selected_domain_packs.append(sec_entry)
+                    domain_context_secondary = {
+                        "id": sec_pack_meta["id"],
+                        "domain": sec_domain_name,
+                        "confidence": 0.50,
+                        "evidence": [f"Secondary domain evidence for {sec_domain_name}."],
+                        "selected_subtopics": sec_subtopics,
+                    }
+                    all_anti_patterns.extend(sec_pack_meta.get("anti_patterns", []))
+
+        # Build Domain Context block adhering to knowledge-plan.schema.json
+        domain_context = {
+            "primary": domain_context_primary,
+            "secondary": domain_context_secondary,
+            "selected_subtopics": list(dict.fromkeys(all_domain_subtopics)),
+            "applied_patterns": list(dict.fromkeys(all_applied_patterns)),
+            "anti_patterns": list(dict.fromkeys(all_anti_patterns)),
+            "required_states": list(dict.fromkeys(all_required_states)),
+            "source": domain_source,
+        }
 
         # 9. Assemble All Candidates for Context Budgeting
         all_candidates: list[dict[str, Any]] = []
         all_candidates.extend(selected_framework_packs)
         all_candidates.extend(selected_styling_packs)
         all_candidates.extend(selected_ui_library_packs)
+        all_candidates.extend(selected_domain_packs)
         all_candidates.extend(candidate_knowledge)
         all_candidates.extend(candidate_skills)
         all_candidates.extend(selected_runtime_packs)
@@ -352,6 +487,7 @@ class KnowledgeRouter:
         final_fw: list[dict[str, Any]] = []
         final_styling: list[dict[str, Any]] = []
         final_ui_lib: list[dict[str, Any]] = []
+        final_domain: list[dict[str, Any]] = []
         final_skills: list[dict[str, Any]] = []
         final_knowledge: list[dict[str, Any]] = []
         final_runtime: list[dict[str, Any]] = []
@@ -364,6 +500,8 @@ class KnowledgeRouter:
                 final_styling.append(it)
             elif cat == "ui_library":
                 final_ui_lib.append(it)
+            elif cat == "domain":
+                final_domain.append(it)
             elif cat == "skill":
                 final_skills.append(it)
             elif cat == "runtime":
@@ -375,9 +513,10 @@ class KnowledgeRouter:
         # 1. Hard constraints / preservation
         # 2. Framework pack
         # 3. Styling / UI Library packs
-        # 4. Skills
-        # 5. Catalog Knowledge
-        # 6. Runtime validation
+        # 4. Domain packs
+        # 5. Skills
+        # 6. Catalog Knowledge
+        # 7. Runtime validation
         load_order: list[str] = []
         for it in final_knowledge:
             if it.get("category") == "preservation":
@@ -387,6 +526,8 @@ class KnowledgeRouter:
         for it in final_styling:
             load_order.append(it["id"])
         for it in final_ui_lib:
+            load_order.append(it["id"])
+        for it in final_domain:
             load_order.append(it["id"])
         for it in final_skills:
             load_order.append(it["id"])
@@ -405,11 +546,13 @@ class KnowledgeRouter:
                 "framework": final_fw,
                 "styling": final_styling,
                 "ui_library": final_ui_lib,
+                "domain": final_domain,
                 "runtime": final_runtime,
             },
             "selected_skills": final_skills,
             "selected_knowledge": final_knowledge,
             "preservation_context": preservation_context,
+            "domain_context": domain_context,
             "excluded_knowledge": excluded_items,
             "load_order": load_order,
             "context_budget": budget_info,
