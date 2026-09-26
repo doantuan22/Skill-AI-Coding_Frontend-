@@ -35,6 +35,7 @@ __all__ = [
     "resolve_capabilities", "retrieve_knowledge", "get_knowledge", "knowledge_collections", "resolve_technology",
     "analyze_design_quality", "detect_runtime", "run_runtime", "accessibility_scan", "run_evals", "validate_skill",
     "capability_map", "self_test", "error_contract", "error_envelope", "API_VERSION", "UiuxError", "ToolError",
+    "orchestrate_ui", "detect_ui_state",
 ]
 
 API_VERSION = 1
@@ -119,6 +120,26 @@ def resolve_technology(capabilities: list[str], existing_dependencies: list[str]
     try:
         return technology.resolve(capabilities, existing_dependencies or [], allow_new_dependencies)
     except ValueError as exc:
+        raise _tool_error(exc) from exc
+
+
+def orchestrate_ui(request: dict) -> dict:
+    """Route UI workflows, enforce preservation policies, and resolve required capabilities."""
+    from uiux.engine import orchestrator
+
+    try:
+        return orchestrator.orchestrate(request)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def detect_ui_state(repo_context: dict | None = None) -> dict:
+    """Detect UI state (GREENFIELD, PARTIAL_UI, EXISTING_UI, UNKNOWN) for a repository context."""
+    from uiux.engine import ui_state
+
+    try:
+        return ui_state.detect_ui_state(repo_context)
+    except Exception as exc:
         raise _tool_error(exc) from exc
 
 

@@ -20,13 +20,19 @@ Act as the workflow controller for web UI/UX work. Establish the project state, 
 
 The valid happy path is `INITIAL → ANALYZING → PHASE_1 → PHASE_1_REVIEW → STRUCTURE_LOCKED → PHASE_2 → PHASE_2_REVIEW → FINAL_REVIEW → DONE`.
 
-## Phase routing and loading
+## UI Orchestration & Workflow Routing
 
-- For routing, load this file and [workflows/routing.md](workflows/routing.md).
-- In Phase 1, load [skills/ux-structure/router.md](skills/ux-structure/router.md) after [skills/ux-structure/README.md](skills/ux-structure/README.md). The router selects the task path, required artifacts, and only the relevant references; then follow [skills/ux-structure/workflow.md](skills/ux-structure/workflow.md).
-- For the structure gate, load [workflows/phase-transition.md](workflows/phase-transition.md) and [templates/STRUCTURE-LOCK.md](templates/STRUCTURE-LOCK.md).
-- In Phase 2, load [skills/ui-orchestrator/README.md](skills/ui-orchestrator/README.md), the active `STRUCTURE-LOCK.md`, and [skills/ui-orchestrator/router.md](skills/ui-orchestrator/router.md). The router verifies inputs and selects only the relevant engine modules, artifacts, and references, including Visual Language only when visual behavior/craft is in scope.
-- For review, load the applicable file in [review/](review/) and the artifacts it names. For final review, also load [review/final-review.md](review/final-review.md).
+All requests enter via the UI Orchestrator (`uiux.api.orchestrate_ui` or CLI `python scripts/orchestrate_ui.py`):
+1. Inspect project context and determine UI state (`GREENFIELD`, `PARTIAL_UI`, `EXISTING_UI`, `UNKNOWN`).
+2. Route to the dedicated workflow:
+   - **Greenfield UI** ([workflows/greenfield-workflow.md](workflows/greenfield-workflow.md)): For brand-new projects or explicit rebuilds. AI applies grounded design freedom (domain, target users, density); user constraints take highest precedence. Multi-page builds require page inventory and UX flow before code.
+   - **Existing UI/UX** ([workflows/existing-ui-workflow.md](workflows/existing-ui-workflow.md)): For codebases with established UI footprint. Strictly enforces **PRESERVE FIRST → IMPROVE SECOND → REDESIGN ONLY WHEN EXPLICITLY REQUESTED**. Employs L1/L2/L3 change budget and granular permissions ([workflows/preservation-rules.md](workflows/preservation-rules.md)).
+3. Evaluate Change Budget: L1 (Safe Refinement, default: allowed), L2 (Local Structural Change, default: justified only), L3 (Major Redesign, default: denied unless explicit permission). Vague requests ("modernize", "làm đẹp") NEVER authorize L3 or palette changes.
+4. For detailed workflow routing, consult [workflows/routing.md](workflows/routing.md).
+5. In Phase 1 structure definition, load [skills/ux-structure/router.md](skills/ux-structure/router.md) after [skills/ux-structure/README.md](skills/ux-structure/README.md).
+6. For the structure gate, load [workflows/phase-transition.md](workflows/phase-transition.md) and [templates/STRUCTURE-LOCK.md](templates/STRUCTURE-LOCK.md).
+7. In Phase 2 visual realization, load [skills/ui-orchestrator/README.md](skills/ui-orchestrator/README.md), the active `STRUCTURE-LOCK.md`, and [skills/ui-orchestrator/router.md](skills/ui-orchestrator/router.md).
+8. For review, load the applicable file in [review/](review/).
 
 Executable tools (capability resolver, knowledge retrieval, technology resolver, quality analyzer, runtime runner, evals, validation) are listed in `uiux/core/tools.json` and run with `python scripts/uiux_cli.py call <tool-id>`; see [../development/docs/plugin-architecture.md](../development/docs/plugin-architecture.md).
 

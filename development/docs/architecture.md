@@ -19,11 +19,11 @@ SKILL.md (entry point and controller)
 └─ tests/ (standard-library test suite; not packaged)
 ```
 
-`SKILL.md` remains a router. Each operational state loads only the relevant file(s), which keeps context narrow and makes future specialization additive. `workflow/` is the source of truth for lifecycle behavior; phase folders define responsibilities without embedding specialist methods; review files define gates; templates carry stable handoff metadata.
+`SKILL.md` operates as the primary entry point, directing requests through the UI Orchestrator (`uiux.api.orchestrate_ui`). The orchestrator inspects the repository context, determines the UI state (`GREENFIELD`, `PARTIAL_UI`, `EXISTING_UI`, `UNKNOWN`), and splits into two dedicated workflows:
+- **Greenfield Workflow** ([workflows/greenfield-workflow.md](../../plugins/ui-engineering/workflows/greenfield-workflow.md)): For brand-new projects or explicit rebuilds. Grounded design freedom with user constraints given top precedence.
+- **Existing UI/UX Workflow** ([workflows/existing-ui-workflow.md](../../plugins/ui-engineering/workflows/existing-ui-workflow.md)): Enforces `PRESERVE FIRST → IMPROVE SECOND → REDESIGN ONLY WHEN EXPLICITLY REQUESTED` using the L1/L2/L3 Change Budget model and granular permissions ([workflows/preservation-rules.md](../../plugins/ui-engineering/workflows/preservation-rules.md)).
 
-Phase 1 begins with [phase-1/router.md](../phase-1/router.md), which classifies the task and selects the smallest sufficient artifact set and relevant references. Its ordered engine is documented in [phase-1/workflow.md](../phase-1/workflow.md). This keeps page-type guidance out of the base context while preserving a structured path from normalized requirement to actors, use cases, IA, navigation, flows, page specifications, components, states, wireframes, review, brief, and lock.
-
-Phase 2 begins with [phase-2/router.md](../phase-2/router.md), which validates the Structure Lock, classifies visual work, identifies the frontend stack, and selects relevant engines and references. Its eight engines progress from direction and design intelligence to system/tokens, components, stack-conforming implementation, responsive interaction, visual QA, and final quality gating. The full operating model is in [docs/phase-2.md](phase-2.md).
+Each operational state loads only the relevant file(s), which keeps context narrow and makes future specialization additive. `workflows/` is the source of truth for lifecycle behavior; review files define gates; templates carry stable handoff metadata.
 
 The central invariant is the structure lock: Phase 1 produces and owns structural decisions, then the lock freezes their active versions for Phase 2. If later work needs a structural change, workflow rolls back to Phase 1 and issues a new lock after review. This preserves a one-way artifact dependency graph and prevents Phase 2 from bypassing UX structure.
 

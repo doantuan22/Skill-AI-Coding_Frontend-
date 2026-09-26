@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UI Orchestrator Contract Schema",
+  "description": "Machine-readable contract for UI Orchestrator inputs, routing outputs, UI state classification, change budgets (L1/L2/L3), and preservation policies.",
+  "type": "object",
+  "definitions": {
+    "OrchestratorInput": {
+      "type": "object",
+      "required": ["user_request"],
+      "properties": {
+        "user_intent": {
+          "type": "string",
+          "description": "Normalized intent category, e.g. new_feature, redesign, refine, responsive, a11y, audit, fix."
+        },
+        "user_request": {
+          "type": "string",
+          "description": "The exact user prompt or instruction."
+        },
+        "repo_context": {
+          "type": ["object", "null"],
+          "description": "Workspace context: file lists, package.json, detected UI signals, or component files.",
+          "properties": {
+            "workspace_root": {"type": "string"},
+            "files": {"type": "array", "items": {"type": "string"}},
+            "package_json": {"type": ["object", "null"]},
+            "ui_signals": {"type": ["object", "null"]}
+          }
+        },
+        "explicit_constraints": {
+          "type": ["object", "null"],
+          "description": "Explicit constraints provided by user (e.g. palette, framework, typography)."
+        },
+        "requested_scope": {
+          "type": "string",
+          "enum": ["global", "page", "section", "component", "local", "unspecified"],
+          "default": "unspecified"
+        },
+        "explicit_permissions": {
+          "type": ["object", "null"],
+          "description": "Explicit permissions granted by the user.",
+          "properties": {
+            "allow_palette_change": {"type": "boolean"},
+            "allow_branding_change": {"type": "boolean"},
+            "allow_layout_change": {"type": "boolean"},
+            "allow_navigation_change": {"type": "boolean"},
+            "allow_architecture_change": {"type": "boolean"},
+            "allow_rebuild": {"type": "boolean"},
+            "allowed_levels": {"type": "array", "items": {"type": "string", "enum": ["L1", "L2", "L3"]}}
+          }
+        }
+      }
+    },
+    "ProtectedProperties": {
+      "type": "object",
+      "required": [
+        "color_palette",
+        "brand_identity",
+        "overall_layout_identity",
+        "navigation_model",
+        "information_architecture"
+      ],
+      "properties": {
+        "color_palette": {"type": "string", "enum": ["locked", "unlocked"]},
+        "brand_identity": {"type": "string", "enum": ["locked", "unlocked"]},
+        "overall_layout_identity": {"type": "string", "enum": ["protected", "unprotected"]},
+        "navigation_model": {"type": "string", "enum": ["protected", "unprotected"]},
+        "information_architecture": {"type": "string", "enum": ["protected", "unprotected"]},
+        "component_structure": {"type": "string", "enum": ["controlled", "uncontrolled"]}
+      }
+    },
+    "AllowedChangeLevel": {
+      "type": "object",
+      "required": ["safe_refinement", "local_structural_change", "major_redesign", "max_level"],
+      "properties": {
+        "safe_refinement": {"type": "boolean", "description": "L1: spacing, alignment, typography scale, responsive, states, a11y."},
+        "local_structural_change": {"type": "string", "enum": ["allowed", "justified_only", "denied"], "description": "L2: component layout, section arrangement, form flow."},
+        "major_redesign": {"type": "string", "enum": ["granted", "explicit_user_permission_only", "denied"], "description": "L3: global palette, branding, page architecture, rebuild."},
+        "max_level": {"type": "string", "enum": ["L1", "L2", "L3"]}
+      }
+    },
+    "PermissionsDetail": {
+      "type": "object",
+      "required": [
+        "palette_editable",
+        "branding_editable",
+        "layout_editable",
+        "navigation_editable",
+        "architecture_editable",
+        "rebuild_allowed"
+      ],
+      "properties": {
+        "palette_editable": {"type": "boolean"},
+        "branding_editable": {"type": "boolean"},
+        "layout_editable": {"type": "boolean"},
+        "navigation_editable": {"type": "boolean"},
+        "architecture_editable": {"type": "boolean"},
+        "rebuild_allowed": {"type": "boolean"}
+      }
+    },
+    "OrchestratorOutput": {
+      "type": "object",
+      "required": [
+        "workflow",
+        "ui_state",
+        "confidence",
+        "design_freedom",
+        "preservation_required",
+        "protected_properties",
+        "allowed_change_level",
+        "permissions_detail",
+        "precedence_order",
+        "required_skills",
+        "required_knowledge",
+        "validation_requirements",
+        "next_action"
+      ],
+      "properties": {
+        "workflow": {
+          "type": "string",
+          "enum": ["greenfield", "existing-ui", "unknown"]
+        },
+        "ui_state": {
+          "type": "string",
+          "enum": ["GREENFIELD", "PARTIAL_UI", "EXISTING_UI", "UNKNOWN"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "design_freedom": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "constrained"]
+        },
+        "preservation_required": {
+          "type": "boolean"
+        },
+        "protected_properties": {
+          "$ref": "#/definitions/ProtectedProperties"
+        },
+        "allowed_change_level": {
+          "$ref": "#/definitions/AllowedChangeLevel"
+        },
+        "permissions_detail": {
+          "$ref": "#/definitions/PermissionsDetail"
+        },
+        "precedence_order": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "required_skills": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "required_knowledge": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "validation_requirements": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "next_action": {
+          "type": "object",
+          "required": ["step", "target_workflow", "recommended_handoff", "rationale"],
+          "properties": {
+            "step": {"type": "string"},
+            "target_workflow": {"type": "string"},
+            "recommended_handoff": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}

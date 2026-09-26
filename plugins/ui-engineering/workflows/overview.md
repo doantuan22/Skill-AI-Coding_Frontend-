@@ -1,20 +1,22 @@
-# Workflow overview
+# Workflow Overview
 
-This workflow separates decisions about product structure from decisions about visual and frontend realization. It operates as a gated state machine, not as a linear checklist: reviews may return work to the phase that owns the issue.
+This workflow provides a unified UI Orchestrator that routes between two dedicated tracks based on the detected UI state:
+
+1. **Greenfield UI Workflow** ([greenfield-workflow.md](greenfield-workflow.md)): Used for brand-new applications or rebuilding from scratch. AI exercises grounded design freedom (domain, target users, density) unless explicit constraints are provided. Multi-page builds require page inventory and UX flow prior to implementation.
+2. **Existing UI/UX Workflow** ([existing-ui-workflow.md](existing-ui-workflow.md)): Used when UI components, layouts, or stylesheets exist. Strictly enforces **PRESERVE FIRST → IMPROVE SECOND → REDESIGN ONLY WHEN EXPLICITLY REQUESTED**. Employs the L1/L2/L3 change budget model and granular permission enforcement ([preservation-rules.md](preservation-rules.md)).
 
 ```text
-User requirement
-  → analysis
-  → Phase 1: UX / structure
-  → Phase 1 review
-  → structure lock
-  → Phase 2: frontend / visual design
-  → Phase 2 review
-  → final review
-  → done
+User Request
+    ↓
+UI Orchestrator (inspects repo, determines UI state)
+    ↓
+Workflow Router
+    ├── Greenfield UI (Requirement → IA/Pages → Flows → Direction → Tokens → Implementation → QA)
+    └── Existing UI/UX (Observation → Scope Isolation → L1/L2/L3 Budget → Refinement → Preservation Gate)
+    ↓
+Implementation Handoff
+    ↓
+Validation & Quality Gates
 ```
 
-Phase 1 owns structural artifacts. Phase 2 consumes their locked version and owns implementation-facing artifacts. The review stages validate the handoff; the structure lock makes it explicit and auditable.
-
-Read [routing.md](routing.md) to choose the start, [state-machine.md](state-machine.md) for the lifecycle, [artifact-contract.md](artifact-contract.md) for ownership, and [phase-transition.md](phase-transition.md) before crossing a gate.
-
+Read [routing.md](routing.md) to choose the entry state, [state-machine.md](state-machine.md) for the lifecycle, [artifact-contract.md](artifact-contract.md) for ownership, and [preservation-rules.md](preservation-rules.md) for change budgets.
