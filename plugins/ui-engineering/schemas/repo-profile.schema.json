@@ -160,6 +160,7 @@
         "browser_validation": {"type": "string", "enum": ["playwright", "manual", "none"]},
         "playwright_available": {"type": "boolean"},
         "commands_source": {"type": ["string", "null"]},
+        "command_provenance": {"type": "object"},
         "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
       }
     },

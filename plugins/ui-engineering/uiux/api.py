@@ -1,6 +1,6 @@
 """Core API: the stable, public, platform-neutral surface of the skill.
 
-Plugin adapters and external callers use only this module (or the unified CLI ``python scripts/uiux_cli.py``). Every
+Plugin integrations and external callers use only this module (or the unified CLI ``python scripts/uiux_cli.py``). Every
 function takes and returns JSON-serializable values. Implementation modules are imported lazily so importing this
 module has no side effects and never touches Playwright, Node or the network.
 
@@ -36,6 +36,8 @@ __all__ = [
     "analyze_design_quality", "detect_runtime", "run_runtime", "accessibility_scan", "run_evals", "validate_skill",
     "capability_map", "self_test", "error_contract", "error_envelope", "API_VERSION", "UiuxError", "ToolError",
     "orchestrate_ui", "detect_ui_state", "analyze_repository", "detect_framework",
+    "analyze_existing_ui", "build_preservation_profile", "evaluate_preservation",
+    "route_knowledge", "build_knowledge_plan", "resolve_framework_pack",
 ]
 
 API_VERSION = 1
@@ -83,7 +85,7 @@ def list_tools() -> list[dict]:
 
 
 def describe_architecture() -> dict:
-    """Layers, allowed imports and entry points (for adapters, docs and packaging)."""
+    """Layers, allowed imports and entry points (for integrations, docs and packaging)."""
     from uiux.core import registry, resources
 
     return {"version": __version__, "package_root": str(resources.get_package_root()),
@@ -163,6 +165,107 @@ def detect_framework(project: str = ".") -> dict:
         return repo_intelligence.detect_framework(snapshot)
     except Exception as exc:
         raise _tool_error(exc) from exc
+
+
+def analyze_existing_ui(
+    project: str = ".",
+    repo_profile: dict | None = None,
+    options: dict | None = None,
+) -> dict:
+    """Analyze an existing UI codebase for visual identity, layout, component consistency, and UX flows."""
+    from uiux.engine import existing_ui
+
+    try:
+        return existing_ui.analyze_existing_ui(project=project, repo_profile=repo_profile, options=options)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def build_preservation_profile(
+    existing_ui_profile: dict,
+    permissions: dict | None = None,
+    requested_scope: str = "global",
+) -> dict:
+    """Construct an evidence-backed baseline preservation profile merging granular permissions."""
+    from uiux.engine import existing_ui
+
+    try:
+        return existing_ui.build_preservation_profile(
+            existing_ui_profile=existing_ui_profile,
+            permissions=permissions,
+            requested_scope=requested_scope,
+        )
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def evaluate_preservation(
+    baseline_profile: dict,
+    proposed_changes: dict,
+    permissions: dict | None = None,
+    requested_scope: str | None = None,
+) -> dict:
+    """Audit proposed or realized UI modifications against baseline preservation invariants."""
+    from uiux.engine import existing_ui
+
+    try:
+        return existing_ui.evaluate_preservation(
+            baseline_profile=baseline_profile,
+            proposed_changes=proposed_changes,
+            permissions=permissions,
+            requested_scope=requested_scope,
+        )
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def route_knowledge(request: dict | None = None, **kwargs) -> dict:
+    """Route required knowledge packs, skills, preservation invariants, and runtime validation."""
+    from uiux.engine import knowledge_router
+
+    try:
+        return knowledge_router.route_knowledge(request, **kwargs)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def build_knowledge_plan(
+    repo_profile: dict | None = None,
+    existing_ui_profile: dict | None = None,
+    preservation_profile: dict | None = None,
+    task_intent: str | None = None,
+    user_request: str = "",
+    workflow: str = "existing-ui",
+    requested_scope: str = "global",
+    explicit_constraints: dict | None = None,
+) -> dict:
+    """Build a comprehensive machine-readable Knowledge Load Plan."""
+    from uiux.engine import knowledge_router
+
+    try:
+        return knowledge_router.build_knowledge_plan(
+            repo_profile=repo_profile,
+            existing_ui_profile=existing_ui_profile,
+            preservation_profile=preservation_profile,
+            task_intent=task_intent,
+            user_request=user_request,
+            workflow=workflow,
+            requested_scope=requested_scope,
+            explicit_constraints=explicit_constraints,
+        )
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def resolve_framework_pack(framework_name: str, version: str | None = None) -> dict | None:
+    """Resolve a specific framework pack metadata by framework identifier."""
+    from uiux.engine import knowledge_router
+
+    try:
+        return knowledge_router.resolve_framework_pack(framework_name, version)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
 
 
 # --------------------------------------------------------------------------- knowledge
@@ -249,7 +352,7 @@ def accessibility_scan(request: dict, project: str, dry_run: bool = False) -> di
 
 # --------------------------------------------------------------------------- discovery and health
 def error_contract() -> dict:
-    """The error taxonomy (codes, categories, statuses, exit codes, remediation) that adapters map to host errors."""
+    """The error taxonomy (codes, categories, statuses, exit codes, remediation) that host integrations map to host errors."""
     from uiux.core import errors
 
     return json.loads(json.dumps(errors.taxonomy()))

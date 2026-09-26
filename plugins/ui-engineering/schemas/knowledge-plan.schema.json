@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Knowledge Load Plan Schema",
+  "description": "Machine-readable knowledge routing and context-budgeted load plan produced by Knowledge Router (Phase 4), selecting framework packs, styling packs, design skills, preservation invariants, and runtime validation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "workflow",
+    "requested_scope",
+    "task_intent",
+    "selected_packs",
+    "selected_skills",
+    "selected_knowledge",
+    "preservation_context",
+    "excluded_knowledge",
+    "load_order",
+    "context_budget",
+    "rationale",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "workflow": {"type": "string", "enum": ["greenfield", "existing-ui", "unknown"]},
+    "requested_scope": {"type": "string", "enum": ["global", "page", "section", "component", "local", "unspecified"]},
+    "task_intent": {
+      "type": "string",
+      "enum": [
+        "create_ui",
+        "improve_ui",
+        "responsive_fix",
+        "accessibility_fix",
+        "component_refactor",
+        "page_redesign",
+        "full_redesign",
+        "design_system_work",
+        "consistency_fix",
+        "form_ux",
+        "navigation_ux",
+        "motion",
+        "visual_polish",
+        "runtime_validation",
+        "audit_only",
+        "general_ui"
+      ]
+    },
+    "selected_packs": {
+      "type": "object",
+      "required": ["framework", "styling", "ui_library", "runtime"],
+      "properties": {
+        "framework": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"],
+            "properties": {
+              "id": {"type": "string"},
+              "category": {"type": "string"},
+              "name": {"type": "string"},
+              "reason": {"type": "string"},
+              "priority": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+              "source": {"type": "string"},
+              "required": {"type": "boolean"},
+              "weight": {"type": "string", "enum": ["small", "medium", "large"]},
+              "version": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "styling": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"],
+            "properties": {
+              "id": {"type": "string"},
+              "category": {"type": "string"},
+              "name": {"type": "string"},
+              "reason": {"type": "string"},
+              "priority": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+              "source": {"type": "string"},
+              "required": {"type": "boolean"},
+              "weight": {"type": "string", "enum": ["small", "medium", "large"]}
+            }
+          }
+        },
+        "ui_library": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"]
+          }
+        },
+        "runtime": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"]
+          }
+        }
+      }
+    },
+    "selected_skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"]
+      }
+    },
+    "selected_knowledge": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "name", "reason", "priority", "source", "required", "weight"]
+      }
+    },
+    "preservation_context": {
+      "type": "object",
+      "required": ["preservation_required", "palette", "brand_identity", "layout_identity", "navigation", "allowed_change_level"],
+      "properties": {
+        "preservation_required": {"type": "boolean"},
+        "palette": {"type": "string", "enum": ["locked", "editable"]},
+        "brand_identity": {"type": "string", "enum": ["locked", "editable"]},
+        "layout_identity": {"type": "string", "enum": ["protected", "editable"]},
+        "navigation": {"type": "string", "enum": ["protected", "editable"]},
+        "allowed_change_level": {"type": "string", "enum": ["L1", "L2", "L3"]},
+        "scope": {"type": "string"},
+        "precedence_rules": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "excluded_knowledge": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "reason"],
+        "properties": {
+          "id": {"type": "string"},
+          "category": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "load_order": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "context_budget": {
+      "type": "object",
+      "required": ["budget_limit_points", "used_points", "budget_status", "items_by_priority"],
+      "properties": {
+        "budget_limit_points": {"type": "integer"},
+        "used_points": {"type": "integer"},
+        "budget_status": {"type": "string", "enum": ["within_budget", "truncated_optional"]},
+        "items_by_priority": {
+          "type": "object",
+          "required": ["critical", "high", "medium", "low"],
+          "properties": {
+            "critical": {"type": "array", "items": {"type": "string"}},
+            "high": {"type": "array", "items": {"type": "string"}},
+            "medium": {"type": "array", "items": {"type": "string"}},
+            "low": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "rationale": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": ["warnings", "conflicts", "unsupported"],
+      "properties": {
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "conflicts": {"type": "array", "items": {"type": "string"}},
+        "unsupported": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

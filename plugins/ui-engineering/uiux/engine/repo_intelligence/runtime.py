@@ -106,6 +106,21 @@ def detect_runtime_capabilities(snapshot: RepositorySnapshot) -> dict[str, Any]:
     else:
         confidence = 0.0
 
+    command_provenance: dict[str, str] = {}
+    if install_cmd:
+        if scripts and ("install" in scripts or "setup" in scripts):
+            command_provenance["install"] = "explicit_package_script"
+        elif pm in ("npm", "pnpm", "yarn", "bun"):
+            command_provenance["install"] = "derived_from_package_manager"
+        elif pm in ("maven", "gradle"):
+            command_provenance["install"] = f"derived_from_{pm}"
+        else:
+            command_provenance["install"] = "unknown"
+
+    for cmd_key, cmd_val in (("dev", dev_cmd), ("build", build_cmd), ("test", test_cmd), ("lint", lint_cmd), ("typecheck", typecheck_cmd)):
+        if cmd_val:
+            command_provenance[cmd_key] = f"explicit_{commands_source or 'script'}"
+
     return {
         "package_manager": pm,
         "install_command": install_cmd,
@@ -117,5 +132,6 @@ def detect_runtime_capabilities(snapshot: RepositorySnapshot) -> dict[str, Any]:
         "browser_validation": browser_validation,
         "playwright_available": playwright_available,
         "commands_source": commands_source,
+        "command_provenance": command_provenance,
         "confidence": confidence,
     }

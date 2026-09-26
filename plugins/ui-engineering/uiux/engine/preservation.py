@@ -60,7 +60,7 @@ EXPLICIT_REDESIGN_PATTERNS = [
 
 # Patterns for explicit palette change permission
 PALETTE_CHANGE_PATTERNS = [
-    r"\bđổi\s+(?:toàn\s+bộ\s+)?(?:palette|bảng\s+màu|tông\s+màu|màu\s+sắc)\b",
+    r"\b(?:đổi|thay\s+đổi|thay)\s+(?:toàn\s+bộ\s+)?(?:palette|bảng\s+màu|tông\s+màu|màu(?:\s+sắc)?)\b",
     r"\bthay\s+màu\b",
     r"\bchange\s+(?:the\s+)?(?:palette|colors?|color\s+scheme|theme)\b",
     r"\bnew\s+color\s+palette\b",
@@ -326,3 +326,30 @@ def evaluate_preservation_policy(
         "scope": scope,
         "notes": notes,
     }
+
+
+def resolve_precedence(
+    explicit_user: str | None = None,
+    existing_brand: str | None = None,
+    existing_design_system: str | None = None,
+    existing_ux: str | None = None,
+    repo_constraints: str | None = None,
+    domain_best_practice: str | None = None,
+    design_inspiration: str | None = None,
+    ai_preference: str | None = None,
+) -> dict[str, Any]:
+    """Resolve conflicting design directions according to the Precedence Hierarchy (1..8)."""
+    candidates = [
+        (1, "Explicit user instruction", explicit_user),
+        (2, "Existing brand identity", existing_brand),
+        (3, "Existing design system", existing_design_system),
+        (4, "Existing UX / information architecture", existing_ux),
+        (5, "Repository/framework constraints", repo_constraints),
+        (6, "Domain best practices", domain_best_practice),
+        (7, "Design inspiration", design_inspiration),
+        (8, "AI preference", ai_preference),
+    ]
+    for rank, label, val in candidates:
+        if val is not None:
+            return {"chosen": val, "winner_rank": rank, "winner_label": label}
+    return {"chosen": None, "winner_rank": 8, "winner_label": "None"}

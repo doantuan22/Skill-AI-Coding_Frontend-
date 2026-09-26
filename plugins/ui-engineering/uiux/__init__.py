@@ -1,7 +1,7 @@
 """UI/UX design skill: platform-neutral core package.
 
 Layers (imports only flow downward; see uiux/core/layers.json):
-    uiux.api / uiux.cli   Core API facade (the only surface plugin adapters use)
+    uiux.api / uiux.cli   Core API facade (the only surface plugin clients use)
     uiux.tooling          validation and packaging tools
     uiux.evals            evaluation (quality analyzer, eval runner)
     uiux.engine           design engine (capability resolver, technology, retrieval, performance)

@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://uiux.local/schemas/preservation-evaluation.schema.json",
+  "title": "PreservationEvaluation",
+  "description": "Validation result comparing proposed/actual changes against the baseline preservation profile and user permissions.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "violations",
+    "warnings",
+    "checked_rules",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pass", "warn", "fail"]
+    },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "severity", "affected_area", "evidence", "required_permission", "actual_permission"],
+        "properties": {
+          "rule": {"type": "string"},
+          "severity": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+          "affected_area": {"type": "string"},
+          "evidence": {"type": "string"},
+          "required_permission": {"type": "string"},
+          "actual_permission": {"type": "string"}
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "checked_rules": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "summary": {
+      "type": "string"
+    }
+  }
+}

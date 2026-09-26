@@ -149,6 +149,18 @@ def build_repo_profile(snapshot: RepositorySnapshot) -> dict[str, Any]:
     ui_state_conf: float
     ui_state_evidence: list[str] = []
 
+    has_mature_components = comp_inventory["total_count"] >= 2
+    has_routes_or_pages = len(pages) >= 1 or len(routes) >= 1
+    has_active_styling = styling_data["confidence"] >= 0.6 and styling_data["primary"] is not None
+    has_tokens = token_data["confidence"] >= 0.5
+
+    # Multi-signal evidence combination:
+    is_mature_ui = (
+        (has_mature_components and (has_routes_or_pages or has_active_styling or has_tokens)) or
+        (len(pages) >= 2 and (has_active_styling or comp_inventory["total_count"] >= 1)) or
+        (comp_inventory["total_count"] >= 4)
+    )
+
     if total_files == 0:
         ui_state_val = "GREENFIELD"
         ui_state_conf = 0.96
@@ -173,7 +185,7 @@ def build_repo_profile(snapshot: RepositorySnapshot) -> dict[str, Any]:
         ui_state_val = "PARTIAL_UI"
         ui_state_conf = 0.85
         ui_state_evidence.append(f"Partial UI scaffold detected: {ui_files_count} UI files, {comp_inventory['total_count']} components.")
-    elif comp_inventory["total_count"] >= 2 or len(pages) >= 2 or (styling_data["confidence"] >= 0.7 and ui_files_count >= 3):
+    elif is_mature_ui:
         ui_state_val = "EXISTING_UI"
         ui_state_conf = 0.95
         ui_state_evidence.append(
@@ -184,7 +196,7 @@ def build_repo_profile(snapshot: RepositorySnapshot) -> dict[str, Any]:
         ui_state_conf = 0.35
         ui_state_evidence.append("Ambiguous signals: unable to classify UI presence with high confidence.")
     else:
-        ui_state_val = "EXISTING_UI"
+        ui_state_val = "EXISTING_UI" if ui_files_count >= 3 else "PARTIAL_UI"
         ui_state_conf = 0.80
         ui_state_evidence.append(f"Established UI files detected ({ui_files_count} UI files).")
 
