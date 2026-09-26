@@ -35,7 +35,7 @@ __all__ = [
     "resolve_capabilities", "retrieve_knowledge", "get_knowledge", "knowledge_collections", "resolve_technology",
     "analyze_design_quality", "detect_runtime", "run_runtime", "accessibility_scan", "run_evals", "validate_skill",
     "capability_map", "self_test", "error_contract", "error_envelope", "API_VERSION", "UiuxError", "ToolError",
-    "orchestrate_ui", "detect_ui_state",
+    "orchestrate_ui", "detect_ui_state", "analyze_repository", "detect_framework",
 ]
 
 API_VERSION = 1
@@ -139,6 +139,28 @@ def detect_ui_state(repo_context: dict | None = None) -> dict:
 
     try:
         return ui_state.detect_ui_state(repo_context)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def analyze_repository(project: str = ".", options: dict | None = None) -> dict:
+    """Run full Repo & Framework Intelligence to produce a normalized repo_profile."""
+    from uiux.engine import repo_intelligence
+
+    try:
+        return repo_intelligence.analyze_repository(project, options)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def detect_framework(project: str = ".") -> dict:
+    """Quickly detect the frontend framework stack for a project."""
+    from uiux.engine import repo_intelligence
+    from uiux.engine.repo_intelligence.scanner import RepositorySnapshot
+
+    try:
+        snapshot = RepositorySnapshot(workspace_root=project)
+        return repo_intelligence.detect_framework(snapshot)
     except Exception as exc:
         raise _tool_error(exc) from exc
 

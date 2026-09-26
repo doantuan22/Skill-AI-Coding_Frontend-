@@ -247,10 +247,17 @@ class HeuristicUIStateDetector(UIStateDetector):
 
 
 # Module-level default detector instance
-_current_detector: UIStateDetector = HeuristicUIStateDetector()
+_current_detector: UIStateDetector | None = None
 
 
 def get_ui_state_detector() -> UIStateDetector:
+    global _current_detector
+    if _current_detector is None:
+        try:
+            from uiux.engine.repo_intelligence.ui_state_detector import RepositoryUIStateDetector
+            _current_detector = RepositoryUIStateDetector()
+        except Exception:
+            _current_detector = HeuristicUIStateDetector()
     return _current_detector
 
 

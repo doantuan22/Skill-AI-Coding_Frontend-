@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Normalized Repository Profile Schema",
+  "description": "Machine-readable repository profile produced by Repo & Framework Intelligence (Phase 2), capturing evidence-backed detections of framework, styling, routes, components, design tokens, runtime capabilities, and UI state.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "framework",
+    "styling_system",
+    "ui_library",
+    "icon_library",
+    "motion_library",
+    "routes",
+    "pages",
+    "components",
+    "design_tokens",
+    "existing_ui_state",
+    "runtime",
+    "repository_signals",
+    "conflicts",
+    "diagnostics",
+    "overall_confidence"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "framework": {
+      "type": "object",
+      "required": ["name", "version", "confidence", "evidence", "conflicting_signals"],
+      "properties": {
+        "name": {"type": "string", "enum": ["react", "nextjs", "vue", "nuxt", "svelte", "sveltekit", "angular", "static_html", "spring_thymeleaf", "unknown"]},
+        "version": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "conflicting_signals": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "styling_system": {
+      "type": "object",
+      "required": ["primary", "secondary", "detected", "confidence", "evidence"],
+      "properties": {
+        "primary": {"type": ["string", "null"]},
+        "secondary": {"type": ["string", "null"]},
+        "detected": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "ui_library": {
+      "type": "object",
+      "required": ["name", "version", "confidence", "evidence"],
+      "properties": {
+        "name": {"type": ["string", "null"]},
+        "version": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "icon_library": {
+      "type": "object",
+      "required": ["name", "confidence"],
+      "properties": {
+        "name": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "motion_library": {
+      "type": "object",
+      "required": ["name", "confidence"],
+      "properties": {
+        "name": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "source_file", "page_component", "layout", "confidence"],
+        "properties": {
+          "path": {"type": "string"},
+          "source_file": {"type": "string"},
+          "page_component": {"type": ["string", "null"]},
+          "layout": {"type": ["string", "null"]},
+          "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "file", "route", "type"],
+        "properties": {
+          "id": {"type": "string"},
+          "file": {"type": "string"},
+          "route": {"type": ["string", "null"]},
+          "type": {"type": "string"}
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "required": ["shared", "layouts", "primitives", "page_specific", "library_wrappers", "possible_duplicates", "total_count"],
+      "properties": {
+        "shared": {"type": "array", "items": {"type": "string"}},
+        "layouts": {"type": "array", "items": {"type": "string"}},
+        "primitives": {"type": "array", "items": {"type": "string"}},
+        "page_specific": {"type": "array", "items": {"type": "string"}},
+        "library_wrappers": {"type": "array", "items": {"type": "string"}},
+        "possible_duplicates": {"type": "array", "items": {"type": "string"}},
+        "total_count": {"type": "integer"}
+      }
+    },
+    "design_tokens": {
+      "type": "object",
+      "required": ["sources", "colors", "typography", "spacing", "radius", "shadows", "breakpoints", "confidence"],
+      "properties": {
+        "sources": {"type": "array", "items": {"type": "string"}},
+        "colors": {"type": "array", "items": {"type": "string"}},
+        "typography": {"type": "array", "items": {"type": "string"}},
+        "spacing": {"type": "array", "items": {"type": "string"}},
+        "radius": {"type": "array", "items": {"type": "string"}},
+        "shadows": {"type": "array", "items": {"type": "string"}},
+        "breakpoints": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "existing_ui_state": {
+      "type": "object",
+      "required": ["value", "confidence", "evidence"],
+      "properties": {
+        "value": {"type": "string", "enum": ["GREENFIELD", "PARTIAL_UI", "EXISTING_UI", "UNKNOWN"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "package_manager",
+        "install_command",
+        "dev_command",
+        "build_command",
+        "test_command",
+        "lint_command",
+        "typecheck_command",
+        "browser_validation",
+        "playwright_available",
+        "commands_source",
+        "confidence"
+      ],
+      "properties": {
+        "package_manager": {"type": ["string", "null"]},
+        "install_command": {"type": ["string", "null"]},
+        "dev_command": {"type": ["string", "null"]},
+        "build_command": {"type": ["string", "null"]},
+        "test_command": {"type": ["string", "null"]},
+        "lint_command": {"type": ["string", "null"]},
+        "typecheck_command": {"type": ["string", "null"]},
+        "browser_validation": {"type": "string", "enum": ["playwright", "manual", "none"]},
+        "playwright_available": {"type": "boolean"},
+        "commands_source": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "repository_signals": {
+      "type": "object",
+      "required": ["is_monorepo", "apps", "ui_density", "total_files", "ui_files_count"],
+      "properties": {
+        "is_monorepo": {"type": "boolean"},
+        "apps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["root", "name", "framework"],
+            "properties": {
+              "root": {"type": "string"},
+              "name": {"type": "string"},
+              "framework": {"type": "string"}
+            }
+          }
+        },
+        "ui_density": {"type": "string", "enum": ["none", "low", "medium", "high"]},
+        "total_files": {"type": "integer"},
+        "ui_files_count": {"type": "integer"}
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": ["warnings", "detector_failures", "unsupported_signals"],
+      "properties": {
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "detector_failures": {"type": "array", "items": {"type": "string"}},
+        "unsupported_signals": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "overall_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    }
+  }
+}

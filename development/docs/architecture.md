@@ -19,7 +19,7 @@ SKILL.md (entry point and controller)
 └─ tests/ (standard-library test suite; not packaged)
 ```
 
-`SKILL.md` operates as the primary entry point, directing requests through the UI Orchestrator (`uiux.api.orchestrate_ui`). The orchestrator inspects the repository context, determines the UI state (`GREENFIELD`, `PARTIAL_UI`, `EXISTING_UI`, `UNKNOWN`), and splits into two dedicated workflows:
+`SKILL.md` operates as the primary entry point, directing requests through the UI Orchestrator (`uiux.api.orchestrate_ui`). The orchestrator leverages the Repo Intelligence layer (`uiux.api.analyze_repository`, see [phase-2.md](phase-2.md)) to extract evidence-based facts into a normalized `repo_profile`, determine the UI state (`GREENFIELD`, `PARTIAL_UI`, `EXISTING_UI`, `UNKNOWN`), and split into two dedicated workflows:
 - **Greenfield Workflow** ([workflows/greenfield-workflow.md](../../plugins/ui-engineering/workflows/greenfield-workflow.md)): For brand-new projects or explicit rebuilds. Grounded design freedom with user constraints given top precedence.
 - **Existing UI/UX Workflow** ([workflows/existing-ui-workflow.md](../../plugins/ui-engineering/workflows/existing-ui-workflow.md)): Enforces `PRESERVE FIRST → IMPROVE SECOND → REDESIGN ONLY WHEN EXPLICITLY REQUESTED` using the L1/L2/L3 Change Budget model and granular permissions ([workflows/preservation-rules.md](../../plugins/ui-engineering/workflows/preservation-rules.md)).
 
