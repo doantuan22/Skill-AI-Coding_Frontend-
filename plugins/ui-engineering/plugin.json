@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "entrypoints": {
     "skill": {"path": "SKILL.md", "type": "instructions", "description": "Workflow controller; agents start here."},
-    "knowledge": {"path": "phase-2/knowledge/README.md", "type": "instructions", "registry": "phase-2/knowledge/registry.json"},
+    "knowledge": {"path": "knowledge/domains/README.md", "type": "instructions", "registry": "knowledge/domains/registry.json"},
     "core_api": {"module": "uiux.api", "type": "python", "description": "Public, platform-neutral API"},
     "cli": {"path": "scripts/uiux_cli.py", "type": "command", "usage": "python scripts/uiux_cli.py call <tool-id> --params '<json>'"},
     "capability_resolver": {"tool": "resolve_capabilities"},
@@ -31,8 +31,8 @@
   ],
   "capability_map": {"registry": "uiux/core/capabilities.json"},
   "knowledge": {
-    "registry": "phase-2/knowledge/registry.json",
-    "index": "phase-2/knowledge/INDEX.md",
+    "registry": "knowledge/domains/registry.json",
+    "index": "knowledge/domains/INDEX.md",
     "collections": ["styles", "layouts", "screens", "motion", "interactions", "effects", "recipes", "graphics", "technologies", "components"]
   },
   "tools": {"registry": "uiux/core/tools.json"},
@@ -75,5 +75,5 @@
       "scripts/run_accessibility_scan.py", "scripts/validate_runtime_evidence.py", "scripts/validate_accessibility_evidence.py"
     ]
   },
-  "packaging": {"rules": "plugin/packaging/package-rules.json", "status": "build and verification tooling available (plugin/packaging); no release published"}
+  "packaging": {"rules": "packaging/package-rules.json", "status": "build and verification tooling available (packaging); no release published"}
 }

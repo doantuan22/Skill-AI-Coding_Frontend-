@@ -12,4 +12,4 @@ For reading, reference, listing and dense product surfaces.
 | **High-density product** | Dashboards, admin, analytics | App shell, tables, panels; alignment and type create hierarchy; minimal cards | dense-transactional + tabular numerals | Marketing-style large type and generous whitespace inside apps |
 | **Low-density premium** | Brand/product narrative pages | Few elements per viewport; scale contrast; full-width bands | premium-modern | Low density used to stretch thin content |
 
-Dense and reading layouts follow [phase-2/references/tables.md](../../references/tables.md) and [dashboard](../../references/dashboard.md) guidance where relevant.
+Dense and reading layouts follow [references/tables.md](../../references/tables.md) and [dashboard](../../references/dashboard.md) guidance where relevant.

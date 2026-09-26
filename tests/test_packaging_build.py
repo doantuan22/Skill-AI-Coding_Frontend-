@@ -63,7 +63,7 @@ class ReleaseBuildTests(unittest.TestCase):
             embedded = archive.read(f"{self.base}/PACKAGE-MANIFEST.json")
         self.assertEqual(embedded, (self.out_a / f"{self.base}.package-manifest.json").read_bytes())
         self.assertEqual(artifact.validate_schema(manifest, json.loads(
-            (S.ROOT / "plugin/schemas/package-manifest.schema.json").read_text(encoding="utf-8"))), [])
+            (S.ROOT / "schemas/package-manifest.schema.json").read_text(encoding="utf-8"))), [])
 
     def test_zip_metadata_is_deterministic_and_canonical(self) -> None:
         with zipfile.ZipFile(self.out_a / f"{self.base}.zip") as archive:
@@ -120,7 +120,7 @@ class ReleaseBuildTests(unittest.TestCase):
             self.assertEqual(artifact.sha256_file(self.out_a / name), digest)
         info = json.loads((self.out_a / f"{self.base}.build-info.json").read_text(encoding="utf-8"))
         self.assertEqual(artifact.validate_schema(info, json.loads(
-            (S.ROOT / "plugin/schemas/build-info.schema.json").read_text(encoding="utf-8"))), [])
+            (S.ROOT / "schemas/build-info.schema.json").read_text(encoding="utf-8"))), [])
         self.assertEqual(info["content_sha256"], artifact.sha256_file(self.out_a / f"{self.base}.package-manifest.json"))
 
     def test_source_tree_is_not_modified(self) -> None:
@@ -149,18 +149,21 @@ class ProtectionTests(unittest.TestCase):
 
     def test_modified_tracked_file_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-modified")
-        (repo / "plugins" / "ui-engineering" / "SKILL.md").write_text((repo / "plugins" / "ui-engineering" / "SKILL.md").read_text(encoding="utf-8") + "\nlocal edit\n", encoding="utf-8")
+        target = (repo / "plugins" / "ui-engineering" / "SKILL.md") if (repo / "plugins" / "ui-engineering").is_dir() else (repo / "SKILL.md")
+        target.write_text(target.read_text(encoding="utf-8") + "\nlocal edit\n", encoding="utf-8")
         error = self.build_error(repo)
         self.assertEqual(error["code"], "DIRTY_TREE")
         self.assertEqual(error["details"]["hint"], "COMMIT_REQUIRED_BEFORE_RELEASE_BUILD")
 
     def test_untracked_file_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-untracked")
+        (repo / "development" / "docs").mkdir(parents=True, exist_ok=True)
         (repo / "development" / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
         self.assertEqual(self.build_error(repo)["code"], "DIRTY_TREE")
 
     def test_dev_build_of_dirty_tree_is_explicit_and_marked(self) -> None:
         repo = S.clone(self.repo, self.base, "dirty-dev")
+        (repo / "development" / "docs").mkdir(parents=True, exist_ok=True)
         (repo / "development" / "docs" / "scratch-notes.md").write_text("draft\n", encoding="utf-8")
         out = self.base / "out-dev"
         code, result = S.run_build(repo, out, "--dev")
@@ -177,7 +180,7 @@ class ProtectionTests(unittest.TestCase):
     def test_not_a_git_repository(self) -> None:
         plain = self.base / "plain"
         plain.mkdir()
-        (plain / "plugins" / "ui-engineering" / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
+        (plain / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
         for rel in ("packaging/package-rules.json",):
             (plain / rel).parent.mkdir(parents=True, exist_ok=True)
             (plain / rel).write_bytes((self.repo / rel).read_bytes())
@@ -200,14 +203,14 @@ class ProtectionTests(unittest.TestCase):
 
     def test_stale_knowledge_registry_blocks_release(self) -> None:
         repo = S.clone(self.repo, self.base, "stale-registry")
-        path = repo / "plugins/ui-engineering/knowledge/domains/registry.json"
+        path = (repo / "plugins/ui-engineering/knowledge/domains/registry.json") if (repo / "plugins/ui-engineering").is_dir() else (repo / "knowledge/domains/registry.json")
         path.write_text(path.read_text(encoding="utf-8").replace('"styles"', '"styles "', 1), encoding="utf-8")
         S.commit_all(repo)
         self.assertEqual(self.build_error(repo)["code"], "REGISTRY_STALE")
 
     def test_crlf_working_tree_produces_the_same_content_as_the_release(self) -> None:
         repo = S.clone(self.repo, self.base, "crlf")
-        target = repo / "plugins/ui-engineering/SKILL.md"
+        target = (repo / "plugins/ui-engineering/SKILL.md") if (repo / "plugins/ui-engineering").is_dir() else (repo / "SKILL.md")
         target.write_bytes(target.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
         code_dev, dev = S.run_build(repo, self.base / "out-crlf-dev", "--dev")
         code_rel, rel = S.run_build(self.repo, self.base / "out-crlf-rel")

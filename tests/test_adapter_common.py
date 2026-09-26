@@ -14,7 +14,7 @@ from pathlib import Path
 import _paths
 
 ROOT = _paths.PACKAGE_ROOT
-COMMON_DIR = ROOT / "plugin" / "adapters" / "common"
+COMMON_DIR = ROOT / "adapters" / "common"
 
 # Ensure we can import the common framework
 if str(COMMON_DIR.parent) not in sys.path:
@@ -27,7 +27,7 @@ class DescriptorTests(unittest.TestCase):
     def test_load_and_validate_success(self) -> None:
         # We can test against the existing claude-code adapter.json
         adapter_dir = ROOT / ".claude-plugin"
-        schema_dir = ROOT / "plugin" / "schemas"
+        schema_dir = ROOT / "schemas"
         data = descriptor.load_and_validate(adapter_dir, schema_dir)
         self.assertEqual(data["id"], "claude-code")
         self.assertEqual(data["status"], "experimental")
@@ -36,7 +36,7 @@ class DescriptorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
             with self.assertRaisesRegex(RuntimeError, "Adapter metadata not found"):
-                descriptor.load_and_validate(tmp_path, ROOT / "plugin" / "schemas")
+                descriptor.load_and_validate(tmp_path, ROOT / "schemas")
 
 
 class BundleTests(unittest.TestCase):

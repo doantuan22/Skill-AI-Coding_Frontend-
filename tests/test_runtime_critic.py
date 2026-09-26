@@ -1187,5 +1187,154 @@ class CriticQualityTests(unittest.TestCase):
             # Either way, no auto-install was attempted
 
 
+class RuntimeEvidenceGateContractTests(unittest.TestCase):
+    """P0.2 Contract: Runtime critic must NEVER pass when evidence is required but missing/empty."""
+
+    def test_case_a_runtime_required_empty_evidence_blocks(self) -> None:
+        """CASE A: runtime required + empty evidence -> BLOCKED, authorized_to_proceed=false."""
+        plan = _mock_plan()
+        plan["validation"] = {
+            "requires_runtime": True,
+            "required_checks": ["responsive_viewport_matrix", "form_interaction_test"],
+            "affected_pages": ["/dashboard"],
+            "affected_viewports": ["desktop_1440", "mobile_375"],
+        }
+        # Zero captures provided
+        session = RuntimeValidationSession(
+            modification_plan=plan,
+            workflow="existing-ui",
+            after_evidence={"captures": []},
+        )
+        self.assertTrue(session.is_runtime_required())
+        self.assertFalse(session.has_runtime())
+
+        engine = CriticEngine()
+        report = engine.critique(session)
+
+        self.assertIn(report["overall_status"], ("blocked", "needs_runtime", "insufficient_evidence"))
+        self.assertNotEqual(report["overall_status"], "pass")
+        self.assertTrue(any(i.get("category") == "insufficient_evidence" for i in report["issues"]))
+
+        eval_res = evaluate_runtime_result(report)
+        self.assertFalse(eval_res["authorized_to_proceed"])
+        self.assertTrue(eval_res["blocked"])
+
+    def test_case_b_runtime_required_valid_evidence_no_failures_passes(self) -> None:
+        """CASE B: runtime required + valid complete evidence + no failures -> PASS."""
+        plan = _mock_plan()
+        plan["validation"] = {
+            "requires_runtime": True,
+            "required_checks": ["responsive_viewport_matrix"],
+            "affected_pages": ["/dashboard"],
+            "affected_viewports": ["desktop_1440"],
+        }
+        valid_after = {
+            "captures": [
+                {"route": "/dashboard", "viewport": "desktop_1440", "screenshot": "dash.png", "dom_nodes": 50}
+            ],
+            "console_errors": [],
+            "visual_diffs": [],
+            "responsive_issues": [],
+            "interaction_results": [],
+            "accessibility_scans": [],
+        }
+        session = RuntimeValidationSession(
+            modification_plan=plan,
+            workflow="greenfield",
+            after_evidence=valid_after,
+        )
+        self.assertTrue(session.is_runtime_required())
+        self.assertTrue(session.has_runtime())
+        self.assertTrue(session.has_complete_evidence())
+
+        report = CriticEngine().critique(session)
+        self.assertEqual(report["overall_status"], "pass")
+
+        eval_res = evaluate_runtime_result(report)
+        self.assertTrue(eval_res["authorized_to_proceed"])
+        self.assertFalse(eval_res["blocked"])
+
+    def test_case_c_runtime_blocked_playwright_unavailable(self) -> None:
+        """CASE C: runtime blocked because Playwright unavailable -> BLOCKED, not PASS."""
+        plan = _mock_plan()
+        plan["validation"] = {
+            "requires_runtime": True,
+            "required_checks": ["browser_runtime"],
+            "affected_pages": ["/"],
+            "affected_viewports": ["desktop_1440"],
+        }
+        # Simulating execution runner returning BLOCKED_PLAYWRIGHT_NOT_DECLARED with no captures
+        session = RuntimeValidationSession(
+            modification_plan=plan,
+            workflow="existing-ui",
+            after_evidence={
+                "status": "BLOCKED",
+                "error_code": "PLAYWRIGHT_NOT_INSTALLED",
+                "captures": [],
+            },
+        )
+        report = CriticEngine().critique(session)
+        self.assertIn(report["overall_status"], ("blocked", "needs_runtime", "insufficient_evidence"))
+        self.assertNotEqual(report["overall_status"], "pass")
+        eval_res = evaluate_runtime_result(report)
+        self.assertFalse(eval_res["authorized_to_proceed"])
+
+    def test_case_d_partial_evidence_does_not_pass(self) -> None:
+        """CASE D: partial evidence -> partial/blocked/fail, cannot silently PASS."""
+        plan = _mock_plan()
+        plan["validation"] = {
+            "requires_runtime": True,
+            "required_checks": ["responsive_viewport_matrix"],
+            "affected_pages": ["/home"],
+            "affected_viewports": ["desktop_1440", "mobile_375"],
+        }
+        # Only desktop captured, mobile is missing
+        partial_after = {
+            "captures": [
+                {"route": "/home", "viewport": "desktop_1440", "screenshot": "desktop.png"}
+            ],
+            "console_errors": [],
+        }
+        session = RuntimeValidationSession(
+            modification_plan=plan,
+            workflow="existing-ui",
+            after_evidence=partial_after,
+        )
+        self.assertTrue(session.has_runtime())
+        self.assertFalse(session.has_complete_evidence())
+        self.assertTrue(session.has_partial_evidence())
+        self.assertEqual(session.get_missing_evidence_pairs(), [("/home", "mobile_375")])
+
+        report = CriticEngine().critique(session)
+        self.assertNotEqual(report["overall_status"], "pass")
+        self.assertIn(report["overall_status"], ("blocked", "fail", "insufficient_evidence"))
+
+        eval_res = evaluate_runtime_result(report)
+        self.assertFalse(eval_res["authorized_to_proceed"])
+
+    def test_case_e_code_level_only_validation_task(self) -> None:
+        """CASE E: code-level-only validation task does not require browser evidence."""
+        plan = _mock_plan()
+        plan["validation"] = {
+            "requires_runtime": False,
+            "required_checks": ["lint", "typecheck"],
+            "affected_pages": [],
+            "affected_viewports": [],
+        }
+        session = RuntimeValidationSession(
+            modification_plan=plan,
+            workflow="code-only",
+            change_manifest={"drift_detected": False, "unexpected_changes": []},
+            after_evidence={},
+        )
+        self.assertFalse(session.is_runtime_required())
+
+        report = CriticEngine().critique(session)
+        self.assertEqual(report["overall_status"], "pass")
+
+        eval_res = evaluate_runtime_result(report)
+        self.assertTrue(eval_res["authorized_to_proceed"])
+
+
 if __name__ == "__main__":
     unittest.main()

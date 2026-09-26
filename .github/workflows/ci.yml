@@ -30,10 +30,10 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -s tests -t tests
       - name: Skill validation
-        run: python scripts/validate_skill.py
+        run: python plugins/ui-engineering/scripts/validate_skill.py
       - name: Knowledge catalogs and registry
-        run: python scripts/knowledge_lib.py check
+        run: python plugins/ui-engineering/scripts/knowledge_lib.py check
       - name: Packaging boundary
-        run: python plugin/packaging/package_files.py
+        run: python plugins/ui-engineering/packaging/package_files.py
       - name: Automated evals
-        run: python scripts/uiux_cli.py call run_evals
+        run: python plugins/ui-engineering/scripts/uiux_cli.py call run_evals

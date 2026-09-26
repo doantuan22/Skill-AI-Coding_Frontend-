@@ -1,6 +1,6 @@
 """Knowledge retrieval for a capability plan: the only catalog files an agent should load for the task.
 
-Category gating rules: phase-2/knowledge/retrieval.md.
+Category gating rules: knowledge/domains/retrieval.md.
 """
 from __future__ import annotations
 

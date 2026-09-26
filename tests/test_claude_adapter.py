@@ -248,7 +248,7 @@ class BundleStructureTests(unittest.TestCase):
 
     def test_mcp_server_works_from_extracted_bundle(self) -> None:
         """The shared MCP server must initialize and list tools from the extracted bundle."""
-        server = self._ROOT / "adapters" / "mcp" / "server.py"
+        server = self._root / "adapters" / "mcp" / "server.py"
         messages = [
             {"jsonrpc": "2.0", "id": 1, "method": "initialize",
              "params": {"protocolVersion": "2025-06-18", "capabilities": {},

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -128,7 +129,8 @@ class SubprocessIntegrationTests(unittest.TestCase):
         ]
         with tempfile.TemporaryDirectory() as cwd:
             process = subprocess.run([sys.executable, str(SERVER)], input="\n".join(json.dumps(item) for item in transcript) + "\n",
-                                     capture_output=True, text=True, encoding="utf-8", cwd=cwd, timeout=20)
+                                     capture_output=True, text=True, encoding="utf-8", cwd=cwd, timeout=20,
+                                     env={**os.environ, "PYTHONIOENCODING": "utf-8"})
         self.assertEqual(process.returncode, 0, process.stderr)
         replies = [json.loads(line) for line in process.stdout.splitlines()]
         self.assertEqual(len(replies), 5)  # initialized is a notification, so has no response

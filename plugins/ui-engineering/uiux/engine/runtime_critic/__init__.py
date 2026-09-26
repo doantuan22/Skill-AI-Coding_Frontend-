@@ -99,12 +99,15 @@ def evaluate_runtime_result(critic_report: dict) -> dict:
     overall = critic_report.get("overall_status", "fail")
     issues = critic_report.get("issues", [])
     critical_issues = [i for i in issues if i.get("severity") in ("HIGH", "CRITICAL") and i.get("status") != "pre_existing"]
+    has_insufficient = any(i.get("category") == "insufficient_evidence" for i in issues)
+    is_blocked = overall in ("blocked", "needs_runtime", "insufficient_evidence") or critic_report.get("blocked", False) or has_insufficient
+    authorized = (overall in ("pass", "warn")) and not is_blocked
     return {
-        "authorized_to_proceed": overall in ("pass", "warn"),
+        "authorized_to_proceed": authorized,
         "overall_status": overall,
         "critical_issue_count": len(critical_issues),
         "repair_required": overall in ("warn", "fail") and any(i.get("repairable") for i in issues),
-        "blocked": overall == "blocked",
+        "blocked": is_blocked,
     }
 
 

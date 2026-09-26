@@ -1,7 +1,7 @@
 """Performance and motion budgets (single source for the resolver and the quality analyzer).
 
 Values come from configuration (``performance_budget`` and ``motion_budget``); defaults reproduce the documented
-budgets in phase-2/05-frontend-implementation/performance-budget.md.
+budgets in skills/frontend-implementation/performance-budget.md.
 """
 from __future__ import annotations
 

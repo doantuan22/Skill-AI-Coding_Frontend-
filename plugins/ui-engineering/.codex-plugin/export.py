@@ -53,8 +53,9 @@ def export(source: Path, out_dir: Path, dev: bool = False) -> dict:
         ("skills/ui-ux-workflow/SKILL.md", skill_content),
     ]
 
-    # Collect generic payload using common utility
-    payload = bundle.collect_generic_payload(source)
+    # Collect generic payload using common utility (excluding files rendered by overlay)
+    overlay_targets = {rel for rel, _ in overlay}
+    payload = [p for p in bundle.collect_generic_payload(source) if p[0] not in overlay_targets]
 
     # Delegate safe assembly to common framework
     plugin_result = bundle.assemble_bundle(

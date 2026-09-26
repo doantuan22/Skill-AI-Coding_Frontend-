@@ -57,7 +57,7 @@ def get_path(name: str) -> Path:
 
 
 def get_core_root() -> Path:
-    """Core skill root: SKILL.md, workflow/, phase-1/, phase-2/, review/, templates/."""
+    """Core skill root: SKILL.md, workflows/, skills/, knowledge/, review/, templates/."""
     return get_package_root()
 
 

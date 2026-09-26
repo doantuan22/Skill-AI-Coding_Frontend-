@@ -2,17 +2,17 @@
  "archives": [
   {
    "file": "ui-ux-design-0.1.0-dev.zip",
-   "sha256": "c2d49dbae6618ed1cfd04951c54a16a273fa60466c92c56a1c11d815bb9c4f9e",
-   "size": 638414
+   "sha256": "d55a640ed3cf43ec4a7115c399fc82d57bd826051086cfcd80086f6f50e4d793",
+   "size": 841293
   },
   {
    "file": "ui-ux-design-0.1.0-dev.tar.gz",
-   "sha256": "2d2b6849d16512df6713a2191382f5cc84f02c3e307503e763c80f774b01757e",
-   "size": 423293
+   "sha256": "e36dc6f63394bf6f9d7bf288677601074e763461fed20fd04251b4f378b05de0",
+   "size": 576186
   }
  ],
  "build_mode": "dev",
- "content_sha256": "e77d99090ea727e33857996677a82d0541a0d4f3a94f896c1ced762f01a58198",
+ "content_sha256": "2165098cdde20a26d9d32beb7fa1faca41862abaed39edd557d633a240badaae",
  "environment": {
   "implementation": "CPython",
   "platform": "Windows-10-10.0.26200-SP0",
@@ -23,7 +23,7 @@
  "release": false,
  "schema_version": 1,
  "source": {
-  "commit": "4d9f922d7422c8b043ebf077506ed2aa2a58a118",
+  "commit": "fe1ea5f0b335e570879fee4e0443d83e68f26b80",
   "kind": "working-tree",
   "worktree_clean": false
  },

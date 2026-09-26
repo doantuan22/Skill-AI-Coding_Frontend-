@@ -1,7 +1,7 @@
 {
  "archive_format_version": 1,
  "build_mode": "dev",
- "file_count": 500,
+ "file_count": 599,
  "files": [
   {
    "layer": "plugin",
@@ -28,8 +28,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": ".claude-plugin/export.py",
-   "sha256": "c0fd6a5a408e552da6287953138646decba7f884edf121d08d06bf60655d858b",
-   "size": 4194
+   "sha256": "944de4765a585b1f2cc8a6ea1624752afdf81cf100d76e8397f5feb5b07295a2",
+   "size": 4177
   },
   {
    "layer": "plugin",
@@ -49,8 +49,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": ".claude-plugin/verify.py",
-   "sha256": "88051374af4e809496a749d76212fe1ab69b39228440b059f32c34be4ec0b898",
-   "size": 11747
+   "sha256": "2eab134d5eabd0e37ba583c4c220a44cd956c9778e7231443b4ffcad611be5b0",
+   "size": 11814
   },
   {
    "layer": "plugin",
@@ -77,8 +77,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": ".codex-plugin/export.py",
-   "sha256": "6ebfc147f5e0b0e94c155c1ce0f7a63ee81099050928c327ca9119817069911b",
-   "size": 4158
+   "sha256": "72a7ea33ce0b1340f5d75866be9b30614e03d8b246ba9b142a24e457decfe8a7",
+   "size": 4292
   },
   {
    "layer": "plugin",
@@ -105,8 +105,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": ".codex-plugin/verify.py",
-   "sha256": "d2d7d393e75ae891cb815d2ba7f4429f8a8ab2b3b8e073a35f87fcd585dcfa02",
-   "size": 13994
+   "sha256": "9c016a344e2d1f453f50d0638a9e744bd8dc3838fe70d791c1168f5fe0cbf1f3",
+   "size": 14061
   },
   {
    "layer": "docs",
@@ -119,8 +119,8 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "SKILL.md",
-   "sha256": "bf444a07d11233bcad62ce60ef5d7325ca4b7b36220ffe106fd8b2cf80082722",
-   "size": 7170
+   "sha256": "98137f39039ff6ddc3e484e99a94ba4b155509491577ecac5c998b744fcfac3c",
+   "size": 8000
   },
   {
    "layer": "core-foundation",
@@ -154,8 +154,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "adapters/common/bundle.py",
-   "sha256": "e8e627192c3496486ef4f98061308a36e3c7cd7b51726d6b09feadc1484e447e",
-   "size": 7961
+   "sha256": "217fc1eb0d31f3e25b87f7c509d7e7c7c4b7553ca70414d1b7cde5bff0824494",
+   "size": 7921
   },
   {
    "layer": "plugin",
@@ -175,8 +175,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "adapters/common/verify.py",
-   "sha256": "a1cc94dcdb7c43aaf78f29dc84ad54f456fa4360a949f588457d1ce536731eda",
-   "size": 2436
+   "sha256": "cbfe08c2bfd43da82cd3d642ff66c91fea9058c7c720e99e1dcb79f0918808d1",
+   "size": 2413
   },
   {
    "layer": "plugin",
@@ -196,8 +196,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "adapters/generic/adapter.py",
-   "sha256": "42e5fc41e9e6127a0c1d9828509987b879fefa0703191fb41398da71265bf909",
-   "size": 8999
+   "sha256": "4f6720cf358205642c5d426d6435f0dc7e42143bac772dfd51f3711d919b0ab0",
+   "size": 9110
   },
   {
    "layer": "plugin",
@@ -231,8 +231,8 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "adapters/mcp/server.py",
-   "sha256": "eded7ec000ed301e06472c5a97bb16d49f2ba2d08807498a685fc88dd4f87714",
-   "size": 9082
+   "sha256": "8805333f88e3a8ad81e951a3d95d77a58f330d67c43c887cf355cfe12ff8381e",
+   "size": 9356
   },
   {
    "layer": "evals",
@@ -1448,6 +1448,62 @@
   {
    "layer": "knowledge",
    "mode": "0644",
+   "path": "knowledge/domain-packs/beauty_fashion.md",
+   "sha256": "706a7db0ab4a7691004937a813b79b2109cffdce314dd542f73ad96bd35e8991",
+   "size": 3562
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/developer_tool.md",
+   "sha256": "7403ecd60794b40969a9f7402e8f7f1a33f39b8093b48b322137b96f66efa086",
+   "size": 3647
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/ecommerce.md",
+   "sha256": "5f0b067c457e2fd788ab17b406bdb14cbf2a852f8305c526bc7797887be574b1",
+   "size": 4376
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/finance_fintech.md",
+   "sha256": "10b3ff1c836ef7a2b4da5f1a8d4ef394a02ec6085946cf5c95fb27566dae2d3a",
+   "size": 4088
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/healthcare.md",
+   "sha256": "820f98022d4a73ac3383183a357c4516624ab5d0896d6f17fc688399470a1c6a",
+   "size": 4162
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/hospitality_travel.md",
+   "sha256": "c510cb9a5ed2da4b5144144df1056db0880954caff65e3ab990845689800bf09",
+   "size": 3910
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/portfolio_agency.md",
+   "sha256": "3e9a582ef58a78e2aeb8b2dcd1f48305e2791a722e3212dbe92a7078336d75a8",
+   "size": 3459
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/domain-packs/saas_ai.md",
+   "sha256": "3c7a1e208dc08627e119a030e9fa6555529dd892be04c3d8013eea9315a27a20",
+   "size": 3835
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
    "path": "knowledge/domains/INDEX.md",
    "sha256": "7ca68d4069efc14ed202d6f7aab9e59cc240f62774007127cd695f37c552528e",
    "size": 38256
@@ -1575,8 +1631,8 @@
    "layer": "knowledge",
    "mode": "0644",
    "path": "knowledge/domains/schema.md",
-   "sha256": "5b9ad7f7a842c21cb55b7ab195808053a1dccd8220ff4f59d6ceddac7621323f",
-   "size": 4145
+   "sha256": "f3b483a4e6babe27890138d5b3524e5f7b504bca82ce847735ba176f6346ba9a",
+   "size": 4126
   },
   {
    "layer": "knowledge",
@@ -1654,6 +1710,76 @@
    "path": "knowledge/domains/styles/restrained.md",
    "sha256": "a9ccd6d343756acda092e4104c9402a3c3bb969749a18e231a840efb365cfd8d",
    "size": 12379
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/angular.md",
+   "sha256": "35554cf1c0845fb71eb038db2c28b6630288c03564dea0896e7f2ead9f87dd52",
+   "size": 1012
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/generic_frontend.md",
+   "sha256": "a5d0588b987294dfcdd46669254daa2b3ea28ba6685c1fa08b832f725bebbda6",
+   "size": 765
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/nextjs.md",
+   "sha256": "f4be0bb6dfef63975bc7456fd44d78a2f118f051cf6f6569eb0c89e63d745d78",
+   "size": 2208
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/nuxt.md",
+   "sha256": "19a3cbe69c60f583243fc8190a3bea12a668a477fcbb4a89b94f7ca19d035d57",
+   "size": 1122
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/react.md",
+   "sha256": "ff12ac876e3fdda48ee82740964c543921ab0fe6e0ef862533d0ae915957299b",
+   "size": 2479
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/spring_thymeleaf.md",
+   "sha256": "437fee43c95b6695483eff314b8b70804f1d7188ee00fb31521dca722ac545f1",
+   "size": 1080
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/static_html.md",
+   "sha256": "f5ee5cb44ab313b4f64640b1d63ffc90a5c610e3096834b9faff4ce81b315680",
+   "size": 1033
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/svelte.md",
+   "sha256": "9d650cb276766a0b17f19ba2e1fd9f9b3bb6adfc03a82f5d7c632a759afbdcab",
+   "size": 916
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/sveltekit.md",
+   "sha256": "11b48c9d6e29d11112eb9cdf63e2c57cbef6d5184b3ba975afb41808486ba663",
+   "size": 755
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/frameworks/vue.md",
+   "sha256": "597c5129a7eaafcbfbfc537819159d84aed1f72613ced9925d542f496b1d55c2",
+   "size": 1250
   },
   {
    "layer": "knowledge",
@@ -1752,6 +1878,13 @@
    "path": "knowledge/motion/text-motion.md",
    "sha256": "87963e1b0c20dda08b79e7102cfe14fb3f272ba5ea4eea00579d8fe54b1e77a0",
    "size": 4724
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/preservation/existing_ui_invariants.md",
+   "sha256": "72026d651ed65d0d6afc5f3880b7fb915c9fd15198b0f249e508c97da811a6a4",
+   "size": 1930
   },
   {
    "layer": "knowledge",
@@ -1864,6 +1997,97 @@
    "path": "knowledge/references/typography.md",
    "sha256": "641f97352cd7fa90683c919d8aa4081bc49b0134387acc0b673e2ffb3bf1b18f",
    "size": 520
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/runtime-validation/accessibility_audit.md",
+   "sha256": "454c21403e7dcbd47c0f23dca712d3a91851f6df727ebf065c992745e8a86248",
+   "size": 703
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/runtime-validation/form_interaction.md",
+   "sha256": "56fd958d7dd1bd77ac98432aed81afeb15a5dd6be6dd879607ede44d0d4a8903",
+   "size": 510
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/runtime-validation/responsive_viewport.md",
+   "sha256": "cb9326376397cd1006674cf7b3cb04f6a3fce202040b00e7df9c472a2ff4c978",
+   "size": 811
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/runtime-validation/smoke_test.md",
+   "sha256": "02e17cde40c0e87c0c67a571942db41abc75f339741194db63907d56ac48238a",
+   "size": 393
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/bootstrap.md",
+   "sha256": "6d54bb9997a507a56544bb4f3a184c1ce70b569b99317d5053d1b632fdc8e0a7",
+   "size": 842
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/css_modules.md",
+   "sha256": "077f7553cb247f687baf843a90a43850aebc36a5058f3e42ee30c9c66588a294",
+   "size": 517
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/emotion.md",
+   "sha256": "f96e1585795d3aee0ae4e809090106fd564e3bebc70c504b1d6c39aafc980fad",
+   "size": 474
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/mui.md",
+   "sha256": "d667b940cf046070676f584182f28221db9ee4995c08099cbdd61ad99fd8d46b",
+   "size": 851
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/plain_css.md",
+   "sha256": "6b2d580bf5d1edac8d233374b54636639f53838e7960c9a71227a5fa6be15234",
+   "size": 552
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/sass_scss.md",
+   "sha256": "edde9f182fda8a95575df11e4d520d04a795bc7c5822743a0c2d001dfcabde9a",
+   "size": 496
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/shadcn_ui.md",
+   "sha256": "be917f6fce4f896fff9e3e55cdcbec152712c8f60fc0f1e40070a8ec37767bce",
+   "size": 1048
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/styled_components.md",
+   "sha256": "ffa06b25678ae7c50598e5d3b8d63059f03a34f7cba66d4c61e48cec061e5407",
+   "size": 838
+  },
+  {
+   "layer": "knowledge",
+   "mode": "0644",
+   "path": "knowledge/styling/tailwindcss.md",
+   "sha256": "77515630ced0051477fa48d6dd3a9ec01bf8d1930576241345b8b536de13b488",
+   "size": 1375
   },
   {
    "layer": "knowledge",
@@ -2128,8 +2352,8 @@
    "layer": "knowledge",
    "mode": "0644",
    "path": "knowledge/web-patterns/content/content-patterns.md",
-   "sha256": "5185a779f3d415c48340c82c167f14c7123a08e848de2f265c182af0b8e28357",
-   "size": 1923
+   "sha256": "af8b3b1590afcd29e72ca1e65271ea49222bdbeed2cdf3fadabc9caf8fd1c342",
+   "size": 1915
   },
   {
    "layer": "knowledge",
@@ -2205,15 +2429,15 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "packaging/artifact.py",
-   "sha256": "eb14f12374d91a3659e69d40e9b4e289323f193d0ade45301a72e148f62dfd53",
-   "size": 10261
+   "sha256": "3de3a3328e504de0a1fffa0647a07992d1b67d2785b7125a5cdf0dbc6a702c2c",
+   "size": 10622
   },
   {
    "layer": "plugin",
    "mode": "0644",
    "path": "packaging/build.py",
-   "sha256": "6a817109a6e4da114a84bfb6f717885115c2d7372f42eb94b9b7cbfd3c89ec6d",
-   "size": 15866
+   "sha256": "4079fa0226a06e98343eeef18cbf202ca56023b18064cbf9de2e3d7e7dc7ac33",
+   "size": 16323
   },
   {
    "layer": "plugin",
@@ -2233,15 +2457,15 @@
    "layer": "plugin",
    "mode": "0644",
    "path": "packaging/verify.py",
-   "sha256": "29e5d26f910590d0a50f844cdcb79108f19848c5d69db5798368ee05b528c896",
-   "size": 33265
+   "sha256": "78e81430de27bab170f7829ca8f51d4eb992f4d42835f16b29c39baa6f84ef87",
+   "size": 33278
   },
   {
    "layer": "plugin",
    "mode": "0644",
    "path": "plugin.json",
-   "sha256": "0cc2646598b95728eddb8914f06a0e780ed5149dbeaf88f945742d8d84b63a17",
-   "size": 4080
+   "sha256": "632ed59bf3f5a1e1e5874d9e51432bfa4d766cb83f3129065c538651459232d5",
+   "size": 4066
   },
   {
    "layer": "core-skill",
@@ -2267,6 +2491,13 @@
   {
    "layer": "plugin",
    "mode": "0644",
+   "path": "schemas/README.md",
+   "sha256": "0d03b68d6e3ef6f6d8736dedd39f7a0bcfbf5b24c84cdd8e6aa674465100015f",
+   "size": 3497
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
    "path": "schemas/adapter.schema.json",
    "sha256": "b7cdc1d062c30c322ead971fe0ad268d84fe46a09524efa46670c540debdb485",
    "size": 4890
@@ -2277,6 +2508,48 @@
    "path": "schemas/build-info.schema.json",
    "sha256": "076394d6f5cda0d74a75ffb80a8467e56336255136d2fe4127ed8f6134241882",
    "size": 1856
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/change-manifest.schema.json",
+   "sha256": "b0e14afbc06c4f1988072008cd62cf0c1016fdaf4f5ee04a4139dde5c42356f3",
+   "size": 1981
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/critic-report.schema.json",
+   "sha256": "139f2f0f6952779fc52111fd8819f4d86f340e518ee9d674755d2d4cef5b6172",
+   "size": 3149
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/existing-ui-profile.schema.json",
+   "sha256": "3b612e36052606106cdc21e9f906cf199ad2605d4948bd10cd271efa623876d8",
+   "size": 9285
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/knowledge-plan.schema.json",
+   "sha256": "64e8082e7bc804ca8959713a0d6c4f49f11863596b291b166fabbf57cad49bbc",
+   "size": 7575
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/modification-plan.schema.json",
+   "sha256": "dd2c0203f3576ef7fd69efea426742c90d6ad76e531344b0fcf6037a32fdaa06",
+   "size": 8543
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/orchestrator.schema.json",
+   "sha256": "4d2dbe5326dcd0dac7ab749278f3bdadac2b5740fc1e40b4f1f1bede04699ab2",
+   "size": 6602
   },
   {
    "layer": "plugin",
@@ -2302,9 +2575,37 @@
   {
    "layer": "plugin",
    "mode": "0644",
+   "path": "schemas/preservation-evaluation.schema.json",
+   "sha256": "7076536d9bf73c2c298b17554c4accd45e7d8dedcf40163424440f26458bd822",
+   "size": 1419
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/preservation-profile.schema.json",
+   "sha256": "9f441358c02fe4781d118773be3987097761c9470928cdb7f52d3bad3bb8e1f5",
+   "size": 4718
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/repair-plan.schema.json",
+   "sha256": "0aac2487dd56262fe623dd66450297baa5f3cd249f847aa83a133595eba58684",
+   "size": 1811
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
+   "path": "schemas/repo-profile.schema.json",
+   "sha256": "3bcbc81ad6671144ad801293005427afa84cca1457fca78e48041c0d1489791c",
+   "size": 7796
+  },
+  {
+   "layer": "plugin",
+   "mode": "0644",
    "path": "schemas/schemas-README.md",
-   "sha256": "2cf4818ce7c245cab09a8edd008970572db7e2b4bdacb87ffc1445fda1dc5e9a",
-   "size": 956
+   "sha256": "00713cce7ac7da1821f8cfabef03a3de33771eef705874a9ed045e06d77e8f48",
+   "size": 3545
   },
   {
    "layer": "tooling",
@@ -2323,6 +2624,20 @@
   {
    "layer": "tooling",
    "mode": "0644",
+   "path": "scripts/analyze_existing_ui.py",
+   "sha256": "a37d100b9c8e9798c9221cc7e76e8f10e7545d8415be753dd44fa482ba4aff6d",
+   "size": 1737
+  },
+  {
+   "layer": "tooling",
+   "mode": "0644",
+   "path": "scripts/analyze_repository.py",
+   "sha256": "cf53bbd4a673c69471161201e383509a834906e587214877de73bcd913c8847f",
+   "size": 1446
+  },
+  {
+   "layer": "tooling",
+   "mode": "0644",
    "path": "scripts/detect_capabilities.py",
    "sha256": "6f6e9f3bdd5b99c2dac486d060ba6070a5ee686faef1ba0e2bbc3e2cfd249e7c",
    "size": 267
@@ -2337,9 +2652,30 @@
   {
    "layer": "tooling",
    "mode": "0644",
+   "path": "scripts/orchestrate_ui.py",
+   "sha256": "0eea59c3d82e61f056fe3c4b8fc8724154383c955388fd6fbe8fa120d3c397bc",
+   "size": 277
+  },
+  {
+   "layer": "tooling",
+   "mode": "0644",
+   "path": "scripts/plan_modification.py",
+   "sha256": "a36a4ad5bef484252b4b367ff76c16b1875cf19b492f2d29fea272b0c43c0e62",
+   "size": 3633
+  },
+  {
+   "layer": "tooling",
+   "mode": "0644",
    "path": "scripts/resolve_capabilities.py",
    "sha256": "5911646a1884db48f794456de826d54a98fe42e1153702bcef10c7fab5716973",
    "size": 291
+  },
+  {
+   "layer": "tooling",
+   "mode": "0644",
+   "path": "scripts/route_knowledge.py",
+   "sha256": "c301fbc9fd875d3981f763804bbd67b420a1e7290b467a493c613bbaf8817f8a",
+   "size": 3128
   },
   {
    "layer": "tooling",
@@ -2625,14 +2961,14 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "skills/ui-orchestrator/workflow.md",
-   "sha256": "cd4e230a4d2a155ac8e0a5d0f5767ec691f4dd2b1a43381fbf0e59ec827d5a99",
-   "size": 4014
+   "sha256": "a424f64846fcf706f51302837065c5b32db0e803f03853aadc5b468e33ab71b0",
+   "size": 4070
   },
   {
    "layer": "core-skill",
    "mode": "0644",
    "path": "skills/ux-structure/README.md",
-   "sha256": "4a4378f2a0107ee07e02e4c41b969a80bdb1d73411b762dab8908a88cad3e9af",
+   "sha256": "cbc29edf106b0970cab50db6a6c444e57b0adaae1d88317b43e42edcc16214c2",
    "size": 1963
   },
   {
@@ -2786,7 +3122,7 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "skills/ux-structure/router.md",
-   "sha256": "e4af8be6940677eda39abe392d7168a04a3285d658c97bc1d910a1a982576847",
+   "sha256": "3096a0b685f8f5937b5d11941dd53dfc4613ce890e41b5410ce527e785102638",
    "size": 2593
   },
   {
@@ -2828,7 +3164,7 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "skills/ux-structure/workflow.md",
-   "sha256": "2c726062a3e9d3ae592df62c006e2a89a4bc5ddb7f25049c4d50e2793b471000",
+   "sha256": "69bb51b64577dd346b45feb6e39b3cf627b4689b01b8aab0f7582ff36bd0d21f",
    "size": 2070
   },
   {
@@ -2849,8 +3185,8 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "skills/visual-language/craft-review.md",
-   "sha256": "537de80ac7bc0efd8fdb1a262309aedf12a08ca9048fde43530113895deeee50",
-   "size": 2512
+   "sha256": "128ffffef912fc4751c8b259217de43dbebd24e2afcbe480b3086600016161af",
+   "size": 2538
   },
   {
    "layer": "core-skill",
@@ -3178,8 +3514,8 @@
    "layer": "core-api",
    "mode": "0644",
    "path": "uiux/__init__.py",
-   "sha256": "d07cb789feb2845ee6211de8dbb0651f3d917e311ded2d54326ff581a3bcabe2",
-   "size": 964
+   "sha256": "d5d4113005e3b6a8a50456bc28cd1340d3f23afb2e72bbd3e749b517b8e46d4a",
+   "size": 963
   },
   {
    "layer": "core-api",
@@ -3192,8 +3528,8 @@
    "layer": "core-api",
    "mode": "0644",
    "path": "uiux/api.py",
-   "sha256": "457cd9615b35425980cc83a940d955bc9e1f003c4f1fc848b6056e35e51e37b6",
-   "size": 23729
+   "sha256": "8602dd8fd1d4b88b3004808d3ff1fdc2a6c0d5b03f0f49d9802094b431db691a",
+   "size": 41108
   },
   {
    "layer": "core-api",
@@ -3213,8 +3549,8 @@
    "layer": "core-foundation",
    "mode": "0644",
    "path": "uiux/core/capabilities.json",
-   "sha256": "42d5b8eecc873c5b1289eaf2b39ad49b7612ca85c466ba8b43e455b234d23b17",
-   "size": 1924
+   "sha256": "c2b34a46bbcf289eb5783e17753b3cdb89c0354e19fe35fc290dff74ca6310ee",
+   "size": 2075
   },
   {
    "layer": "core-foundation",
@@ -3234,8 +3570,8 @@
    "layer": "core-foundation",
    "mode": "0644",
    "path": "uiux/core/errors.json",
-   "sha256": "e920007442d0f688f7d5f26f1ae9815e90a0c93ecb58ff8ca435481cfb7faef6",
-   "size": 8406
+   "sha256": "6dc06381d00fcfe8bf87708fe58ecc04a0c9fcd349f673d4b07d2232aeed3f65",
+   "size": 9142
   },
   {
    "layer": "core-foundation",
@@ -3248,8 +3584,8 @@
    "layer": "core-foundation",
    "mode": "0644",
    "path": "uiux/core/layers.json",
-   "sha256": "f673fea4ee0fe3722736aac12b8a9bb2393051d7b2bdc4a344e98a089bb8edfa",
-   "size": 3137
+   "sha256": "ec914d6e20f1b301c2633426f1784c94c402d7762f9b743216e946a43a58a117",
+   "size": 3187
   },
   {
    "layer": "core-foundation",
@@ -3262,8 +3598,8 @@
    "layer": "core-foundation",
    "mode": "0644",
    "path": "uiux/core/resources.py",
-   "sha256": "59cebf39f8dd6759e8f78127055ff82b7e545f9f6be78202bf25a914fc3cc241",
-   "size": 3814
+   "sha256": "3f1fcdac551f9631f96e7913f1aeffd9c6a4cc7081b917d8eea075e4198fa74d",
+   "size": 3816
   },
   {
    "layer": "core-foundation",
@@ -3276,8 +3612,8 @@
    "layer": "core-foundation",
    "mode": "0644",
    "path": "uiux/core/tools.json",
-   "sha256": "304accaa820f5ddbaa076fee853305d182ac31c138ad1cf053a2bafb0ff22cf7",
-   "size": 16276
+   "sha256": "355ad40764c01c263420385b5f07523c5056fd693a2d64e6dcede94f6faec127",
+   "size": 35496
   },
   {
    "layer": "engine",
@@ -3290,29 +3626,358 @@
    "layer": "engine",
    "mode": "0644",
    "path": "uiux/engine/capability_resolver.py",
-   "sha256": "8e9a2148e097a996c5f8207d60c76250d8369d4268ba8fc785de920be4495d54",
-   "size": 27730
+   "sha256": "50b0cf918162f9b09faa86c99b9d86830da7106ee03720eb8c6ce193706268ba",
+   "size": 27729
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/__init__.py",
+   "sha256": "f2c1af5973cb8422704b39f1e25fb5fa97ec6dceb39b7fc0cb8f6fa7be5e0c49",
+   "size": 3570
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/accessibility.py",
+   "sha256": "348367acd12c30bcc3accfe5b62a40feff77b7d95c33b142375c03439597a3cc",
+   "size": 3727
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/components.py",
+   "sha256": "a82356a6b9343bb42f395cbf1eb33abd0f1ad89ff9fcdef73c2e0adc12374838",
+   "size": 4276
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/design_system.py",
+   "sha256": "b827673a39bd7d072cdeb803662529859e764246d778b9cd7fef9e2cc34fb1fa",
+   "size": 2877
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/evaluator.py",
+   "sha256": "b62c19a31a68ac8c737b963111b8385525d0f4f1013cbcb0827f185b2b453b20",
+   "size": 9245
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/identity.py",
+   "sha256": "434d8264ac08558a3011b0bfa4bb87cd978dc4f3dd2b84f84a98f9abd66dc10b",
+   "size": 8642
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/layout.py",
+   "sha256": "aecb5c70a9c79f3c985dd861aa2368bb76941f52db2eb5307eac0cadfadf1f1a",
+   "size": 5649
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/preservation_profile.py",
+   "sha256": "2efd1e6db060496f27be172bcfb37f33d5a6fb7510151e81ed11c7f93f10e41c",
+   "size": 4924
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/profile.py",
+   "sha256": "e163df8c9eb16713abf90eea45be6657d88d97d2314fefa8972327ddbcc36dac",
+   "size": 5983
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/responsive.py",
+   "sha256": "cf14d1af4dbf802040c9f155d480bb5d520f079f5dd85ec3651579cac9e0cded",
+   "size": 4273
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/existing_ui/ux_flows.py",
+   "sha256": "b5fb5c94ab93388f6807b337ead8b4858c1d9c823a37be3e5719a254c4355248",
+   "size": 4289
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/__init__.py",
+   "sha256": "20b1447dc63daf5e203167d51a95c10b14c1080abc5ae21ed91093fc5a661c01",
+   "size": 4455
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/budget.py",
+   "sha256": "26554527d5ca9dc571793900b3288a5ad4b3db806becf4f6b5a3f1ca26fec74f",
+   "size": 3939
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/domain_classifier.py",
+   "sha256": "d62ed16b8da20cdcbda35ded9128a870f980666589d91560d91ececcb5f97cc1",
+   "size": 10775
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/domain_extension.py",
+   "sha256": "43ab947b394699c4934d4b34781c9c2631de8625e59df35c8426279b7c8869b7",
+   "size": 790
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/domain_registry.py",
+   "sha256": "5fdb2616beafea4bd109c01a2ce0f81ed84d9f9c771a5945793b0bcdb1792f6e",
+   "size": 23142
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/intent.py",
+   "sha256": "629a6b21df3d0da663b74e113961d25407bd1f952a7eb6a40f7069b01fd5de20",
+   "size": 5662
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/metadata.py",
+   "sha256": "5f7ea3baef00bcd3db09c50e3b8086f3d72b9ac0276c950b6515138f2bee4a2c",
+   "size": 20472
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/resolver.py",
+   "sha256": "402ce4e3d6cec1b831c52093bccee43668693df2f924dfa3900fcf35c71b7bd8",
+   "size": 2633
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/knowledge_router/router.py",
+   "sha256": "f2053f67485222920527514fbc93fb8e55f0ae01491b051203f069eaff844027",
+   "size": 38582
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/__init__.py",
+   "sha256": "711d1fb1fe8ea358860f3a9f8707a09106b232c66bd5f4bc58704d6ea00b44c7",
+   "size": 4109
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/blast_radius.py",
+   "sha256": "e5ffa3ee0832c63f6fedf2d28302100beede9733fec86a80ed39790306e203b0",
+   "size": 4272
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/change_classifier.py",
+   "sha256": "1fbd8dc15373e36a7e74d700724584c0f434a1220bbfa310097823f92390dbba",
+   "size": 10611
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/controlled_editor.py",
+   "sha256": "c640c5a8b60fe94c9ac5795f963e7890c516e5c52f7f97d033581dec0d4845a4",
+   "size": 8462
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/planner.py",
+   "sha256": "b699988350444fa8c35ccb68893437496172cf1c65aafd3276deb668b598cd1d",
+   "size": 15756
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/scope_resolver.py",
+   "sha256": "c34a3bf45b8d40b0f4866f86cacdc9c1d86e8d55d8acdc59f336355e82e46716",
+   "size": 6460
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/step_planner.py",
+   "sha256": "9a05e282ec6008fa9c3132951462f3a2e1733430494b66a975d472b3c4054975",
+   "size": 11722
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/modification_planner/surface_resolver.py",
+   "sha256": "a0493a7f24a163950c649b926e597b5559e71c6301197ca3cb2f02053805d57b",
+   "size": 6332
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/orchestrator.py",
+   "sha256": "f107082098e315606a5dd4884993e0cfc4e9c31a7ae6a964f72b9a62d86c81f7",
+   "size": 15529
   },
   {
    "layer": "engine",
    "mode": "0644",
    "path": "uiux/engine/performance.py",
-   "sha256": "68fae71e8d8fcf078ce3efbbfbbf182fbadea4ad3e33519a427069fa2701fdcd",
-   "size": 916
+   "sha256": "cca20952d289eb10c1cc85b76aa25a673b5ff1fb53887b305bd2d81938d1f67b",
+   "size": 912
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/preservation.py",
+   "sha256": "c614a045c870e20ececb2828272b0995b3b826a347988f65cae44d281f8096c4",
+   "size": 15073
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/__init__.py",
+   "sha256": "d335eb61fe7e094647b05182fe83b13b66bfa837c9ca425ed2cfc83f4e48da8d",
+   "size": 1496
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/components.py",
+   "sha256": "b39415e005db3df7344e43b20e38304ff3f15434dc6e16cb61c4534630f42e58",
+   "size": 3155
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/framework.py",
+   "sha256": "8353cf0fecf69aec2383348098316266e0135f5b076c8b8bb971b97c03a444d0",
+   "size": 9567
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/profile.py",
+   "sha256": "9897f26aa67f09338924cc5f851c2066b8eb275ecc9b356fe313af9ba198a3fa",
+   "size": 10553
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/routes.py",
+   "sha256": "3a95903009037d145df26bf2cb116f64995dd311131c4337636de4c97f1ee06f",
+   "size": 7293
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/runtime.py",
+   "sha256": "f3bc937137ceb07d90b857c4d7cd36ee10957de6f6b1290f7b977581f9c1c823",
+   "size": 5178
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/scanner.py",
+   "sha256": "047c26f636a075ba2476617642241ef56a1a60781354588d8751d117f10baaad",
+   "size": 6655
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/styling.py",
+   "sha256": "142003bfaea31e8349f5116099b01c13bba1c481b9e31695cabf86450c819c5c",
+   "size": 8051
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/tokens.py",
+   "sha256": "304af67b19ec95319bf1925df6a6a40bafcd11326e40511e4d782f3886eb16d1",
+   "size": 4285
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/repo_intelligence/ui_state_detector.py",
+   "sha256": "e1ad9c28386bac7a5cfcf83e898e17a65a62b71b710e152868ebe4073cc668cb",
+   "size": 4221
   },
   {
    "layer": "engine",
    "mode": "0644",
    "path": "uiux/engine/retrieval.py",
-   "sha256": "96b3abb56f551e5889e37c576ade15174fc4129262d9ca9734f73fec9ebaf287",
+   "sha256": "06a1ddbbd98a738164ede50993aeab677e20c7c8f27405ef5bbab8ed8d481f11",
    "size": 904
   },
   {
    "layer": "engine",
    "mode": "0644",
+   "path": "uiux/engine/runtime_critic/__init__.py",
+   "sha256": "d88f96cba262d591cc098b1bf0fdd551ea942f1eb8814207a673bb6c28baded2",
+   "size": 4971
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/runtime_critic/critic.py",
+   "sha256": "da20faf9654a48091ed6a1531e16259b20a449bb15a3e2cd5c3c436202bdaa52",
+   "size": 42016
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/runtime_critic/loop.py",
+   "sha256": "5be56ae1b372d0ca5f2aa165938cac12abb01a228ed0a33bb0f2a5ca4abd66a2",
+   "size": 6509
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/runtime_critic/recapture.py",
+   "sha256": "f80bfe7f8f12560667ce81405bb523cb41a05d9ee71ec9c2a5fa58ecfccf1ab6",
+   "size": 5090
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/runtime_critic/repair.py",
+   "sha256": "9a07c61b48b6a7b59529c0b49309e4c3813f33ef3fdfbd543f1f48e004abd02c",
+   "size": 11942
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/runtime_critic/session.py",
+   "sha256": "6c9e3d724a0ffcb3e8fd13f18b7c6023c44f7c22821db62df710958d19ccd932",
+   "size": 10931
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
    "path": "uiux/engine/technology.py",
-   "sha256": "6297580c529725d1ea71e3f59f4af0b677d70a9d698ee4bfeae2847686117272",
-   "size": 3708
+   "sha256": "4681ff5378dc7f3e37106be3169110dfc9751c545e64fcf99b7265d7f6fb0ce7",
+   "size": 3704
+  },
+  {
+   "layer": "engine",
+   "mode": "0644",
+   "path": "uiux/engine/ui_state.py",
+   "sha256": "8f8450d28d8496bdbfd6ca3c86eace825a8450d6f980af36c6d874541fb09fa4",
+   "size": 11021
   },
   {
    "layer": "evals",
@@ -3401,6 +4066,13 @@
   {
    "layer": "runtime",
    "mode": "0644",
+   "path": "uiux/runtime/interaction.py",
+   "sha256": "ef38b2fc8fb42e923dba82264d20ad16ab335e1b4b8129df619b8cb45286bfb8",
+   "size": 9697
+  },
+  {
+   "layer": "runtime",
+   "mode": "0644",
    "path": "uiux/runtime/probes.py",
    "sha256": "2fca1c56512124892ee31ace7f5bc2112fa63258b68bdde44b258f2bfafacfa9",
    "size": 1920
@@ -3416,8 +4088,8 @@
    "layer": "tooling",
    "mode": "0644",
    "path": "uiux/tooling/validate.py",
-   "sha256": "8025ffb68a6aecf13918a8145f8c622784e8bc8c530f8a8069a1c885620df5f5",
-   "size": 29724
+   "sha256": "ef820ed2fbc92164e231770482dbb26045803294bd86886b3cc0774729aab081",
+   "size": 29933
   },
   {
    "layer": "core-skill",
@@ -3457,9 +4129,23 @@
   {
    "layer": "core-skill",
    "mode": "0644",
+   "path": "workflows/existing-ui-workflow.md",
+   "sha256": "553f165b94c4783b024b60379ae324302b48a0d70c73c88d131c0be3d6dc3a0d",
+   "size": 4368
+  },
+  {
+   "layer": "core-skill",
+   "mode": "0644",
+   "path": "workflows/greenfield-workflow.md",
+   "sha256": "a95eb78926896629ccfc424b336931e25b4ab5a2b741f4cdf2ca24d448e514ed",
+   "size": 2984
+  },
+  {
+   "layer": "core-skill",
+   "mode": "0644",
    "path": "workflows/overview.md",
-   "sha256": "6628f125b684a72c3f7be774e8d355c86a61bbe8bcaed2268d559f874a2ca347",
-   "size": 912
+   "sha256": "e6b92435167771c4f445bc524e5ee46931b8360fd2cd23a9ae7ed5a61183e86a",
+   "size": 1502
   },
   {
    "layer": "core-skill",
@@ -3467,6 +4153,13 @@
    "path": "workflows/phase-transition.md",
    "sha256": "97c6dc2744d677bcf37bf9b70808ff080c6fccd9aab7e8e1a0211f4546d398bd",
    "size": 2265
+  },
+  {
+   "layer": "core-skill",
+   "mode": "0644",
+   "path": "workflows/preservation-rules.md",
+   "sha256": "89a486853bc72998a71d7fef4142175531a5d7faeb65444ea63714ed5d0aec36",
+   "size": 4236
   },
   {
    "layer": "core-skill",
@@ -3493,8 +4186,8 @@
    "layer": "core-skill",
    "mode": "0644",
    "path": "workflows/routing.md",
-   "sha256": "4e306ff2ea487d5d16a024916fc43fe24d38aaac6bd56034eb452b99582af927",
-   "size": 1314
+   "sha256": "4506b5416c9b76c5cf88cca4346186f87f2078fc8bdedc8d45422ae0258b9d87",
+   "size": 2811
   },
   {
    "layer": "core-skill",
@@ -3508,11 +4201,11 @@
  "name": "ui-ux-design",
  "python_package": "uiux",
  "release": false,
- "rules_sha256": "e30026ac4975526d28653704871829213fc2d2f262538bfeeb9569f257494730",
+ "rules_sha256": "cb57029d2449ec805ac355114fd0b91be8f2ce9b89baead5be78b6ca684f64e6",
  "schema_version": 1,
  "skill_name": "ui-ux-workflow",
  "source": {
-  "commit": "4d9f922d7422c8b043ebf077506ed2aa2a58a118",
+  "commit": "fe1ea5f0b335e570879fee4e0443d83e68f26b80",
   "kind": "working-tree",
   "worktree_clean": false
  },

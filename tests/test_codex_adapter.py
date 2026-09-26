@@ -73,7 +73,7 @@ class CodexAdapterTests(unittest.TestCase):
         bundle_path = Path(result["bundle"])
         
         # Now verify it
-        from plugin.packaging import artifact
+        from _packaging_support import artifact
         extract_dir = self.workspace / "extract"
         artifact.safe_extract(bundle_path, extract_dir)
         
@@ -106,7 +106,7 @@ class CodexAdapterTests(unittest.TestCase):
         result = export.export(ROOT, self.workspace, dev=True)
         bundle_path = Path(result["bundle"])
         
-        from plugin.packaging import artifact
+        from _packaging_support import artifact
         extract_dir = self.workspace / "extract"
         artifact.safe_extract(bundle_path, extract_dir)
         
@@ -135,7 +135,7 @@ class CodexAdapterTests(unittest.TestCase):
         result = export.export(ROOT, self.workspace, dev=True)
         bundle_path = Path(result["bundle"])
         
-        from plugin.packaging import artifact
+        from _packaging_support import artifact
         extract_dir = self.workspace / "extract"
         artifact.safe_extract(bundle_path, extract_dir)
         base = f"{result['name']}-{result['version']}-dev-codex"
@@ -165,7 +165,7 @@ class CodexAdapterTests(unittest.TestCase):
         result = export.export(ROOT, self.workspace, dev=True)
         bundle_path = Path(result["bundle"])
         
-        from plugin.packaging import artifact
+        from _packaging_support import artifact
         extract_dir = self.workspace / "extract"
         artifact.safe_extract(bundle_path, extract_dir)
         base = extract_dir / f"{result['name']}-{result['version']}-dev-codex"
@@ -239,7 +239,7 @@ class CodexMarketplaceTests(unittest.TestCase):
         verify = importlib.util.module_from_spec(spec2)
         if (ROOT / ".codex-plugin" / "verify.py").exists():
             spec2.loader.exec_module(verify)
-        from plugin.packaging import artifact
+        from _packaging_support import artifact
         result = export.export(ROOT, self.workspace, dev=True)
         extract_dir = self.workspace / "marketplace"
         artifact.safe_extract(Path(result["marketplace_bundle"]), extract_dir)

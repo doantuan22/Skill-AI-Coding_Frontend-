@@ -4,8 +4,14 @@ Covers all 30 mandatory test cases, framework pack quality tests, and context ef
 """
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 from typing import Any
+
+_PLUGIN_DIR = Path(__file__).resolve().parent.parent / "plugins" / "ui-engineering"
+if str(_PLUGIN_DIR) not in sys.path:
+    sys.path.insert(0, str(_PLUGIN_DIR))
 
 from uiux import api
 from uiux.engine import knowledge_router

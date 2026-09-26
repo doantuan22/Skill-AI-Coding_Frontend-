@@ -184,6 +184,12 @@ def serve(reader: TextIO = sys.stdin, writer: TextIO = sys.stdout) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    if hasattr(sys.stdin, "reconfigure"):
+        sys.stdin.reconfigure(encoding="utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="UI/UX Skill MCP stdio server")
     parser.add_argument("--debug", action="store_true", help="print unexpected server tracebacks to stderr only")
     args = parser.parse_args(argv)

@@ -93,7 +93,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual([f for f in self.result["included"] if forbidden.search(f)], [])
 
     def test_required_content_present(self) -> None:
-        for rel in ("SKILL.md", "VERSION", "uiux/api.py", "uiux/core/tools.json", "phase-2/knowledge/registry.json",
+        for rel in ("SKILL.md", "VERSION", "uiux/api.py", "uiux/core/tools.json", "knowledge/domains/registry.json",
                     "plugin.json", "evals/scenarios/E80-composition-quality.md", "scripts/run_browser_execution.py"):
             self.assertIn(rel, self.result["included"])
 

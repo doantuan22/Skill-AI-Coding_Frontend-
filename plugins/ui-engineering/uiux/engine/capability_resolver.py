@@ -1,7 +1,7 @@
 """Design Capability Resolver: requirement profile -> ranked design capabilities with WHY / WHY NOT.
 
 Deterministic and standard-library only. It reads the Design Knowledge System catalogs (see
-phase-2/capability-resolver/README.md) and never installs or fetches anything. Public entry: ``resolve(profile)``
+skills/capability-resolver/README.md) and never installs or fetches anything. Public entry: ``resolve(profile)``
 (exposed as ``uiux.api.resolve_capabilities``). Technology resolution lives in ``uiux.engine.technology``,
 retrieval in ``uiux.engine.retrieval`` and budgets in ``uiux.engine.performance``; their names are re-exported here
 for backward compatibility.

@@ -1,6 +1,6 @@
 # Knowledge schemas
 
-Every catalog entry is a fenced `yaml` block whose first key is `id`, inside `phase-2/knowledge/`, `phase-2/motion/`, `phase-2/web-patterns/` or `phase-2/05-frontend-implementation/`. `scripts/knowledge_lib.py` parses, validates and indexes them.
+Every catalog entry is a fenced `yaml` block whose first key is `id`, inside `knowledge/` (domains, motion, web-patterns, visual-language, frontend-implementation). `scripts/knowledge_lib.py` parses, validates and indexes them.
 
 ## Format rules (YAML subset)
 

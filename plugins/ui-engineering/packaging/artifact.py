@@ -17,7 +17,8 @@ import time
 import zipfile
 from pathlib import Path, PurePosixPath
 
-RULES_RELATIVE = "plugins/ui-engineering/packaging/package-rules.json"
+RULES_RELATIVE = "packaging/package-rules.json"
+REPO_RULES_RELATIVE = "plugins/ui-engineering/packaging/package-rules.json"
 ZIP_MIN_EPOCH = 315532800  # 1980-01-01T00:00:00Z, the earliest timestamp a ZIP entry can hold
 
 
@@ -33,9 +34,20 @@ class PackagingError(Exception):
 
 
 # --------------------------------------------------------------------------- rules and paths
+def resolve_rules_path(root: Path) -> Path:
+    """Resolve package-rules.json relative to package root or repo root."""
+    primary = root / RULES_RELATIVE
+    if primary.is_file():
+        return primary
+    repo = root / REPO_RULES_RELATIVE
+    if repo.is_file():
+        return repo
+    return primary
+
+
 def load_rules(root: Path) -> dict:
     """The packaging contract (single source): selection, required/forbidden files and artifact metadata."""
-    return json.loads((root / RULES_RELATIVE).read_text(encoding="utf-8"))
+    return json.loads(resolve_rules_path(root).read_text(encoding="utf-8"))
 
 
 def match(rel: str, pattern: str) -> bool:

@@ -16,7 +16,7 @@ PACKAGING_FILES = sorted(S.PACKAGING.glob("*.py"))
 
 class CanonicalPathTests(unittest.TestCase):
     def test_accepts_relative_posix_paths(self) -> None:
-        self.assertEqual(artifact.canonical_path("phase-2/knowledge/INDEX.md"), "phase-2/knowledge/INDEX.md")
+        self.assertEqual(artifact.canonical_path("knowledge/domains/INDEX.md"), "knowledge/domains/INDEX.md")
 
     def test_rejects_platform_specific_or_escaping_paths(self) -> None:
         for bad in ("a\\b.md", "/etc/passwd", "C:/x", "c:x", "../x", "a/../b", "a//b", "./a", ""):
@@ -87,11 +87,11 @@ class SourceHygieneTests(unittest.TestCase):
 
     @unittest.skipUnless(S._paths.IS_GIT_WORK_TREE, "repository metadata is not part of an artifact")
     def test_line_ending_policy_and_ci_matrix_exist(self) -> None:
-        attributes = (S.ROOT / ".gitattributes").read_text(encoding="utf-8")
+        attributes = (S._paths.REPO_ROOT / ".gitattributes").read_text(encoding="utf-8")
         self.assertIn("* text=auto eol=lf", attributes)
         self.assertRegex(attributes, r"(?m)^\*\.png\s+binary")
         for workflow in ("ci.yml", "package.yml"):
-            text = (S.ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
+            text = (S._paths.REPO_ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
             with self.subTest(workflow=workflow):
                 self.assertIn("windows-latest", text)
                 self.assertIn("ubuntu-latest", text)

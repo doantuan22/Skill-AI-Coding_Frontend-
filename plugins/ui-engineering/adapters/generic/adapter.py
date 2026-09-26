@@ -22,7 +22,7 @@ from pathlib import Path
 
 _ADAPTER_DIR = Path(__file__).resolve().parent
 _PLUGIN_ROOT = _ADAPTER_DIR.parents[1]
-PACKAGE_ROOT = Path(os.environ.get("UIUX_ROOT", _PLUGIN_ROOT.parent)).resolve()
+PACKAGE_ROOT = Path(os.environ.get("UIUX_ROOT", _PLUGIN_ROOT)).resolve()
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
@@ -50,7 +50,8 @@ class GenericAdapter:
     def __init__(self) -> None:
         self.metadata = METADATA
         try:
-            self.manifest = json.loads((_PLUGIN_ROOT / "manifest" / "plugin.json").read_text(encoding="utf-8"))
+            manifest_path = _PLUGIN_ROOT / "plugin.json" if (_PLUGIN_ROOT / "plugin.json").is_file() else _PLUGIN_ROOT / "manifest" / "plugin.json"
+            self.manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
             raise api.UiuxError(f"plugin manifest unreadable: {exc}", "MANIFEST_INVALID") from exc
         if self.manifest.get("manifest_version") not in self.metadata["manifest_version"]:

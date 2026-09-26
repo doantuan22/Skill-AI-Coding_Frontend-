@@ -65,8 +65,16 @@ def run_tree_tool(root: Path, script: str, *args: str, python: str = sys.executa
     return result.returncode, result.stdout + result.stderr
 
 
+def package_root_of(root: Path) -> Path:
+    cand = root / "plugins" / "ui-engineering"
+    if (cand / "SKILL.md").is_file():
+        return cand
+    return root
+
+
 def skill_name(root: Path) -> str:
-    match = re.match(r"^---\n(.*?)\n---", (root / "plugins/ui-engineering" / "SKILL.md").read_text(encoding="utf-8").replace("\r\n", "\n"), re.DOTALL)
+    pkg = package_root_of(root)
+    match = re.match(r"^---\n(.*?)\n---", (pkg / "SKILL.md").read_text(encoding="utf-8").replace("\r\n", "\n"), re.DOTALL)
     name = next((line.split(":", 1)[1].strip() for line in (match.group(1).splitlines() if match else [])
                  if line.startswith("name:")), None)
     if not name:
@@ -122,7 +130,8 @@ def dev_source(repo: Path, rules: dict) -> dict:
 
 # --------------------------------------------------------------------------- preflight and assembly
 def select(root: Path) -> list[dict]:
-    code, output = run_tree_tool(root, "plugins/ui-engineering/packaging/package_files.py", "--list")
+    pkg_script = "plugins/ui-engineering/packaging/package_files.py" if (root / "plugins/ui-engineering/packaging/package_files.py").is_file() else "packaging/package_files.py"
+    code, output = run_tree_tool(root, pkg_script, "--list")
     try:
         result = json.loads(output[output.index("{"):])
     except ValueError as exc:
@@ -133,20 +142,22 @@ def select(root: Path) -> list[dict]:
 
 
 def preflight(root: Path) -> dict:
-    code, output = run_tree_tool(root, "plugins/ui-engineering/scripts/knowledge_lib.py", "check")
+    klib_script = "plugins/ui-engineering/scripts/knowledge_lib.py" if (root / "plugins/ui-engineering/scripts/knowledge_lib.py").is_file() else "scripts/knowledge_lib.py"
+    code, output = run_tree_tool(root, klib_script, "check")
     if code != 0:
         raise PackagingError("REGISTRY_STALE", "knowledge catalogs/registry are invalid or stale; run "
-                             "`python plugins/ui-engineering/scripts/knowledge_lib.py index` and commit", output=output[-1000:])
-    version = (root / "plugins/ui-engineering" / "VERSION").read_text(encoding="utf-8").strip()
-    manifest = json.loads((root / "plugins/ui-engineering/plugin.json").read_text(encoding="utf-8"))
+                             "`python scripts/knowledge_lib.py index` and commit", output=output[-1000:])
+    pkg = package_root_of(root)
+    version = (pkg / "VERSION").read_text(encoding="utf-8").strip()
+    manifest = json.loads((pkg / "plugin.json").read_text(encoding="utf-8"))
     if manifest.get("version") != version:
         raise PackagingError("VERSION_MISMATCH", "plugin manifest version differs from VERSION",
                              version=version, manifest=manifest.get("version"))
-    schema = json.loads((root / "plugins/ui-engineering/schemas/plugin.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads((pkg / "schemas/plugin.schema.json").read_text(encoding="utf-8"))
     problems = artifact.validate_schema(manifest, schema)
     if problems:
         raise PackagingError("MANIFEST_INVALID", "plugin manifest does not match its schema", problems=problems)
-    changelog = (root / "plugins/ui-engineering" / "CHANGELOG.md").read_text(encoding="utf-8")
+    changelog = (pkg / "CHANGELOG.md").read_text(encoding="utf-8")
     if not re.search(rf"^## {re.escape(version)}\b", changelog, re.MULTILINE):
         raise PackagingError("CHANGELOG_MISSING", f"CHANGELOG.md has no '## {version}' section", version=version)
     return {"version": version, "name": manifest["name"], "manifest_version": manifest["manifest_version"],
@@ -155,16 +166,19 @@ def preflight(root: Path) -> dict:
 
 def package_manifest(root: Path, entries: list[dict], ident: dict, source: dict, rules: dict, dev: bool
                      ) -> tuple[dict, list[tuple[str, bytes]]]:
+    pkg = package_root_of(root)
     binary = rules["artifact"]["binary_globs"]
     files, contents = [], []
     for entry in entries:
         rel = artifact.canonical_path(entry["path"])
-        data = artifact.normalize(rel, (root / "plugins" / "ui-engineering" / rel).read_bytes(), binary)
+        data = artifact.normalize(rel, (pkg / rel).read_bytes(), binary)
         files.append({"path": rel, "size": len(data), "sha256": artifact.sha256(data), "layer": entry["layer"],
                       "mode": rules["artifact"]["file_mode"]})
         contents.append((rel, data))
-    rules_bytes = b"".join(artifact.normalize(p, (root / p).read_bytes(), binary)
-                           for p in (artifact.RULES_RELATIVE, "plugins/ui-engineering/uiux/core/layers.json"))
+    rules_path = artifact.resolve_rules_path(root)
+    layers_path = pkg / "uiux/core/layers.json"
+    rules_bytes = b"".join((artifact.normalize(rules_path.name, rules_path.read_bytes(), binary),
+                            artifact.normalize("layers.json", layers_path.read_bytes(), binary)))
     manifest = {"schema_version": 1, "archive_format_version": rules["artifact"]["format_version"],
                 "name": ident["name"], "skill_name": ident["skill_name"], "python_package": "uiux",
                 "version": ident["version"], "manifest_version": ident["manifest_version"],
@@ -194,8 +208,9 @@ def build(repo: Path = DEFAULT_REPO, commit: str = "HEAD", dev: bool = False, ou
         ident = preflight(root)
         entries = select(root)
         manifest, contents = package_manifest(root, entries, ident, source, rules, dev)
+        pkg = package_root_of(root)
         problems = artifact.validate_schema(manifest, json.loads(
-            (root / "plugins/ui-engineering/schemas/package-manifest.schema.json").read_text(encoding="utf-8")))
+            (pkg / "schemas/package-manifest.schema.json").read_text(encoding="utf-8")))
         if problems:
             raise PackagingError("MANIFEST_INVALID", "generated PACKAGE-MANIFEST.json violates its schema", problems=problems)
 

@@ -501,7 +501,9 @@ def verify(archive: Path | None = None, installed: Path | None = None, require_r
             outcome("V11", problems, f"read-only enforcement: {mode}")
             outcome("V12", check_without_plugin(v, root))
             if tests_dir is AUTO:
-                candidate = _HERE.parents[1] / "tests"
+                candidate = _HERE.parents[2] / "tests"
+                if not candidate.is_dir():
+                    candidate = _HERE.parents[1] / "tests"
                 tests_dir = candidate if candidate.is_dir() else None
             if tests_dir is None:
                 record("V13", "NOT_RUN", "no tests directory available (tests are not packaged); pass --tests <dir>")

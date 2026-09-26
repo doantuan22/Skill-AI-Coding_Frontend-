@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Target A - Modern Static Showcase</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header" id="header">
+    <div class="container header-container">
+      <a href="#hero" class="brand-logo" id="brand-logo">Acme Systems</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="nav-icon"></span>
+      </button>
+      <nav class="nav-menu" id="nav-menu" aria-label="Main Navigation">
+        <a href="#hero" class="nav-link">Overview</a>
+        <a href="#cards" class="nav-link">Features</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <button class="btn btn-outline" id="open-modal-btn">Open Dialog</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero-section" id="hero">
+      <div class="container hero-container">
+        <span class="badge" id="hero-badge">Next-Gen Architecture</span>
+        <h1 class="hero-title" id="hero-title">Engineering Reliable Enterprise Interfaces</h1>
+        <p class="hero-subtitle" id="hero-subtitle">
+          High-performance static and dynamic experiences engineered with strict accessibility, responsive typography, and resilient interaction states.
+        </p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary" id="hero-primary-cta">Get Started</a>
+          <button class="btn btn-secondary" id="hero-secondary-cta">Explore Architecture</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards-section" id="cards">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Core Platform Capabilities</h2>
+          <p class="section-subtitle">Engineered for deterministic quality across all viewports and input modalities.</p>
+        </div>
+        <div class="grid-cards" id="feature-cards">
+          <article class="card" id="card-1">
+            <div class="card-icon" aria-hidden="true">&#9881;</div>
+            <h3 class="card-title">Responsive Invariance</h3>
+            <p class="card-body">Fluid typography and container-driven grid layouts guaranteeing zero horizontal overflow across 375px to 1440px+ viewports.</p>
+          </article>
+          <article class="card" id="card-2">
+            <div class="card-icon" aria-hidden="true">&#128737;</div>
+            <h3 class="card-title">Accessibility By Default</h3>
+            <p class="card-body">Strict WCAG 2.1 AA contrast compliance, semantic landmarks, and full keyboard navigation with visible focus indicators.</p>
+          </article>
+          <article class="card" id="card-3">
+            <div class="card-icon" aria-hidden="true">&#9889;</div>
+            <h3 class="card-title">Reduced-Motion Respect</h3>
+            <p class="card-body">CSS animation boundaries designed with instant transition fallbacks for users preferring reduced motion.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="container contact-container">
+        <div class="section-header">
+          <h2 class="section-title">Request Validation Report</h2>
+          <p class="section-subtitle">Submit your team's configuration to receive an automated verification profile.</p>
+        </div>
+        <form class="contact-form" id="contact-form" novalidate>
+          <div class="form-group" id="group-name">
+            <label for="input-name">Full Name</label>
+            <input type="text" id="input-name" name="name" class="form-control" required placeholder="Alex Morgan">
+            <span class="field-error" id="name-error" aria-live="polite"></span>
+          </div>
+          <div class="form-group" id="group-email">
+            <label for="input-email">Corporate Email</label>
+            <input type="email" id="input-email" name="email" class="form-control" required placeholder="alex@acme.com">
+            <span class="field-error" id="email-error" aria-live="polite"></span>
+          </div>
+          <div class="form-group" id="group-message">
+            <label for="input-message">Project Scope</label>
+            <textarea id="input-message" name="message" class="form-control" rows="4" required placeholder="Describe target UI surfaces..."></textarea>
+            <span class="field-error" id="message-error" aria-live="polite"></span>
+          </div>
+          <div class="form-status" id="form-status" aria-live="polite"></div>
+          <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Submit Request</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" id="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">System Information</h3>
+        <button class="modal-close" id="close-modal-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Reference Static Target A is active and responding to user interactions.</p>
+        <div class="state-indicator" id="modal-state-indicator">State: Nominal</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modal-dismiss-btn">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="footer">
+    <div class="container footer-container">
+      <p>&copy; 2026 Acme Systems Inc. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

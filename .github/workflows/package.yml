@@ -29,9 +29,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Build release artifact (clean checkout of the pushed commit)
-        run: python plugin/packaging/build.py --out out
+        run: python plugins/ui-engineering/packaging/build.py --out out
       - name: Verify extracted artifact (V1-V13, tests from the checkout)
-        run: python plugin/packaging/verify.py out/ui-ux-design-*.zip --require-release --tests tests
+        run: python plugins/ui-engineering/packaging/verify.py out/ui-ux-design-*.zip --require-release --tests tests
         shell: bash
       - uses: actions/upload-artifact@v4
         with:

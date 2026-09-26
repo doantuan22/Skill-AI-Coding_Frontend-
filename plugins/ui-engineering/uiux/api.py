@@ -225,12 +225,12 @@ def evaluate_preservation(
         raise _tool_error(exc) from exc
 
 
-def route_knowledge(request: dict | None = None, **kwargs) -> dict:
+def route_knowledge(request: dict | None = None) -> dict:
     """Route required knowledge packs, skills, preservation invariants, and runtime validation."""
     from uiux.engine import knowledge_router
 
     try:
-        return knowledge_router.route_knowledge(request, **kwargs)
+        return knowledge_router.route_knowledge(request)
     except Exception as exc:
         raise _tool_error(exc) from exc
 
@@ -587,6 +587,13 @@ def self_test() -> dict:
             manifest = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
             return "FAIL", f"plugin manifest unreadable: {exc}", "MANIFEST_INVALID"
+        if isinstance(manifest, dict) and manifest.get("type") == "agent-plugin":
+            if manifest.get("version") != __version__:
+                return "FAIL", f"manifest version {manifest.get('version')} != core {__version__}", "VERSION_MISMATCH"
+            if not manifest.get("name"):
+                return "FAIL", "agent-plugin manifest missing 'name'", "MANIFEST_INVALID"
+            return "PASS", f"{manifest['name']} agent-plugin manifest parsed (version {manifest['version']})"
+
         required = {"manifest_version", "name", "version", "entrypoints", "capabilities", "tools"}
         missing = sorted(required - set(manifest)) if isinstance(manifest, dict) else sorted(required)
         if missing or manifest.get("manifest_version") != 1:
@@ -595,7 +602,51 @@ def self_test() -> dict:
             return "FAIL", f"manifest version {manifest['version']} != core {__version__}", "VERSION_MISMATCH"
         if sorted(manifest["capabilities"]) != sorted(registry.capability_map()["capabilities"]):
             return "FAIL", "manifest capabilities differ from the capability map", "MANIFEST_INVALID"
-        return "PASS", f"{manifest['name']} manifest parsed (version {manifest['version']})"
+
+        # P1.7 Manifest Resource & Path Validation
+        missing_paths = []
+        for ep_key, ep_val in manifest.get("entrypoints", {}).items():
+            if isinstance(ep_val, dict):
+                p = ep_val.get("path")
+                if p and not (plugin_root / p).is_file():
+                    missing_paths.append(f"entrypoint '{ep_key}' path '{p}'")
+                reg = ep_val.get("registry")
+                if reg and not (plugin_root / reg).is_file():
+                    missing_paths.append(f"entrypoint '{ep_key}' registry '{reg}'")
+
+        know = manifest.get("knowledge", {})
+        if isinstance(know, dict):
+            k_reg = know.get("registry")
+            if k_reg and not (plugin_root / k_reg).is_file():
+                missing_paths.append(f"knowledge registry '{k_reg}'")
+            k_idx = know.get("index")
+            if k_idx and not (plugin_root / k_idx).is_file():
+                missing_paths.append(f"knowledge index '{k_idx}'")
+
+        pkg = manifest.get("packaging", {})
+        if isinstance(pkg, dict):
+            pkg_rules = pkg.get("rules")
+            if pkg_rules and not (plugin_root / pkg_rules).is_file():
+                missing_paths.append(f"packaging rules '{pkg_rules}'")
+
+        cap_reg = manifest.get("capability_map", {}).get("registry")
+        if cap_reg and not (plugin_root / cap_reg).is_file():
+            missing_paths.append(f"capability_map registry '{cap_reg}'")
+
+        tools_reg = manifest.get("tools", {}).get("registry")
+        if tools_reg and not (plugin_root / tools_reg).is_file():
+            missing_paths.append(f"tools registry '{tools_reg}'")
+
+        schemas_dir = plugin_root / "schemas"
+        if schemas_dir.is_dir():
+            for sf in ("plugin.schema.json", "package-manifest.schema.json", "adapter.schema.json", "knowledge-plan.schema.json", "modification-plan.schema.json", "critic-report.schema.json"):
+                if not (schemas_dir / sf).is_file():
+                    missing_paths.append(f"schema '{sf}'")
+
+        if missing_paths:
+            return "FAIL", f"manifest references missing resources: {'; '.join(missing_paths)}", "MANIFEST_INVALID"
+
+        return "PASS", f"{manifest['name']} manifest parsed and all declared resource paths verified (version {manifest['version']})"
 
     def tools_check():
         problems = registry.check_tools() + registry.check_capability_map()
@@ -676,6 +727,13 @@ _DISPATCH = {
     "resolve_technology": resolve_technology, "analyze_design_quality": analyze_design_quality,
     "detect_runtime": detect_runtime, "run_runtime": run_runtime, "accessibility_scan": accessibility_scan,
     "run_evals": run_evals, "validate_skill": validate_skill, "capability_map": capability_map, "self_test": self_test,
+    "orchestrate_ui": orchestrate_ui,
+    "analyze_repository": analyze_repository,
+    "analyze_existing_ui": analyze_existing_ui,
+    "route_knowledge": route_knowledge,
+    "build_knowledge_plan": build_knowledge_plan,
+    "plan_modification": plan_modification,
+    "build_validation_handoff": build_validation_handoff,
 }
 
 

@@ -17,7 +17,7 @@
     {"id": "docs", "title": "Documentation", "package": true, "paths": ["../development/docs/**", "CHANGELOG.md", "README.md"]},
     {"id": "tests", "title": "Tests", "package": false, "paths": ["../tests/**"]},
     {"id": "development", "title": "Development-only research, CI and repository metadata", "package": false,
-     "paths": ["../external-references/**", "../.github/**", "../.gitignore", "../.gitattributes", "uiux.config.json", "../development/**", "../.agents/**"]},
+     "paths": [".gitattributes", ".gitignore", "development/**", "../external-references/**", "../.github/**", "../.gitignore", "../.gitattributes", "uiux.config.json", "../development/**", "../.agents/**"]},
     {"id": "artifact-metadata", "title": "Metadata generated into built artifacts (never in the source tree)", "package": false,
      "paths": ["PACKAGE-MANIFEST.json"]}
   ],

@@ -144,6 +144,7 @@ class ModificationPlanner:
             workflow=workflow,
             preservation_profile=active_pres,
             user_goal=user_goal,
+            knowledge_plan=knowledge_plan,
         )
 
         # 6. Policy Invariant Checks
@@ -223,6 +224,8 @@ class ModificationPlanner:
         knowledge_context = {
             "selected_packs": knowledge_plan.get("selected_packs", {}) if knowledge_plan else {},
             "selected_skills": [s.get("id") if isinstance(s, dict) else str(s) for s in (knowledge_plan.get("selected_skills", []) if knowledge_plan else [])],
+            "selected_knowledge": knowledge_plan.get("selected_knowledge", []) if knowledge_plan else [],
+            "routed_catalog_ids": [k["id"] for k in (knowledge_plan.get("selected_knowledge", []) if knowledge_plan else []) if isinstance(k, dict) and "id" in k],
         }
 
         # 11. Preservation Block

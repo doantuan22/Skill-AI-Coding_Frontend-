@@ -33,6 +33,7 @@ from uiux.engine.knowledge_router.intent import (
     RUNTIME_VALIDATION,
     VISUAL_POLISH,
     classify_task_intent,
+    classify_task_intents,
 )
 from uiux.engine.knowledge_router.metadata import (
     DESIGN_SKILLS,
@@ -50,7 +51,7 @@ from uiux.engine.preservation import L1, L2, L3
 class KnowledgeRouter:
     """Deterministic routing engine that produces machine-readable knowledge load plans."""
 
-    def __init__(self, resolver: KnowledgeResolver | None = None, budget_limit_points: int = 25):
+    def __init__(self, resolver: KnowledgeResolver | None = None, budget_limit_points: int = 35):
         self.resolver = resolver or KnowledgeResolver()
         self.budget_manager = ContextBudgetManager(budget_limit_points=budget_limit_points)
 
@@ -85,9 +86,15 @@ class KnowledgeRouter:
                     rationale.append(f"Monorepo scope resolved from request context: '{app_name}'.")
                     break
 
-        # 2. Classify Task Intent
-        task_intent = classify_task_intent(user_request, raw_intent)
-        rationale.append(f"Task intent classified as '{task_intent}'.")
+        # 2. Classify Task Intent (Compound Intent Support - P1.1)
+        intent_info = classify_task_intents(user_request, raw_intent)
+        task_intent = intent_info["primary_intent"]
+        secondary_intents = intent_info["secondary_intents"]
+        all_intents = intent_info["all_intents"]
+        if intent_info.get("compound"):
+            rationale.append(f"Compound intent classified: primary '{task_intent}', secondary: {secondary_intents}.")
+        else:
+            rationale.append(f"Task intent classified as '{task_intent}'.")
 
         # 3. Resolve Framework Pack
         fw_data = active_repo_profile.get("framework") or {}
@@ -220,6 +227,32 @@ class KnowledgeRouter:
         candidate_skills: list[dict[str, Any]] = []
         candidate_knowledge: list[dict[str, Any]] = []
 
+        # Helper to query catalog and format entries according to Section 8 contract
+        def _add_catalog_knowledge(
+            entry_id: str,
+            reason: str,
+            priority: str = "medium",
+            required: bool = False,
+            relevance: float = 0.85,
+        ) -> bool:
+            entry = self.resolver.locate_catalog_entry(entry_id)
+            if entry and not any(k["id"] == entry_id for k in candidate_knowledge):
+                candidate_knowledge.append({
+                    "id": entry["id"],
+                    "category": entry.get("collection", "general"),
+                    "name": entry.get("name", entry["id"]),
+                    "reason": reason,
+                    "priority": priority,
+                    "source": entry.get("file", ""),
+                    "reference": f"{entry.get('file', '')}:{entry.get('line', 1)}",
+                    "relevance": relevance,
+                    "required": required,
+                    "summary": entry.get("summary", ""),
+                    "weight": "small",
+                })
+                return True
+            return False
+
         # Hard preservation knowledge for Existing UI
         if workflow == "existing-ui":
             pres_inv = dict(PRESERVATION_PACKS["preservation.existing_ui_invariants"])
@@ -227,53 +260,37 @@ class KnowledgeRouter:
             candidate_knowledge.append(pres_inv)
 
         # 6. Task Intent-Driven Routing
-        # Check change level restrictions on Existing UI:
         is_existing_l1 = workflow == "existing-ui" and preservation_context.get("allowed_change_level") == L1
+        req_lower = user_request.lower()
 
-        # Skill selection based on intent and scope
-        if task_intent == RESPONSIVE_FIX:
+        # Skill selection based on primary & secondary intents
+        if RESPONSIVE_FIX in all_intents:
             resp_skill = dict(DESIGN_SKILLS["skill.responsive_interaction"])
             resp_skill["reason"] = "Responsive layout refinement requested."
             candidate_skills.append(resp_skill)
-            # Layout catalog knowledge for responsive
-            layout_entries = self.resolver.query_catalog(collection="layouts", ids=["layout.sidebar-content", "layout.grid-dense"])
-            for e in layout_entries[:1]:
-                candidate_knowledge.append({
-                    "id": e["id"],
-                    "category": "layout",
-                    "name": e["name"],
-                    "reason": "Responsive layout reference.",
-                    "priority": "medium",
-                    "source": e["file"],
-                    "required": False,
-                    "weight": "small",
-                })
 
-        elif task_intent == ACCESSIBILITY_FIX:
+        if ACCESSIBILITY_FIX in all_intents:
             qa_skill = dict(DESIGN_SKILLS["skill.visual_qa"])
             qa_skill["reason"] = "Accessibility compliance and contrast verification task."
             candidate_skills.append(qa_skill)
 
-        elif task_intent == COMPONENT_REFACTOR:
+        if COMPONENT_REFACTOR in all_intents or DESIGN_SYSTEM_WORK in all_intents:
             comp_skill = dict(DESIGN_SKILLS["skill.component_realization"])
-            comp_skill["reason"] = "Component realization and refactor task."
+            comp_skill["reason"] = "Component realization and design token conventions task."
             candidate_skills.append(comp_skill)
-            # Local component scope: do NOT load page-level architecture
 
-        elif task_intent == NAVIGATION_UX:
+        if NAVIGATION_UX in all_intents:
             nav_skill = dict(DESIGN_SKILLS["skill.ux_structure"])
             nav_skill["reason"] = "Navigation structure and user flow task."
             candidate_skills.append(nav_skill)
 
-        elif task_intent in (PAGE_REDESIGN, FULL_REDESIGN):
+        if any(i in (PAGE_REDESIGN, FULL_REDESIGN) for i in all_intents):
             if is_existing_l1:
-                # Existing UI with L1 change level: cannot load major redesign skills!
                 diagnostics["warnings"].append("Major redesign requested but allowed change level is L1; suppressed full redesign knowledge.")
                 qa_skill = dict(DESIGN_SKILLS["skill.visual_qa"])
                 qa_skill["reason"] = "L1 change budget limits task to safe visual refinement."
                 candidate_skills.append(qa_skill)
             else:
-                # Greenfield or Existing UI with authorized L3 permission
                 ux_skill = dict(DESIGN_SKILLS["skill.ux_structure"])
                 ux_skill["reason"] = "Page architecture redesign task."
                 candidate_skills.append(ux_skill)
@@ -282,51 +299,140 @@ class KnowledgeRouter:
                     dir_skill["reason"] = "Holistic design direction for page restructuring."
                     candidate_skills.append(dir_skill)
 
-        elif task_intent == MOTION:
-            motion_entries = self.resolver.query_catalog(collection="motion")
-            for e in motion_entries[:2]:
-                candidate_knowledge.append({
-                    "id": e["id"],
-                    "category": "motion",
-                    "name": e["name"],
-                    "reason": "Motion pattern reference.",
-                    "priority": "medium",
-                    "source": e["file"],
-                    "required": False,
-                    "weight": "small",
-                })
+        if workflow == "greenfield" and not any(s["id"] == "skill.design_direction" for s in candidate_skills):
+            dir_skill = dict(DESIGN_SKILLS["skill.design_direction"])
+            dir_skill["reason"] = "Greenfield interface design direction."
+            candidate_skills.append(dir_skill)
 
-        elif task_intent == DESIGN_SYSTEM_WORK:
-            comp_skill = dict(DESIGN_SKILLS["skill.component_realization"])
-            comp_skill["reason"] = "Design token and component conventions task."
-            candidate_skills.append(comp_skill)
-
-        else:
-            # Default general UI or visual polish
+        if not any(s["id"] == "skill.visual_qa" for s in candidate_skills):
             qa_skill = dict(DESIGN_SKILLS["skill.visual_qa"])
             qa_skill["reason"] = "General visual quality verification."
             candidate_skills.append(qa_skill)
-            if workflow == "greenfield":
-                dir_skill = dict(DESIGN_SKILLS["skill.design_direction"])
-                dir_skill["reason"] = "Greenfield interface design direction."
-                candidate_skills.append(dir_skill)
 
-        # Final quality gate is always included for UI modifications
         gate_skill = dict(DESIGN_SKILLS["skill.final_quality_gate"])
         gate_skill["reason"] = "Pre-delivery quality gate and non-regression check."
         candidate_skills.append(gate_skill)
 
+        # 6b. Actual Knowledge Catalog Routing (P0.5, P1.2)
+        # --- Screen Knowledge ---
+        if any(w in req_lower for w in ("dashboard", "workload", "cluster", "deploy", "admin", "metrics", "analytics")):
+            _add_catalog_knowledge("screen.dashboard", "Dashboard overview and workload monitoring screen pattern.", priority="high")
+            _add_catalog_knowledge("screen.data-table", "Data table and status tracking screen pattern.", priority="medium")
+        elif any(w in req_lower for w in ("landing", "hero", "showcase", "marketing", "home", "product")):
+            _add_catalog_knowledge("screen.onboarding", "Public landing page and product showcase pattern.", priority="high")
+            _add_catalog_knowledge("screen.pricing", "Feature tier and pricing matrix screen pattern.", priority="medium")
+        elif any(w in req_lower for w in ("form", "auth", "login", "register", "signup", "contact", "checkout")):
+            _add_catalog_knowledge("screen.authentication", "Authentication and account form screen pattern.", priority="high")
+            _add_catalog_knowledge("screen.settings", "Form controls and preference screen pattern.", priority="medium")
+        else:
+            if workflow == "greenfield":
+                _add_catalog_knowledge("screen.onboarding", "Default interface screen architecture.", priority="medium")
+            else:
+                _add_catalog_knowledge("screen.dashboard", "Default application screen architecture.", priority="medium")
+
+        # Intentional UI States
+        if any(w in req_lower for w in ("state", "loading", "skeleton", "empty", "error", "fallback", "pending", "failed")):
+            _add_catalog_knowledge("screen.loading-state", "Loading skeleton and shimmer feedback patterns.", priority="medium")
+            _add_catalog_knowledge("screen.empty-state", "Empty state and filter reset patterns.", priority="medium")
+            _add_catalog_knowledge("screen.error-state", "Error boundary and network failure recovery patterns.", priority="medium")
+
+        # --- Layout Knowledge ---
+        if any(w in req_lower for w in ("dashboard", "sidebar", "workspace", "drawer", "shell")):
+            _add_catalog_knowledge("layout.app-dashboard-shell", "Application dashboard shell with sidebar and topbar.", priority="high")
+            _add_catalog_knowledge("layout.grid-dense-data", "Dense metrics and status grid layout.", priority="medium")
+        elif any(w in req_lower for w in ("hero", "landing", "card", "cards", "section", "sections")):
+            _add_catalog_knowledge("layout.hero-centered", "Hero section composition pattern.", priority="high")
+            _add_catalog_knowledge("layout.grid-card-matrix", "Card matrix and feature section layout pattern.", priority="medium")
+
+        if RESPONSIVE_FIX in all_intents or any(w in req_lower for w in ("responsive", "mobile", "tablet")):
+            _add_catalog_knowledge("layout.app-sidebar-workspace", "Responsive layout with collapsible sidebar drawer.", priority="high")
+            _add_catalog_knowledge("layout.grid-card-matrix", "Responsive multi-column card layout.", priority="medium")
+
+        if "bento" in req_lower:
+            _add_catalog_knowledge("layout.grid-bento", "Bento grid layout composition.", priority="medium")
+
+        # --- Interaction & Component Grammar Knowledge ---
+        if NAVIGATION_UX in all_intents or any(w in req_lower for w in ("nav", "navbar", "sidebar", "drawer", "menu")):
+            _add_catalog_knowledge("component.navigation", "Navigation bar and responsive sidebar component grammar.", priority="high")
+            _add_catalog_knowledge("component.dialogs-drawers", "Modal dialog and slide-over drawer component grammar.", priority="high")
+            _add_catalog_knowledge("interaction.keyboard-navigation", "Keyboard focus order and accessible tab navigation.", priority="medium")
+
+        if any(w in req_lower for w in ("modal", "drawer", "dialog", "popup")):
+            _add_catalog_knowledge("component.dialogs-drawers", "Modal and slide-over dialog component grammar.", priority="high")
+            _add_catalog_knowledge("interaction.focus-management", "Focus trapping and keyboard dismissal.", priority="medium")
+
+        if any(w in req_lower for w in ("search", "filter", "chip", "chips", "query")):
+            _add_catalog_knowledge("component.command-search", "Command palette and search input component grammar.", priority="medium")
+            _add_catalog_knowledge("interaction.command-palette", "Interactive quick-action command palette.", priority="medium")
+
+        if any(w in req_lower for w in ("table", "list", "row", "rows", "column")):
+            _add_catalog_knowledge("component.tables-lists", "Responsive data table and list component grammar.", priority="medium")
+            _add_catalog_knowledge("interaction.progressive-disclosure", "Progressive disclosure for complex data rows.", priority="low")
+
+        if FORM_UX in all_intents or any(w in req_lower for w in ("form", "input", "submit", "contact", "button")):
+            _add_catalog_knowledge("component.form-controls", "Form control components with validation state styling.", priority="high")
+            _add_catalog_knowledge("component.buttons", "Interactive buttons with loading and disabled states.", priority="medium")
+
+        # --- Typography & Style Knowledge ---
+        _add_catalog_knowledge("component.typography-headings", "Typography scale, line-height, and semantic headings.", priority="medium")
+
+        # Style & Recipe (if greenfield or permitted)
+        if not is_existing_l1:
+            if any(w in req_lower for w in ("saas", "cloud", "dashboard", "workload")):
+                _add_catalog_knowledge("style.modern-saas", "Modern SaaS visual aesthetic and token palette.", priority="medium")
+                _add_catalog_knowledge("recipe.premium-saas", "End-to-end premium SaaS product recipe.", priority="medium")
+            elif any(w in req_lower for w in ("dev", "developer", "terminal", "code")):
+                _add_catalog_knowledge("style.developer-tool", "Developer tool aesthetic with high contrast.", priority="medium")
+            elif any(w in req_lower for w in ("minimal", "clean")):
+                _add_catalog_knowledge("style.minimal", "Minimalist visual aesthetic and whitespace rhythm.", priority="medium")
+            elif "bento" in req_lower:
+                _add_catalog_knowledge("style.bento", "Bento grid visual aesthetic.", priority="medium")
+
+        # --- Effects & Graphics Knowledge ---
+        if any(w in req_lower for w in ("glass", "glassmorphism", "blur", "backdrop", "glow", "gradient", "modern", "visual", "polish")):
+            _add_catalog_knowledge("effect.glass", "Glassmorphism, frosted backdrop blur and specular highlights.", priority="medium")
+            _add_catalog_knowledge("effect.gradient", "Subtle multi-stop background gradient curves.", priority="low")
+
+        if any(w in req_lower for w in ("illustration", "graphic", "canvas", "particle")):
+            _add_catalog_knowledge("graphics.interactive-illustration", "Interactive illustration pattern.", priority="low")
+
+        # --- Motion Knowledge & Framework-Specific Technology (P1.2) ---
+        motion_requested = (
+            MOTION in all_intents
+            or any(w in req_lower for w in ("animate", "animated", "animation", "animations", "motion", "transition", "transitions", "drawer", "fade", "reveal", "stagger"))
+        )
+        if motion_requested:
+            _add_catalog_knowledge("motion.fade-up", "Smooth entrance fade-up animation curve.", priority="medium")
+            _add_catalog_knowledge("motion.stagger", "Staggered entrance animation for lists and cards.", priority="medium")
+            _add_catalog_knowledge("motion.clip-reveal", "Reveal transition for drawers and cards.", priority="low")
+
+            # Framework-aware motion library check (P1.2)
+            has_framer = False
+            deps = active_repo_profile.get("dependencies") or {}
+            if isinstance(deps, dict):
+                has_framer = any("framer-motion" in k or "motion" in k for k in deps)
+            if active_repo_profile.get("motion_library") in ("framer_motion", "motion", "framer-motion"):
+                has_framer = True
+
+            if has_framer:
+                _add_catalog_knowledge("tech.motion", "Framer Motion library reference from repository dependencies.", priority="high", relevance=0.95)
+                rationale.append("Prioritized existing motion library 'Framer Motion' from repository dependencies.")
+            else:
+                _add_catalog_knowledge("tech.css", "Native CSS transitions and keyframes without third-party dependencies.", priority="high", relevance=0.95)
+                _add_catalog_knowledge("tech.view-transitions", "Browser native View Transitions API guidance.", priority="medium", relevance=0.85)
+                rationale.append("No third-party motion library declared; routed native CSS and View Transitions guidance to prevent unnecessary dependencies.")
+
         # 7. Runtime Validation Routing
         selected_runtime_packs: list[dict[str, Any]] = []
-        if task_intent == RESPONSIVE_FIX:
+        if RESPONSIVE_FIX in all_intents:
             rt_entry = dict(RUNTIME_VALIDATION_PACKS["runtime.responsive_viewport"])
             rt_entry["reason"] = "Validates layout against mobile/tablet/desktop viewports."
             selected_runtime_packs.append(rt_entry)
-        elif task_intent == ACCESSIBILITY_FIX:
+        elif ACCESSIBILITY_FIX in all_intents:
             rt_entry = dict(RUNTIME_VALIDATION_PACKS["runtime.accessibility_audit"])
             rt_entry["reason"] = "Validates WCAG AA contrast, label associations, and keyboard focus."
             selected_runtime_packs.append(rt_entry)
-        elif task_intent == FORM_UX:
+        elif FORM_UX in all_intents:
             rt_entry = dict(RUNTIME_VALIDATION_PACKS["runtime.form_interaction"])
             rt_entry["reason"] = "Validates form blur validation, error messages, and submit states."
             selected_runtime_packs.append(rt_entry)
@@ -335,9 +441,9 @@ class KnowledgeRouter:
             rt_entry["reason"] = "Validates clean page render without console errors."
             selected_runtime_packs.append(rt_entry)
 
-        # 8. Domain Intelligence Integration (Phase 5)
+        # 8. Domain Intelligence Integration (Phase 5 + P1.3)
         # Deterministic, multi-signal domain classification with explicit user precedence
-        explicit_domain_input = request.get("domain")
+        explicit_domain_input = request.get("domain") or repo_profile.get("domain") or repo_profile.get("detected_domain")
         domain_classification = classify_domain(
             user_request=user_request,
             repo_profile=repo_profile,
@@ -462,6 +568,24 @@ class KnowledgeRouter:
             "source": domain_source,
         }
 
+        # Domain Subtopics -> Actual Knowledge Mapping (P1.4)
+        for subtopic in domain_context["selected_subtopics"]:
+            sub_lower = subtopic.lower()
+            if "dashboard" in sub_lower:
+                _add_catalog_knowledge("recipe.enterprise-dashboard", f"Enterprise dashboard architecture recipe for domain subtopic '{subtopic}'.", priority="high")
+                _add_catalog_knowledge("screen.dashboard", f"Dashboard screen layout pattern for domain subtopic '{subtopic}'.", priority="high")
+            if "pricing" in sub_lower or "billing" in sub_lower or "public_surfaces" in sub_lower or "settings_billing" in sub_lower:
+                _add_catalog_knowledge("screen.pricing", f"Pricing matrix screen pattern for domain subtopic '{subtopic}'.", priority="high")
+            if "checkout" in sub_lower or "cart" in sub_lower:
+                _add_catalog_knowledge("recipe.consumer-app", f"Consumer checkout UX flow recipe for domain subtopic '{subtopic}'.", priority="high")
+                _add_catalog_knowledge("screen.checkout", f"Checkout screen pattern for domain subtopic '{subtopic}'.", priority="high")
+            if "terminal" in sub_lower or "cli" in sub_lower:
+                _add_catalog_knowledge("style.developer-tool", f"Developer terminal styling recipe for domain subtopic '{subtopic}'.", priority="medium")
+            if "analytics" in sub_lower or "metrics" in sub_lower:
+                _add_catalog_knowledge("screen.analytics", f"Analytics and telemetry screen pattern for domain subtopic '{subtopic}'.", priority="medium")
+            if "workspace" in sub_lower or "collaboration" in sub_lower:
+                _add_catalog_knowledge("screen.workspace", f"Workspace collaboration screen pattern for domain subtopic '{subtopic}'.", priority="medium")
+
         # 9. Assemble All Candidates for Context Budgeting
         all_candidates: list[dict[str, Any]] = []
         all_candidates.extend(selected_framework_packs)
@@ -542,6 +666,8 @@ class KnowledgeRouter:
             "workflow": workflow,
             "requested_scope": requested_scope,
             "task_intent": task_intent,
+            "secondary_intents": secondary_intents,
+            "compound": intent_info.get("compound", False),
             "selected_packs": {
                 "framework": final_fw,
                 "styling": final_styling,

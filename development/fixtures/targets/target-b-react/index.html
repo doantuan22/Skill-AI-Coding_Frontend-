@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Target B - Enterprise Cloud Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout" id="dashboard-root">
+    <!-- Sidebar / Drawer -->
+    <aside class="dashboard-sidebar" id="sidebar" aria-label="Application Sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-brand" id="sidebar-brand">CloudCore OS</span>
+        <button class="sidebar-close" id="sidebar-close-btn" aria-label="Close Sidebar">&times;</button>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <a href="#overview" class="nav-item active" id="nav-overview">
+          <span class="nav-icon" aria-hidden="true">&#128202;</span>
+          <span class="nav-label">Overview</span>
+        </a>
+        <a href="#deployments" class="nav-item" id="nav-deployments">
+          <span class="nav-icon" aria-hidden="true">&#128640;</span>
+          <span class="nav-label">Deployments</span>
+        </a>
+        <a href="#clusters" class="nav-item" id="nav-clusters">
+          <span class="nav-icon" aria-hidden="true">&#9881;</span>
+          <span class="nav-label">Clusters</span>
+        </a>
+        <a href="#audit" class="nav-item" id="nav-audit">
+          <span class="nav-icon" aria-hidden="true">&#128220;</span>
+          <span class="nav-label">Audit Logs</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar" aria-hidden="true">AD</div>
+          <div class="user-info">
+            <span class="user-name">Admin User</span>
+            <span class="user-role">Site Reliability</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="dashboard-main">
+      <header class="topbar" id="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle-btn" aria-label="Open Navigation Drawer" aria-controls="sidebar">
+            <span class="menu-icon">&#9776;</span>
+          </button>
+          <div class="search-container">
+            <input type="search" class="search-input" id="search-input" placeholder="Search clusters, nodes, deployments..." aria-label="Search resources">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <!-- State Switcher for intentional UI testing -->
+          <div class="state-switcher" aria-label="Fixture State Switcher">
+            <label for="state-select" class="sr-only">UI State</label>
+            <select id="state-select" class="state-select" aria-label="Switch UI test state">
+              <option value="data">State: Active Data</option>
+              <option value="loading">State: Loading</option>
+              <option value="empty">State: Empty</option>
+              <option value="error">State: Error</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="open-new-deployment-btn">+ New Deployment</button>
+        </div>
+      </header>
+
+      <main class="content-view" id="content-view">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title" id="page-title">Deployments & Workloads</h1>
+            <p class="page-subtitle">Real-time status of service clusters across production regions.</p>
+          </div>
+          <div class="filter-chips" id="filter-chips" role="group" aria-label="Filter status">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="running">Running</button>
+            <button class="chip" data-filter="pending">Pending</button>
+            <button class="chip" data-filter="failed">Failed</button>
+          </div>
+        </div>
+
+        <!-- UI State: Active Data Table -->
+        <div class="table-container" id="state-data-container">
+          <table class="data-table" id="deployments-table" aria-label="Deployments table">
+            <thead>
+              <tr>
+                <th scope="col">Service</th>
+                <th scope="col">Cluster</th>
+                <th scope="col">Status</th>
+                <th scope="col">Replicas</th>
+                <th scope="col">Latency</th>
+                <th scope="col" class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr data-status="running" id="row-auth-service">
+                <td class="font-semibold">auth-service-v2</td>
+                <td>us-east-1</td>
+                <td><span class="status-pill status-running">Running</span></td>
+                <td>8 / 8</td>
+                <td>24ms</td>
+                <td class="text-right">
+                  <button class="btn btn-sm btn-outline row-action-btn" data-service="auth-service-v2">View</button>
+                </td>
+              </tr>
+              <tr data-status="running" id="row-billing-api">
+                <td class="font-semibold">billing-api</td>
+                <td>eu-central-1</td>
+                <td><span class="status-pill status-running">Running</span></td>
+                <td>4 / 4</td>
+                <td>38ms</td>
+                <td class="text-right">
+                  <button class="btn btn-sm btn-outline row-action-btn" data-service="billing-api">View</button>
+                </td>
+              </tr>
+              <tr data-status="pending" id="row-indexing-worker">
+                <td class="font-semibold">indexing-worker</td>
+                <td>us-west-2</td>
+                <td><span class="status-pill status-pending">Pending</span></td>
+                <td>1 / 3</td>
+                <td>--</td>
+                <td class="text-right">
+                  <button class="btn btn-sm btn-outline row-action-btn" data-service="indexing-worker">View</button>
+                </td>
+              </tr>
+              <tr data-status="failed" id="row-metrics-collector">
+                <td class="font-semibold">metrics-collector</td>
+                <td>ap-northeast-1</td>
+                <td><span class="status-pill status-failed">Failed</span></td>
+                <td>0 / 2</td>
+                <td>Timeout</td>
+                <td class="text-right">
+                  <button class="btn btn-sm btn-outline row-action-btn" data-service="metrics-collector">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- UI State: Loading Skeleton -->
+        <div class="state-container loading-state" id="state-loading-container" style="display: none;" aria-live="polite">
+          <div class="skeleton-row" style="width: 100%; height: 50px;"></div>
+          <div class="skeleton-row" style="width: 100%; height: 50px;"></div>
+          <div class="skeleton-row" style="width: 100%; height: 50px;"></div>
+          <div class="skeleton-row" style="width: 100%; height: 50px;"></div>
+        </div>
+
+        <!-- UI State: Empty -->
+        <div class="state-container empty-state" id="state-empty-container" style="display: none;" aria-live="polite">
+          <div class="empty-icon" aria-hidden="true">&#128269;</div>
+          <h3 class="empty-title">No matching deployments</h3>
+          <p class="empty-text">No services match the active search query or status filter.</p>
+          <button class="btn btn-secondary" id="reset-filter-btn">Reset Filters</button>
+        </div>
+
+        <!-- UI State: Error -->
+        <div class="state-container error-state" id="state-error-container" style="display: none;" role="alert">
+          <div class="error-icon" aria-hidden="true">&#9888;</div>
+          <h3 class="error-title">Failed to load cluster state</h3>
+          <p class="error-text">Network connection to cluster control plane timed out (503 Service Unavailable).</p>
+          <button class="btn btn-primary" id="retry-btn">Retry Connection</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- New Deployment Modal -->
+  <div class="modal-backdrop" id="deployment-modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="deployment-modal-title">
+      <div class="modal-header">
+        <h3 class="modal-title" id="deployment-modal-title">Deploy New Service</h3>
+        <button class="modal-close" id="close-deployment-modal-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="new-deployment-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="service-name">Service Identifier</label>
+            <input type="text" id="service-name" name="service" class="form-control" placeholder="my-microservice" required>
+          </div>
+          <div class="form-group">
+            <label for="target-region">Target Region</label>
+            <select id="target-region" name="region" class="form-control">
+              <option value="us-east-1">us-east-1 (N. Virginia)</option>
+              <option value="eu-central-1">eu-central-1 (Frankfurt)</option>
+              <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="replicas">Replica Count</label>
+            <input type="number" id="replicas" name="replicas" class="form-control" value="2" min="1" max="32">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-deployment-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="confirm-deployment-btn">Launch Deployment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

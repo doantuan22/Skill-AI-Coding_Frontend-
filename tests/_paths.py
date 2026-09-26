@@ -9,8 +9,9 @@ import os
 import sys
 from pathlib import Path
 
-PACKAGE_ROOT = Path(os.environ.get("UIUX_TEST_ROOT") or Path(__file__).resolve().parents[1] / "plugins" / "ui-engineering").resolve()
+REPO_ROOT = Path(__file__).resolve().parents[1].resolve()
+PACKAGE_ROOT = Path(os.environ.get("UIUX_TEST_ROOT") or REPO_ROOT / "plugins" / "ui-engineering").resolve()
 SCRIPTS = PACKAGE_ROOT / "scripts"
-IS_GIT_WORK_TREE = (Path(__file__).resolve().parents[1] / ".git").exists()
+IS_GIT_WORK_TREE = (REPO_ROOT / ".git").exists()
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))

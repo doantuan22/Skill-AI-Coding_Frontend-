@@ -245,9 +245,12 @@ def workflow_checks(root: Path) -> list[str]:
         return result
     if not all(visit(node) for node in graph):
         errors.append("artifact circular dependency detected")
-    for phase in ("skills/ux-structure/references", "phase-2/references"):
+    for phase in ("skills/ux-structure/references", "skills/references", "references"):
         headings: dict[str, Path] = {}
-        for path in (root / phase).rglob("*.md"):
+        target_dir = root / phase
+        if not target_dir.is_dir():
+            continue
+        for path in target_dir.rglob("*.md"):
             heading = next((line[2:].strip().lower() for line in text(path).splitlines() if line.startswith("# ")), "")
             if heading in headings:
                 errors.append(f"duplicate reference purpose: {phase}/{path.name} and {headings[heading].name}")
@@ -444,7 +447,12 @@ def validate(root: Path | None = None) -> list[str]:
     if root is None:
         from uiux.core import resources  # noqa: PLC0415
         root = resources.get_package_root()
-    required = REQUIRED_FILES | (PLUGIN_LAYER_FILES if (root / "plugin").is_dir() else set())
+    is_dev_repo = (root / "../../development").is_dir()
+    has_plugin_layer = (root / "plugin").is_dir() or (root / "plugin.json").is_file()
+    required = {
+        item for item in (REQUIRED_FILES | (PLUGIN_LAYER_FILES if has_plugin_layer else set()))
+        if is_dev_repo or not item.startswith("../../development")
+    }
     errors = [f"missing required file: {item}" for item in sorted(required) if not (root / item).is_file()]
     errors += markdown_links(root)
     errors += scenario_checks(root)

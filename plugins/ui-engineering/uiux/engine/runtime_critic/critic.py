@@ -58,6 +58,7 @@ ACCESSIBILITY_REGRESSION = "accessibility_regression"
 RUNTIME_ERROR = "runtime_error"
 PLAN_DRIFT = "plan_drift"
 MISSING_REQUIRED_STATE = "missing_required_state"
+INSUFFICIENT_EVIDENCE = "insufficient_evidence"
 
 # ── Repair eligibility ───────────────────────────────────────────────────────
 # Categories that can be auto-repaired within blast radius
@@ -96,6 +97,41 @@ class CriticEngine:
             issues.extend(self._check_preservation(session))
 
         # 3. Runtime-based checks (require after_evidence)
+        if session.is_runtime_required():
+            if not session.has_runtime():
+                issues.append(_make_issue(
+                    category=INSUFFICIENT_EVIDENCE,
+                    severity=CRITICAL,
+                    status=NEW_REGRESSION,
+                    description="Runtime evidence is required by the validation plan, but no browser captures or runtime evidence were provided.",
+                    page=session.get_affected_pages()[0] if session.get_affected_pages() else "/",
+                    viewport=session.get_affected_viewports()[0] if session.get_affected_viewports() else "desktop_1440",
+                    evidence="Validation handoff requires runtime execution, but after_evidence contains no captures.",
+                    expected="Valid runtime evidence captures for all affected routes and viewports.",
+                    actual="No runtime evidence available.",
+                    likely_cause="Browser runtime unavailable, execution skipped, or evidence not provided.",
+                    repairable=False,
+                    repair_scope="execute runtime capture before proceeding",
+                    permission_required=None,
+                ))
+            elif session.has_partial_evidence():
+                missing_pairs = session.get_missing_evidence_pairs()
+                issues.append(_make_issue(
+                    category=INSUFFICIENT_EVIDENCE,
+                    severity=HIGH,
+                    status=NEW_REGRESSION,
+                    description=f"Partial runtime evidence: missing captures for {len(missing_pairs)} required page/viewport target(s).",
+                    page=missing_pairs[0][0],
+                    viewport=missing_pairs[0][1],
+                    evidence=f"Missing required captures for: {', '.join(f'{p}@{v}' for p, v in missing_pairs)}",
+                    expected="All required routes and viewports captured.",
+                    actual=f"Missing {len(missing_pairs)} capture(s).",
+                    likely_cause="Partial browser run or timed out viewports.",
+                    repairable=False,
+                    repair_scope="recapture missing page/viewport combinations",
+                    permission_required=None,
+                ))
+
         if session.has_runtime():
             issues.extend(self._check_runtime_errors(session))
             issues.extend(self._check_visual_regression(session))
@@ -619,6 +655,16 @@ class CriticEngine:
     def _compute_overall_status(
         self, session: RuntimeValidationSession, issues: list[dict[str, Any]]
     ) -> str:
+        # P0.2 Gate: If runtime is required but no runtime evidence is provided,
+        # overall status CANNOT pass. It MUST be "blocked" (NEEDS_RUNTIME / INSUFFICIENT_EVIDENCE).
+        if session.is_runtime_required():
+            if not session.has_runtime():
+                return "blocked"
+            if session.has_partial_evidence():
+                new_issues = [i for i in issues if i.get("status") in (NEW_REGRESSION, WORSENED)]
+                critical_or_high = any(i.get("severity") in (CRITICAL, HIGH) and i.get("category") != INSUFFICIENT_EVIDENCE for i in new_issues)
+                return "fail" if critical_or_high else "blocked"
+
         new_issues = [i for i in issues if i.get("status") in (NEW_REGRESSION, WORSENED)]
 
         if not new_issues:
@@ -627,7 +673,7 @@ class CriticEngine:
         max_severity = max((SEVERITY_ORDER.get(i.get("severity", INFO), 0) for i in new_issues), default=0)
 
         if not session.has_runtime():
-            # No browser runtime – can only verify code-level checks
+            # Runtime was NOT required (code-level only checks)
             critical = any(i.get("severity") == CRITICAL for i in new_issues)
             if critical:
                 return "blocked"

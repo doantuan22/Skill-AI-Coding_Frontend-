@@ -87,6 +87,69 @@ class RuntimeValidationSession:
     def is_existing_ui(self) -> bool:
         return self.workflow == "existing-ui"
 
+    def is_runtime_required(self) -> bool:
+        """True if the validation contract mandates runtime/browser evidence.
+
+        Evaluated from:
+          1. Explicit flag in validation handoff: requires_runtime (bool).
+          2. Explicit flag in validation handoff: requires_browser (bool).
+          3. Required checks demanding runtime: responsive viewport, accessibility axe audit,
+             browser runtime, form/modal/interaction testing, visual regression.
+          4. Presence of interaction scenarios or accessibility checks.
+          5. Existing UI workflows with visual preservation or responsive/interaction requirements.
+        """
+        if "requires_runtime" in self.validation_handoff:
+            return bool(self.validation_handoff["requires_runtime"])
+        if "requires_browser" in self.validation_handoff:
+            return bool(self.validation_handoff["requires_browser"])
+
+        if self.workflow in ("code-only", "static-analysis", "code-level"):
+            return False
+
+        req_checks = self.get_required_checks()
+        runtime_keywords = (
+            "responsive", "viewport", "interaction", "accessibility", "axe",
+            "browser", "visual_regression", "runtime", "console_error", "state_verification"
+        )
+        if any(any(kw in str(c).lower() for kw in runtime_keywords) for c in req_checks):
+            return True
+
+        if self.get_interaction_scenarios() or self.get_accessibility_checks():
+            return True
+
+        if self.validation_handoff.get("affected_viewports"):
+            return True
+
+        if self.is_existing_ui() and self.preservation_profile:
+            return True
+
+        return False
+
+    def get_missing_evidence_pairs(self) -> list[tuple[str, str]]:
+        """Return list of (page, viewport) pairs required by handoff but missing from after captures."""
+        if not self.after_evidence:
+            return [(page, vp) for page in self.get_affected_pages() for vp in self.get_affected_viewports()]
+
+        after_index = _index_captures(self.after_evidence.get("captures", []))
+        missing = []
+        for page in self.get_affected_pages():
+            for vp in self.get_affected_viewports():
+                if (page, vp) not in after_index:
+                    missing.append((page, vp))
+        return missing
+
+    def has_complete_evidence(self) -> bool:
+        """True if after-evidence exists and covers all affected pages and viewports."""
+        if not self.has_runtime():
+            return False
+        return len(self.get_missing_evidence_pairs()) == 0
+
+    def has_partial_evidence(self) -> bool:
+        """True if some after captures exist but do not cover all required pages/viewports."""
+        if not self.has_runtime():
+            return False
+        return len(self.get_missing_evidence_pairs()) > 0
+
     def get_affected_pages(self) -> list[str]:
         """Return pages/routes from validation handoff or affected surface."""
         handoff_pages = self.validation_handoff.get("affected_pages", [])
@@ -175,8 +238,12 @@ def _index_captures(captures: list[dict[str, Any]]) -> dict[tuple[str, str], dic
     index: dict[tuple[str, str], dict[str, Any]] = {}
     for cap in captures:
         page = cap.get("route", cap.get("page", cap.get("page_id", "/")))
-        viewport = cap.get("viewport", "desktop_1440")
-        index[(page, viewport)] = cap
+        vp = cap.get("viewport", "desktop_1440")
+        if isinstance(vp, dict):
+            viewport = vp.get("name") or f"{vp.get('width', 1280)}x{vp.get('height', 800)}"
+        else:
+            viewport = str(vp)
+        index[(str(page), viewport)] = cap
     return index
 
 

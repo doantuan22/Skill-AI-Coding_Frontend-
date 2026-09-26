@@ -20,6 +20,7 @@ def plan_implementation_steps(
     workflow: str = "existing-ui",
     preservation_profile: dict[str, Any] | None = None,
     user_goal: str = "",
+    knowledge_plan: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Generate sequential implementation steps, execution batches, checkpoints, and validation handoff.
     
@@ -40,6 +41,10 @@ def plan_implementation_steps(
     is_shared = blast_radius.get("is_shared_component_elevated", False)
     is_api_breaking = blast_radius.get("is_component_api_breaking", False)
 
+    selected_knowledge = knowledge_plan.get("selected_knowledge", []) if knowledge_plan else []
+    routed_ids = [k["id"] for k in selected_knowledge if isinstance(k, dict) and "id" in k]
+    guidance_refs = [k["id"] for k in selected_knowledge if k.get("priority") in ("critical", "high", "medium")]
+
     steps: list[dict[str, Any]] = []
     checkpoints: list[dict[str, Any]] = []
 
@@ -54,6 +59,7 @@ def plan_implementation_steps(
         "dependencies": [],
         "risk": "medium" if is_shared else "low",
         "expected_result": f"Refine {primary_comp} structure/styles within authorized L1/L2 scope.",
+        "guidance_references": guidance_refs,
     })
 
     cp_1_id = "cp_1"
@@ -120,6 +126,7 @@ def plan_implementation_steps(
     if (
         task_intent == "responsive_fix"
         or "responsive" in primary_file.lower()
+        or any("responsive" in rid for rid in routed_ids)
         or any(w in goal_lower for w in ("responsive", "mobile", "tablet", "viewport"))
     ):
         affected_viewports = ["desktop_1440", "tablet_768", "mobile_375"]
@@ -127,6 +134,7 @@ def plan_implementation_steps(
 
     if (
         task_intent == "form_ux"
+        or any("form" in rid for rid in routed_ids)
         or any(w in goal_lower for w in ("form", "input", "checkout", "signup", "login"))
     ):
         interactions.extend(["form_input_typing", "field_blur_validation", "submit_handling"])
@@ -139,6 +147,21 @@ def plan_implementation_steps(
         accessibility_checks.extend(["screen_reader_announcements", "colorblind_distinctiveness"])
         required_checks.append("accessibility_axe_audit")
 
+    if any(k in routed_ids for k in ("component.dialogs-drawers", "interaction.focus-management")) or any(w in goal_lower for w in ("modal", "drawer", "dialog")):
+        interactions.extend(["modal_open_close", "drawer_slide_toggle", "focus_trap_verification"])
+        required_checks.append("modal_focus_trap_test")
+
+    if any(k in routed_ids for k in ("component.command-search", "component.tables-lists")) or any(w in goal_lower for w in ("table", "search", "filter", "chip")):
+        interactions.extend(["search_filtering", "status_chip_toggle", "row_selection"])
+        required_checks.append("table_filtering_test")
+
+    if any(k in routed_ids for k in ("screen.loading-state", "screen.empty-state", "screen.error-state")) or any(w in goal_lower for w in ("loading", "skeleton", "empty", "error")):
+        interactions.extend(["loading_skeleton_display", "empty_state_recovery", "error_retry_interaction"])
+        required_checks.append("ui_state_transition_test")
+
+    if any(k in routed_ids for k in ("tech.motion", "tech.css", "motion.fade-up")):
+        required_checks.extend(["motion_duration_check", "reduced_motion_verification"])
+
     if workflow == "existing-ui":
         preservation_checks.extend([
             "locked_palette_intact",
@@ -147,12 +170,86 @@ def plan_implementation_steps(
         ])
         required_checks.append("preservation_invariants_verification")
 
+    # Generate executable scenario specifications (P1.5)
+    scenarios: list[dict[str, Any]] = [
+        {
+            "id": "scenario_smoke_test",
+            "type": "smoke_render",
+            "checks": ["no_console_errors", "no_unhandled_rejections", "root_rendered"],
+        },
+        {
+            "id": "scenario_responsive_viewport",
+            "type": "viewport_matrix",
+            "viewports": [
+                {"name": "desktop", "width": 1440, "height": 900},
+                {"name": "tablet", "width": 768, "height": 1024},
+                {"name": "mobile", "width": 375, "height": 667},
+            ],
+            "checks": ["no_horizontal_overflow", "responsive_grid_adaptation"],
+        },
+        {
+            "id": "scenario_accessibility_audit",
+            "type": "accessibility_audit",
+            "standard": "WCAG_AA",
+            "rules": ["color-contrast", "button-name", "image-alt", "label"],
+        },
+    ]
+
+    if (
+        task_intent == "form_ux"
+        or any("form" in rid for rid in routed_ids)
+        or any(w in goal_lower for w in ("form", "input", "submit", "login", "checkout"))
+    ):
+        scenarios.append({
+            "id": "scenario_form_interaction",
+            "type": "interaction_sequence",
+            "target": primary_file,
+            "actions": [
+                {"action": "focus", "selector": "input"},
+                {"action": "fill", "selector": "input", "value": "test-input"},
+                {"action": "submit", "selector": "form"},
+            ],
+            "expected_states": ["validating", "submitted"],
+        })
+
+    if any(k in routed_ids for k in ("component.dialogs-drawers", "interaction.focus-management")) or any(w in goal_lower for w in ("modal", "drawer", "dialog")):
+        scenarios.append({
+            "id": "scenario_modal_drawer_interaction",
+            "type": "interaction_sequence",
+            "actions": [
+                {"action": "click", "selector": "[data-action='open'], .menu-toggle, #open-new-deployment-btn", "expected_state": "open"},
+                {"action": "press", "key": "Escape", "expected_state": "closed"},
+            ],
+        })
+
+    if any(k in routed_ids for k in ("component.command-search", "component.tables-lists")) or any(w in goal_lower for w in ("table", "search", "filter", "chip")):
+        scenarios.append({
+            "id": "scenario_table_filter_interaction",
+            "type": "interaction_sequence",
+            "actions": [
+                {"action": "fill", "selector": "input[type='search'], #search-input", "value": "auth"},
+                {"action": "click", "selector": ".chip[data-filter], [data-filter='all']"},
+            ],
+            "expected_states": ["filtered_data"],
+        })
+
+    if any("state" in rid for rid in routed_ids) or any(w in goal_lower for w in ("loading", "skeleton", "empty", "error", "state")):
+        scenarios.append({
+            "id": "scenario_ui_states_validation",
+            "type": "state_matrix",
+            "states": ["data", "loading", "empty", "error"],
+            "recovery_action": "reset_filters",
+        })
+
     validation = {
         "required_checks": required_checks,
         "affected_viewports": affected_viewports,
         "interactions": interactions,
         "accessibility": accessibility_checks,
         "preservation": preservation_checks,
+        "scenarios": scenarios,
+        "requires_runtime": True,
+        "knowledge_guidance": guidance_refs,
     }
 
     # 3. Rollback Strategy

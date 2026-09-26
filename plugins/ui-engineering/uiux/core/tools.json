@@ -8,7 +8,7 @@
       "description": "Turn a design requirement profile into a ranked capability plan (style, layouts, screens, motion, interactions, effects, technology, recipe anchor, retrieval list) with WHY / WHY NOT.",
       "entrypoint": "uiux.api:resolve_capabilities",
       "cli": "python scripts/resolve_capabilities.py --profile <file.json> [--format md]",
-      "input": {"type": "object", "required": ["profile"], "properties": {"profile": {"type": "object", "description": "Capability profile; fields and vocabularies in phase-2/capability-resolver/resolver.md#profile"}}, "additionalProperties": false},
+      "input": {"type": "object", "required": ["profile"], "properties": {"profile": {"type": "object", "description": "Capability profile; fields and vocabularies in skills/capability-resolver/resolver.md#profile"}}, "additionalProperties": false},
       "output": {"type": "object", "description": "Capability plan: style, layouts, screens, motion, interactions, effects, technology, recipe, guards, retrieval"},
       "dependencies": {"python": ">=3.9", "packages": []},
       "runtime_requirements": [],
@@ -268,6 +268,160 @@
       "runtime_requirements": [],
       "side_effects": "none (reads the package; runtime detection runs `node --version`); never installs, downloads or writes",
       "annotations": {"read_only": true, "writes_to": "none", "may_start_process": true, "deterministic": false, "network_access": false, "filesystem_read": ["package", "browser-cache"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "orchestrate_ui",
+      "visibility": "public",
+      "description": "Route UI workflows, enforce preservation policies, and resolve required capabilities and change levels (L1/L2/L3).",
+      "entrypoint": "uiux.api:orchestrate_ui",
+      "cli": "python scripts/uiux_cli.py call orchestrate_ui --params '{\"request\": {\"user_goal\": \"...\"}}'",
+      "input": {
+        "type": "object",
+        "required": ["request"],
+        "properties": {
+          "request": {"type": "object", "description": "UI orchestration request with user_goal, task_intent, requested_scope, repo_context, etc."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["workflow", "ui_state", "confidence", "design_freedom", "preservation_required", "next_action"], "description": "Orchestration decision and routing plan"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "analyze_repository",
+      "visibility": "public",
+      "description": "Run full Repo & Framework Intelligence to produce a normalized repo_profile (framework, styling, routes, components, tokens, UI state).",
+      "entrypoint": "uiux.api:analyze_repository",
+      "cli": "python scripts/uiux_cli.py call analyze_repository --params '{\"project\": \".\"}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "project": {"type": "string", "default": "."},
+          "options": {"type": ["object", "null"], "description": "Optional analysis configuration"}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "framework", "styling_system"], "description": "Normalized repository and framework profile"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none (read-only scan of the project)",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package", "target-project"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "analyze_existing_ui",
+      "visibility": "public",
+      "description": "Analyze an existing UI codebase for visual identity, layout hierarchy, component consistency, UX flows, responsive health, and design system maturity.",
+      "entrypoint": "uiux.api:analyze_existing_ui",
+      "cli": "python scripts/uiux_cli.py call analyze_existing_ui --params '{\"project\": \".\"}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "project": {"type": "string", "default": "."},
+          "repo_profile": {"type": ["object", "null"], "description": "Optional precomputed repo_profile"},
+          "options": {"type": ["object", "null"], "description": "Optional analysis options"}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "identity", "layout", "components"], "description": "Existing UI analysis profile"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none (read-only scan of the project)",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package", "target-project"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "route_knowledge",
+      "visibility": "public",
+      "description": "Route required knowledge packs, skills, preservation invariants, and runtime validation from task intent and repo profile.",
+      "entrypoint": "uiux.api:route_knowledge",
+      "cli": "python scripts/uiux_cli.py call route_knowledge --params '{\"request\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "request": {"type": ["object", "null"], "description": "Knowledge routing request with repo_profile, task_intent, etc."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "workflow", "selected_packs", "context_budget"], "description": "Knowledge load plan"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "build_knowledge_plan",
+      "visibility": "public",
+      "description": "Build a comprehensive machine-readable Knowledge Load Plan tailored to framework, styling, domain, and preservation requirements.",
+      "entrypoint": "uiux.api:build_knowledge_plan",
+      "cli": "python scripts/uiux_cli.py call build_knowledge_plan --params '{...}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "repo_profile": {"type": ["object", "null"], "description": "Repository profile dict"},
+          "existing_ui_profile": {"type": ["object", "null"], "description": "Existing UI profile dict"},
+          "preservation_profile": {"type": ["object", "null"], "description": "Preservation profile dict"},
+          "task_intent": {"type": ["string", "null"], "description": "Normalized task intent"},
+          "user_request": {"type": "string", "default": "", "description": "Original user prompt"},
+          "workflow": {"type": "string", "default": "existing-ui", "description": "Workflow mode"},
+          "requested_scope": {"type": "string", "default": "global", "description": "Requested edit scope"},
+          "explicit_constraints": {"type": ["object", "null"], "description": "Explicit constraints"}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "workflow", "selected_packs", "context_budget"], "description": "Knowledge load plan"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "plan_modification",
+      "visibility": "public",
+      "description": "Generate a machine-readable Modification Plan for UI tasks: blast radius, change classification (L1/L2/L3), steps, checkpoints, and validation handoff.",
+      "entrypoint": "uiux.api:plan_modification",
+      "cli": "python scripts/uiux_cli.py call plan_modification --params '{...}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "user_request": {"type": "string", "default": "", "description": "User prompt"},
+          "workflow": {"type": "string", "default": "existing-ui", "description": "Workflow mode"},
+          "repo_profile": {"type": ["object", "null"], "description": "Repository profile"},
+          "existing_ui_profile": {"type": ["object", "null"], "description": "Existing UI profile"},
+          "preservation_profile": {"type": ["object", "null"], "description": "Preservation profile"},
+          "knowledge_plan": {"type": ["object", "null"], "description": "Knowledge plan"},
+          "explicit_constraints": {"type": ["object", "null"], "description": "Explicit constraints"},
+          "requested_scope": {"type": "string", "default": "global", "description": "Requested scope"},
+          "task_intent": {"type": ["string", "null"], "description": "Task intent"},
+          "plan_only": {"type": "boolean", "default": false, "description": "Plan only without execution"}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "plan_id", "workflow", "request", "blast_radius", "change_classification", "steps", "validation"], "description": "Modification Plan dict"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "build_validation_handoff",
+      "visibility": "public",
+      "description": "Extract the validation handoff contract from an approved Modification Plan.",
+      "entrypoint": "uiux.api:build_validation_handoff",
+      "cli": "python scripts/uiux_cli.py call build_validation_handoff --params '{\"plan\": {...}}'",
+      "input": {
+        "type": "object",
+        "required": ["plan"],
+        "properties": {
+          "plan": {"type": "object", "description": "Approved Modification Plan dict"}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["required_checks", "affected_viewports", "interactions", "accessibility", "preservation"], "description": "Validation handoff contract dict"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
     }
   ]
 }

@@ -23,7 +23,9 @@ if str(_COMMON.parent) not in sys.path:
 from common import bundle, verify, mcp_smoke
 
 # Ensure packaging is importable for artifact.safe_extract
-_PACKAGING = _HERE.parents[1] / "packaging"
+_PACKAGING = _HERE.parent / "packaging"
+if not _PACKAGING.is_dir():
+    _PACKAGING = _HERE.parents[1] / "packaging"
 if str(_PACKAGING) not in sys.path:
     sys.path.insert(0, str(_PACKAGING))
 import artifact  # noqa: E402

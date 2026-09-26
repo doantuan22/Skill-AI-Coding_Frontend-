@@ -233,6 +233,31 @@
       ],
       "remediation": "The axe helper failed; check Node, Playwright and axe in the target project."
     },
+    "INVALID_SCENARIO_SPEC": {
+      "category": "validation",
+      "scope": [
+        "envelope",
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Provide valid actions and state validation targets conforming to interaction scenario specifications."
+    },
+    "NO_HTML_ENTRYPOINT": {
+      "category": "runtime",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Ensure an HTML entrypoint (e.g. index.html) exists in the target directory."
+    },
+    "UNRESOLVED_SELECTOR": {
+      "category": "runtime",
+      "scope": [
+        "result",
+        "runtime-report"
+      ],
+      "remediation": "Check that the target element selector exists in the page DOM."
+    },
     "INTERNAL_ERROR": {
       "category": "internal",
       "scope": [

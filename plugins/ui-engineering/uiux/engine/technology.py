@@ -2,7 +2,7 @@
 
 Order: installed option -> native preferred -> authorized preferred library -> native alternative -> degrade.
 The skill never installs anything; ``allow_new_dependencies`` only records an authorized new dependency.
-Rules: phase-2/05-frontend-implementation/technology-resolver.md.
+Rules: skills/frontend-implementation/technology-resolver.md.
 """
 from __future__ import annotations
 

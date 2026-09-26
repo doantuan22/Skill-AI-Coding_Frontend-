@@ -190,12 +190,12 @@ def classify_domain(
             domain_ev[domain].append(f"Matching domain components: {', '.join(matched_comps[:3])}")
 
     # 4. Multi-Signal Safeguard (Prevent Over-inference from single weak route)
-    # A domain requires at least 2 distinct signals OR strong combined score (>= 0.55) to be considered
+    # A domain requires at least 2 distinct signals OR strong combined score (>= 0.40) to be considered
     valid_candidates: list[tuple[str, float]] = []
     for domain, score in scores.items():
         signal_count = len(domain_ev[domain])
-        if signal_count >= 2 or (signal_count == 1 and score >= 0.45):
-            valid_candidates.append((domain, min(score, 0.95)))
+        if signal_count >= 2 or (signal_count == 1 and round(score, 2) >= 0.40):
+            valid_candidates.append((domain, min(round(score, 2), 0.95)))
 
     valid_candidates.sort(key=lambda x: x[1], reverse=True)
 

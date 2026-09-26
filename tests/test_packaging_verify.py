@@ -77,9 +77,22 @@ class VerificationTests(unittest.TestCase):
             (root / "uiux" / "__pycache__").mkdir(exist_ok=True)
             (root / "uiux" / "__pycache__" / "api.cpython-311.pyc").write_bytes(b"cache")
             self.assertEqual(verify.verify(installed=root, tests_dir=None, quick=True)["status"], "PASS")
+            (root / "docs").mkdir(exist_ok=True)
             (root / "docs" / "stray.md").write_text("stray\n", encoding="utf-8")
             report = verify.verify(installed=root, tests_dir=None, quick=True)
             self.assertEqual(self.status(report)["V1"], "FAIL")
+
+    def test_build_verify_and_required_resources_regression(self) -> None:
+        """P0.1 regression test: build -> verify -> verify required resources exist -> PASS."""
+        manifest = json.loads(zipfile.ZipFile(self.zip).read(f"{self.zip.stem}/PACKAGE-MANIFEST.json"))
+        files = {f["path"] for f in manifest["files"]}
+        for required in (
+            "SKILL.md", "VERSION", "CHANGELOG.md", "plugin.json",
+            "knowledge/domains/README.md", "knowledge/domains/registry.json", "knowledge/domains/INDEX.md",
+            "packaging/package-rules.json", "schemas/README.md", "uiux/api.py", "uiux/core/tools.json"
+        ):
+            self.assertIn(required, files, f"Missing required resource in built package: {required}")
+        self.assertEqual(self.full["status"], "PASS")
 
     # ------------------------------------------------------------------ negative
     def test_corrupted_file_fails_integrity(self) -> None:

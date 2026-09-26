@@ -112,5 +112,62 @@ class OutputContractTests(unittest.TestCase):
         self.assertFalse((fixture / ".evidence").exists(), "dry runs must not write evidence")
 
 
+class PipelineToolSurfaceE2EContractTests(unittest.TestCase):
+    """P0.3 Contract: Complete main pipeline reachable through api.call_tool without internal imports."""
+
+    def test_pipeline_tool_surface_e2e_sequence(self) -> None:
+        # Step 1: analyze_repository via tool surface
+        repo_result = api.call_tool("analyze_repository", {
+            "project": str(ROOT / "evals/runtime-fixtures/playwright-ready"),
+        })
+        self.assertIn("framework", repo_result)
+        self.assertIn("styling_system", repo_result)
+
+        # Step 2: orchestrate_ui via tool surface
+        orchestration_request = {
+            "user_goal": "Add responsive navigation drawer and visual polish",
+            "task_intent": "L1_refinement",
+            "requested_scope": "component",
+            "repo_context": {"workspace_root": str(ROOT / "evals/runtime-fixtures/playwright-ready")},
+        }
+        orch_result = api.call_tool("orchestrate_ui", {"request": orchestration_request})
+        self.assertIn("workflow", orch_result)
+        self.assertIn("ui_state", orch_result)
+        self.assertIn("next_action", orch_result)
+
+        # Step 3: build_knowledge_plan via tool surface
+        knowledge_plan = api.call_tool("build_knowledge_plan", {
+            "repo_profile": repo_result,
+            "user_request": orchestration_request["user_goal"],
+            "workflow": orch_result["workflow"],
+            "task_intent": "L1_refinement",
+            "requested_scope": "component",
+        })
+        self.assertIn("selected_packs", knowledge_plan)
+        self.assertIn("context_budget", knowledge_plan)
+
+        # Step 4: plan_modification via tool surface
+        mod_plan = api.call_tool("plan_modification", {
+            "user_request": orchestration_request["user_goal"],
+            "workflow": orch_result["workflow"],
+            "repo_profile": repo_result,
+            "knowledge_plan": knowledge_plan,
+            "task_intent": "L1_refinement",
+            "requested_scope": "component",
+            "plan_only": True,
+        })
+        self.assertIn("blast_radius", mod_plan)
+        self.assertIn("change_classification", mod_plan)
+        self.assertIn("validation", mod_plan)
+
+        # Step 5: build_validation_handoff via tool surface
+        handoff = api.call_tool("build_validation_handoff", {"plan": mod_plan})
+        self.assertIn("required_checks", handoff)
+        self.assertIn("affected_viewports", handoff)
+        self.assertIn("interactions", handoff)
+        self.assertIn("accessibility", handoff)
+        self.assertIn("preservation", handoff)
+
+
 if __name__ == "__main__":
     unittest.main()
