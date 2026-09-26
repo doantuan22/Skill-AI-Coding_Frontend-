@@ -106,3 +106,7 @@ python plugins/ui-engineering/packaging/build.py --verify         # release buil
 
 `VERSION` (mirrored in `plugins/ui-engineering/VERSION`) is the single version source; see
 [CHANGELOG.md](CHANGELOG.md) for changes and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution rules.
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE); see [NOTICE](NOTICE). The packaged plugin carries the same `LICENSE` and `NOTICE` files.

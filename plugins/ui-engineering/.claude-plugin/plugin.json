@@ -2,6 +2,7 @@
   "name": "ui-ux-design",
   "version": "0.1.0",
   "description": "Two-phase web UI/UX workflow with a Design Knowledge System, capability resolvers, runtime runner and design quality evals.",
+  "license": "Apache-2.0",
   "author": {
     "name": "doantuan22"
   },

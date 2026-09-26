@@ -3,6 +3,7 @@
   "name": "ui-ux-design",
   "version": "{version}",
   "description": "UI/UX Design Skill for AI coding agents",
+  "license": "Apache-2.0",
   "type": "agent-plugin",
   "skills": {
     "ui-ux-workflow": {

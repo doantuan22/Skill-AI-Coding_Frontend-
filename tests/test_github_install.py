@@ -95,6 +95,28 @@ class ClaudeCodeInstallTests(unittest.TestCase):
         self.assertEqual(_load(plugin_root / ".claude-plugin/plugin.json")["name"], PLUGIN_NAME)
 
 
+class LicenseTests(unittest.TestCase):
+    """Apache-2.0: the packaged LICENSE/NOTICE match the repository copies and every manifest declares it."""
+
+    def test_packaged_license_is_apache_2(self) -> None:
+        text = (PACKAGE_ROOT / "LICENSE").read_text(encoding="utf-8")
+        self.assertIn("Apache License", text)
+        self.assertIn("Version 2.0, January 2004", text)
+        self.assertTrue((PACKAGE_ROOT / "NOTICE").is_file())
+
+    def test_manifests_declare_the_license(self) -> None:
+        self.assertEqual(_load(PACKAGE_ROOT / "plugin.json")["license"], "Apache-2.0")
+        for manifest in (".claude-plugin/plugin.json", ".codex-plugin/plugin.json"):
+            self.assertEqual(_load(PACKAGE_ROOT / manifest)["license"], "Apache-2.0", manifest)
+
+    def test_repository_copies_match_packaged_copies(self) -> None:
+        for name in ("LICENSE", "NOTICE"):
+            path = REPO_ROOT / name
+            if not path.is_file():
+                self.skipTest("repository root is not part of an extracted artifact")
+            self.assertEqual(path.read_bytes(), (PACKAGE_ROOT / name).read_bytes(), name)
+
+
 class CodexInstallTests(unittest.TestCase):
     def test_plugin_manifest_references_existing_files(self) -> None:
         manifest = _load(PACKAGE_ROOT / ".codex-plugin/plugin.json")
