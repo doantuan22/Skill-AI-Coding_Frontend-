@@ -1,7 +1,7 @@
 """Codex plugin bundle verification (checks X1-X16).
 
-    python plugin/adapters/codex/verify.py <extracted-bundle-root>
-    python plugin/adapters/codex/verify.py --bundle <bundle.zip>
+    python plugins/ui-engineering/.codex-plugin/verify.py <extracted-bundle-root>
+    python plugins/ui-engineering/.codex-plugin/verify.py --bundle <bundle.zip>
 
 Checks are structural and subprocess-based. A live Codex session is NOT required for X1-X16.
 Exit codes: 0 all PASS, 2 at least one FAIL, 1 unusable input.

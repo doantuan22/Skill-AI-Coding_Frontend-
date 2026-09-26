@@ -36,7 +36,7 @@ Codex Adapter (mcp.json, plugin.json, skills/ui-ux-workflow/SKILL.md)
   ↓
 Common Adapter Framework
   ↓
-Shared MCP stdio transport (plugin/adapters/mcp/server.py)
+Shared MCP stdio transport (plugins/ui-engineering/adapters/mcp/server.py)
   ↓
 uiux.api
 ```
@@ -47,7 +47,7 @@ To generate a self-contained development ZIP for testing:
 
 ```powershell
 # From the repository root
-python plugin/adapters/codex/export.py --dev --out dist/dev/adapters
+python plugins/ui-engineering/.codex-plugin/export.py --dev --source plugins/ui-engineering --out dist/dev/adapters
 ```
 
 This produces both `ui-ux-design-<version>-dev-codex.zip` and
@@ -58,7 +58,7 @@ repo config template, supported surfaces, and known host limitations.
 ## Testing Locally
 
 ```powershell
-python plugin/adapters/codex/verify.py --bundle dist/dev/adapters/ui-ux-design-0.1.0-dev-codex.zip
+python plugins/ui-engineering/.codex-plugin/verify.py --bundle dist/dev/adapters/ui-ux-design-0.1.0-dev-codex.zip
 ```
 
 ## Permissions and Security

@@ -18,7 +18,7 @@ platform adapters for different AI agents (Claude Code, Codex, MCP).
 │   ├── SKILL.md                 # Workflow controller — agents start here
 │   ├── plugin.json              # Platform-neutral plugin manifest
 │   ├── workflows/               # State machine, routing, preservation rules, artifact contracts
-│   ├── skills/                  # Phase skills (ux-structure, design-direction, typography, visual-qa, …)
+│   ├── skills/                  # Phase skills; skills/ui-ux-workflow/SKILL.md is the host-discoverable entry
 │   ├── knowledge/               # Design Knowledge System (domains/registry.json, motion, web-patterns, …)
 │   ├── templates/               # Artifact templates (STRUCTURE-LOCK.md, PAGE-SPEC.md, FINAL-REVIEW.md, …)
 │   ├── review/                  # Phase and final review checklists
@@ -26,14 +26,15 @@ platform adapters for different AI agents (Claude Code, Codex, MCP).
 │   ├── uiux/                    # Python core package (public API: uiux.api; tools: uiux/core/tools.json)
 │   ├── scripts/                 # CLIs (uiux_cli.py, validate_skill.py, knowledge_lib.py, …)
 │   ├── adapters/                # Generic adapter and shared MCP stdio transport
-│   ├── .claude-plugin/          # Claude Code adapter (bundle export + verify)
-│   ├── .codex-plugin/           # Codex adapter (bundle export + verify)
+│   ├── .mcp.json                # MCP server declaration (Claude Code)
+│   ├── .claude-plugin/          # Claude Code manifest (plugin.json) + bundle export/verify
+│   ├── .codex-plugin/           # Codex manifest (plugin.json, mcp.json) + bundle export/verify
 │   ├── packaging/               # Deterministic artifact build and verification
 │   ├── schemas/                 # JSON schemas for manifests and engine outputs
 │   ├── evals/                   # Eval scenarios, fixtures and rubric
 │   └── docs/                    # User-facing install, compatibility and troubleshooting docs
-├── .claude-plugin/marketplace.json   # Claude Code marketplace descriptor
-├── .agents/plugins/marketplace.json  # Agents marketplace descriptor
+├── .claude-plugin/marketplace.json   # Claude Code marketplace (plugin source: ./plugins/ui-engineering)
+├── .agents/plugins/marketplace.json  # Codex marketplace (plugin source: ./plugins/ui-engineering)
 ├── tests/                       # Unit test suite (run from the repository root)
 ├── development/                 # Architecture docs, phase docs, benchmark harness, fixture targets
 └── .github/workflows/           # CI (tests on Windows/Linux/macOS) and packaging
@@ -42,6 +43,19 @@ platform adapters for different AI agents (Claude Code, Codex, MCP).
 Detailed architecture documentation lives in `development/docs/`
 (start with `architecture.md` and `plugin-architecture.md`). Installation and compatibility notes for
 users are in `plugins/ui-engineering/docs/`.
+
+## Install
+
+Claude Code, directly from GitHub (the repository is a plugin marketplace named `ui-engineering`):
+
+```bash
+claude plugin marketplace add doantuan22/Skill-AI-Coding_Frontend-
+claude plugin install ui-ux-design@ui-engineering
+```
+
+Codex (from a clone): `codex plugin marketplace add ./Skill-AI-Coding_Frontend-` (reads `.agents/plugins/marketplace.json`).
+Other options — a single session with `claude --plugin-dir plugins/ui-engineering`, release archives and a standalone
+MCP server — are described in [plugins/ui-engineering/docs/INSTALLATION.md](plugins/ui-engineering/docs/INSTALLATION.md).
 
 ## Requirements
 
@@ -62,9 +76,10 @@ python plugins/ui-engineering/scripts/uiux_cli.py call analyze_repository --para
 # Shared MCP server (stdio JSON-RPC)
 python plugins/ui-engineering/adapters/mcp/server.py
 
-# Host bundles
-python plugins/ui-engineering/.claude-plugin/export.py --out <dir> --dev
-python plugins/ui-engineering/.codex-plugin/export.py --out <dir> --dev
+# Host bundles (Claude Code / Codex) and their verification
+python plugins/ui-engineering/.claude-plugin/export.py --dev --source plugins/ui-engineering --out dist/dev/adapters
+python plugins/ui-engineering/.codex-plugin/export.py --dev --source plugins/ui-engineering --out dist/dev/adapters
+python plugins/ui-engineering/.claude-plugin/verify.py --bundle dist/dev/adapters/ui-ux-design-0.1.0-dev-claude-code.zip
 ```
 
 ## Development
@@ -78,6 +93,9 @@ python plugins/ui-engineering/scripts/knowledge_lib.py check
 python plugins/ui-engineering/packaging/package_files.py
 python plugins/ui-engineering/scripts/uiux_cli.py call run_evals
 ```
+
+Validate the installable manifests with the Claude Code CLI: `claude plugin validate .` and
+`claude plugin validate plugins/ui-engineering`.
 
 Build and verify a package (outputs go to the git-ignored `dist/`):
 

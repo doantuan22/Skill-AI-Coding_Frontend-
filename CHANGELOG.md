@@ -3,10 +3,17 @@
 Versions follow semantic versioning; `VERSION` is the single source (see `plugins/ui-engineering/schemas/plugin-manifest-README.md`).
 The repository root `VERSION` mirrors `plugins/ui-engineering/VERSION`. Paths below are relative to the repository root; the plugin package lives in `plugins/ui-engineering/`.
 
-## Unreleased
+## 0.1.0 — plugin-ready architecture
 
-Repository restructure and distribution follow-ups.
+First release: shared plugin core, packaging, and direct installation from GitHub for Claude Code and Codex.
 
+### Distribution and GitHub installation
+
+- Claude Code: the repository root `.claude-plugin/marketplace.json` is a valid marketplace (`ui-engineering`, plugin `ui-ux-design`, source `./plugins/ui-engineering`); the plugin commits `.claude-plugin/plugin.json`, `.mcp.json` (`mcpServers` form, `${CLAUDE_PLUGIN_ROOT}` paths) and a discoverable `skills/ui-ux-workflow/SKILL.md` that delegates to the canonical `SKILL.md`. Install: `claude plugin marketplace add doantuan22/Skill-AI-Coding_Frontend-` then `claude plugin install ui-ux-design@ui-engineering`.
+- Codex: `.agents/plugins/marketplace.json` points to `./plugins/ui-engineering`, which commits `.codex-plugin/plugin.json` and `.codex-plugin/mcp.json`; the Codex MCP config now points to `adapters/mcp/server.py` (was the removed `plugin/adapters/...` path).
+- Exporters: the committed host files are replaced by the rendered overlay (no bundle conflict); `--source` defaults to the plugin root; the Claude exporter's error path no longer crashes (`print(..., indent=2)`). `tests/test_github_install.py` keeps committed manifests in sync with VERSION, the exporters and the files they reference.
+- CI: tests pass on Python 3.9 (no `Path.write_text(newline=)`), on Windows (8.3 short temp paths) and macOS (`/var` → `/private/var`); packaging test repositories are copied with `git clone` instead of copying `.git/objects`. The CI matrix covers Python 3.9–3.13 on Linux, Windows and macOS.
+- Packaging workflow: builds into the git-ignored `dist/release/`, verifies exactly `ui-ux-design-<VERSION>.zip`, rejects a tag that differs from `v<VERSION>`, and compares Linux, Windows and macOS artifacts (V14). Actions updated to the Node 24 majors. Committed build outputs (`out/`) and throwaway scripts (`scratch/`) were removed and are ignored.
 - Repository layout: the shared plugin core moved to `plugins/ui-engineering/` (skills, workflows, knowledge, templates, `uiux` package, adapters, packaging, schemas); tests stay in `tests/`, development docs, fixtures and the benchmark harness in `development/`. The former `plugin/…`, `phase-2/…` and root `docs/…` paths no longer exist.
 - Host adapters: experimental Claude Code (`plugins/ui-engineering/.claude-plugin/`) and Codex (`plugins/ui-engineering/.codex-plugin/`) bundle exporters and verifiers on top of the shared MCP transport; marketplace descriptors in `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`.
 - Tests: `tests/test_distribution_phase8.py` (Phase 8 distribution gates) now builds and verifies a developer artifact in a temporary directory instead of requiring a pre-built, git-ignored `dist/dev/` artifact; the artifact tests are skipped when the suite runs against an extracted artifact (`UIUX_TEST_ROOT`).
@@ -26,7 +33,7 @@ Plugin Packaging Phase P0–P2 (build, verification and contract hardening; see 
 - Public discovery: tool annotations, `accessibility_scan` with shared runtime-state gating, `capability_map`, `self_test`, `error_contract`, and generic-adapter metadata/self-test. Missing optional runtime is reported as `BLOCKED`, never auto-installed.
 - Shared MCP transport: experimental stdio JSON-RPC 2.0 server pinned to MCP `2025-06-18`; registry-derived tools and annotation mapping, public-API-only invocation, structured results/error envelopes, `BLOCKED` preservation, EOF lifecycle and extracted-artifact smoke coverage. Host-specific adapters were added later (see above).
 
-## 0.1.0 — plugin-ready architecture
+### Core
 
 - Layered, platform-neutral Python core package `uiux` (core foundation, knowledge, engine, runtime, evals, tooling) with a public Core API (`uiux.api`) and unified CLI (`plugins/ui-engineering/scripts/uiux_cli.py`).
 - Resource discovery and configuration layer (`plugins/ui-engineering/uiux/core/resources.py`, `config.py`, `defaults.json`); all paths are package-relative and cwd-independent.

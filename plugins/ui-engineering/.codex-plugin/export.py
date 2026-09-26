@@ -1,7 +1,7 @@
 """Build a self-contained Codex plugin bundle from a verified generic artifact.
 
-    python plugin/adapters/codex/export.py --source <extracted-artifact-root> --out dist/<version>/adapters/
-    python plugin/adapters/codex/export.py --dev --out dist/dev/adapters/
+    python plugins/ui-engineering/.codex-plugin/export.py --source <extracted-artifact-root> --out dist/<version>/adapters/
+    python plugins/ui-engineering/.codex-plugin/export.py --dev --source plugins/ui-engineering --out dist/dev/adapters/
 
 The bundle is a ZIP containing the full generic payload plus Codex-specific overlay files
 (plugin.json, mcp.json, skills/ui-ux-workflow/SKILL.md). It delegates to the common adapter framework
@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
 
     source = args.source
     if source is None:
-        source = _HERE.parents[2]
+        source = _HERE.parent  # the plugin root (plugins/ui-engineering)
 
     try:
         result = export(source, args.out, args.dev)
