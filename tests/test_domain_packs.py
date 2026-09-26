@@ -13,8 +13,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 import _paths  # noqa: F401
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-_PLUGIN_ROOT = _REPO_ROOT / "plugins" / "ui-engineering"
+_REPO_ROOT = _paths.REPO_ROOT
+_PLUGIN_ROOT = _paths.PACKAGE_ROOT
 
 from uiux import api
 from uiux.engine import knowledge_router

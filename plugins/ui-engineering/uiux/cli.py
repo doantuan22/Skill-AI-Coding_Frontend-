@@ -90,3 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         return _fail(internal(exc, f"cli.{args.command}"))
     print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
     return _exit_code(result)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

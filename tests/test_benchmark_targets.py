@@ -5,8 +5,9 @@ import unittest
 from pathlib import Path
 
 # Add plugins/ui-engineering and development to path
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_DIR = REPO_ROOT / "plugins" / "ui-engineering"
+import _paths
+REPO_ROOT = _paths.REPO_ROOT
+PLUGIN_DIR = _paths.PACKAGE_ROOT
 DEV_DIR = REPO_ROOT / "development"
 for p in (PLUGIN_DIR, DEV_DIR):
     if str(p) not in sys.path:

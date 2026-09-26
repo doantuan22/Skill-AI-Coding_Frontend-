@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1].resolve()
+REPO_ROOT = Path(os.environ.get("UIUX_REPO_ROOT") or Path(__file__).resolve().parents[1]).resolve()
 PACKAGE_ROOT = Path(os.environ.get("UIUX_TEST_ROOT") or REPO_ROOT / "plugins" / "ui-engineering").resolve()
 SCRIPTS = PACKAGE_ROOT / "scripts"
 IS_GIT_WORK_TREE = (REPO_ROOT / ".git").exists()

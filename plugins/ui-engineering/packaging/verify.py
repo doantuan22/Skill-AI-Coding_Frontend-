@@ -419,7 +419,7 @@ def run_tests(v: Verifier, root: Path, tests_dir: Path) -> tuple[list[str], str]
     scratch = v.workspace / "tests-scratch" / "tests"
     shutil.copytree(tests_dir, scratch, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     result = v.run(["-m", "unittest", "discover", "-s", str(scratch), "-t", str(scratch)], timeout=3600,
-                   UIUX_TEST_ROOT=str(root))
+                   UIUX_TEST_ROOT=str(root), UIUX_REPO_ROOT=str(tests_dir.parent.resolve()))
     tail = (result.stdout + result.stderr).strip().splitlines()[-3:]
     return ([] if result.returncode == 0 else [f"unit tests failed: {' | '.join(tail)}"]), " | ".join(tail)
 

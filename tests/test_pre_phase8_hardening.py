@@ -8,11 +8,11 @@ from pathlib import Path
 from unittest import mock
 
 # Set up paths
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_DIR = REPO_ROOT / "plugins" / "ui-engineering"
-for p in (REPO_ROOT / "tests", PLUGIN_DIR):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
+import _paths
+REPO_ROOT = _paths.REPO_ROOT
+PLUGIN_DIR = _paths.PACKAGE_ROOT
+if str(PLUGIN_DIR) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_DIR))
 
 from uiux import api
 from uiux.engine.knowledge_router.intent import classify_task_intent, classify_task_intents
