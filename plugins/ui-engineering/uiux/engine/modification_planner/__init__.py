@@ -55,7 +55,7 @@ def plan_modification(
     )
 
 
-def validate_modification_plan(plan: dict[str, Any]) -> dict[str, Any]:
+def validate_modification_plan(plan: dict[str, Any], repo_profile: dict[str, Any] | None = None) -> dict[str, Any]:
     """Validate a Modification Plan for structural integrity and policy compliance."""
     errors: list[str] = []
     required_keys = (
@@ -73,10 +73,16 @@ def validate_modification_plan(plan: dict[str, Any]) -> dict[str, Any]:
     if status not in valid_statuses:
         errors.append(f"Invalid plan status '{status}'. Must be one of {valid_statuses}.")
 
+    from uiux.engine.modification_planner.consistency_validator import validate_plan_consistency
+    consistency = validate_plan_consistency(plan, repo_profile=repo_profile)
+    if not consistency["valid"]:
+        errors.extend(consistency["issues"])
+
     return {
-        "valid": len(errors) == 0,
-        "status": status,
+        "valid": len(errors) == 0 and consistency["valid"],
+        "status": status if consistency["valid"] else "blocked",
         "errors": errors,
+        "plan_validation": consistency,
     }
 
 

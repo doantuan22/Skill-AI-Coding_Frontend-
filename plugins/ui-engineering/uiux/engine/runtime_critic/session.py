@@ -35,10 +35,10 @@ class RuntimeValidationSession:
         session_id: str | None = None,
     ) -> None:
         self.session_id = session_id or f"session_{uuid.uuid4().hex[:12]}"
-        self.modification_plan: dict[str, Any] = modification_plan or {}
-        self.change_manifest: dict[str, Any] = change_manifest or {}
-        self.before_evidence: dict[str, Any] = before_evidence or {}
-        self.after_evidence: dict[str, Any] = after_evidence or {}
+        self.modification_plan: dict[str, Any] = modification_plan if isinstance(modification_plan, dict) else {}
+        self.change_manifest: dict[str, Any] = change_manifest if isinstance(change_manifest, dict) else {}
+        self.before_evidence: dict[str, Any] = before_evidence if isinstance(before_evidence, dict) else {}
+        self.after_evidence: dict[str, Any] = after_evidence if isinstance(after_evidence, dict) else {}
         self.workflow = workflow
 
         # Derived from modification_plan
@@ -236,7 +236,11 @@ class RuntimeValidationSession:
 def _index_captures(captures: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
     """Index captures by (page/route, viewport) key."""
     index: dict[tuple[str, str], dict[str, Any]] = {}
+    if not isinstance(captures, list):
+        return index
     for cap in captures:
+        if not isinstance(cap, dict):
+            continue
         page = cap.get("route", cap.get("page", cap.get("page_id", "/")))
         vp = cap.get("viewport", "desktop_1440")
         if isinstance(vp, dict):

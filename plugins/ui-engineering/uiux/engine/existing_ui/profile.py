@@ -133,5 +133,8 @@ def build_existing_ui_profile(
             "unsupported_analysis": unsupported_analysis,
             "analyzer_failures": analyzer_failures,
         },
+        "next_actions": [
+            "Pass existing_ui_profile to orchestrate_ui, build_knowledge_plan, or plan_modification.",
+        ],
         "overall_confidence": overall_confidence,
     }

@@ -313,15 +313,42 @@ class KnowledgeRouter:
         gate_skill["reason"] = "Pre-delivery quality gate and non-regression check."
         candidate_skills.append(gate_skill)
 
-        # 6b. Actual Knowledge Catalog Routing (P0.5, P1.2)
+        # 6b. Domain Intelligence Classification (Phase 5 + P1.3)
+        explicit_domain_input = request.get("domain") or repo_profile.get("domain") or repo_profile.get("detected_domain")
+        domain_classification = classify_domain(
+            user_request=user_request,
+            repo_profile=repo_profile,
+            explicit_domain=explicit_domain_input,
+            requested_scope=requested_scope,
+        )
+
+        primary_domain_name = domain_classification.get("primary_domain", "general")
+        secondary_domain_names = domain_classification.get("secondary_domains", [])
+        domain_confidence = domain_classification.get("confidence", 0.0)
+        domain_evidence = domain_classification.get("evidence", [])
+        domain_conflicts = domain_classification.get("conflicts", [])
+        domain_source = domain_classification.get("source", "inferred")
+
+        for conf in domain_conflicts:
+            diagnostics["warnings"].append(conf)
+
+        # 6c. Actual Knowledge Catalog Routing (P0.5, P1.2, Hardening #4)
         # --- Screen Knowledge ---
-        if any(w in req_lower for w in ("dashboard", "workload", "cluster", "deploy", "admin", "metrics", "analytics")):
+        if primary_domain_name == "hospitality_travel" or any(w in req_lower for w in ("hotel", "travel", "rooms", "room", "booking", "destinations", "reservation", "resort")):
+            _add_catalog_knowledge("recipe.travel-booking", "Travel and hotel booking flow recipe with search, room selection, and pricing clarity.", priority="high")
+            _add_catalog_knowledge("screen.search", "Availability search and destination filter screen pattern.", priority="high")
+            _add_catalog_knowledge("screen.checkout", "Booking summary, room pricing, and reservation checkout screen.", priority="high")
+        elif primary_domain_name == "ecommerce" or any(w in req_lower for w in ("cart", "checkout", "ecommerce", "store", "shop")):
+            _add_catalog_knowledge("recipe.consumer-app", "Consumer ecommerce and checkout UX flow recipe.", priority="high")
+            _add_catalog_knowledge("screen.checkout", "Multi-step checkout and order summary screen pattern.", priority="high")
+            _add_catalog_knowledge("component.dialogs-drawers", "Slide-over cart drawer and modal dialogs.", priority="high")
+        elif any(w in req_lower for w in ("dashboard", "workload", "cluster", "deploy", "admin", "metrics", "analytics")):
             _add_catalog_knowledge("screen.dashboard", "Dashboard overview and workload monitoring screen pattern.", priority="high")
             _add_catalog_knowledge("screen.data-table", "Data table and status tracking screen pattern.", priority="medium")
         elif any(w in req_lower for w in ("landing", "hero", "showcase", "marketing", "home", "product")):
             _add_catalog_knowledge("screen.onboarding", "Public landing page and product showcase pattern.", priority="high")
             _add_catalog_knowledge("screen.pricing", "Feature tier and pricing matrix screen pattern.", priority="medium")
-        elif any(w in req_lower for w in ("form", "auth", "login", "register", "signup", "contact", "checkout")):
+        elif any(w in req_lower for w in ("form", "auth", "login", "register", "signup", "contact")):
             _add_catalog_knowledge("screen.authentication", "Authentication and account form screen pattern.", priority="high")
             _add_catalog_knowledge("screen.settings", "Form controls and preference screen pattern.", priority="medium")
         else:
@@ -337,10 +364,10 @@ class KnowledgeRouter:
             _add_catalog_knowledge("screen.error-state", "Error boundary and network failure recovery patterns.", priority="medium")
 
         # --- Layout Knowledge ---
-        if any(w in req_lower for w in ("dashboard", "sidebar", "workspace", "drawer", "shell")):
+        if any(w in req_lower for w in ("dashboard", "sidebar", "workspace", "drawer", "shell")) and primary_domain_name != "hospitality_travel":
             _add_catalog_knowledge("layout.app-dashboard-shell", "Application dashboard shell with sidebar and topbar.", priority="high")
             _add_catalog_knowledge("layout.grid-dense-data", "Dense metrics and status grid layout.", priority="medium")
-        elif any(w in req_lower for w in ("hero", "landing", "card", "cards", "section", "sections")):
+        elif primary_domain_name == "hospitality_travel" or any(w in req_lower for w in ("hero", "landing", "card", "cards", "section", "sections")):
             _add_catalog_knowledge("layout.hero-centered", "Hero section composition pattern.", priority="high")
             _add_catalog_knowledge("layout.grid-card-matrix", "Card matrix and feature section layout pattern.", priority="medium")
 
@@ -378,7 +405,9 @@ class KnowledgeRouter:
 
         # Style & Recipe (if greenfield or permitted)
         if not is_existing_l1:
-            if any(w in req_lower for w in ("saas", "cloud", "dashboard", "workload")):
+            if primary_domain_name == "hospitality_travel":
+                _add_catalog_knowledge("recipe.travel-booking", "End-to-end travel and hotel booking recipe.", priority="high")
+            elif any(w in req_lower for w in ("saas", "cloud", "dashboard", "workload")):
                 _add_catalog_knowledge("style.modern-saas", "Modern SaaS visual aesthetic and token palette.", priority="medium")
                 _add_catalog_knowledge("recipe.premium-saas", "End-to-end premium SaaS product recipe.", priority="medium")
             elif any(w in req_lower for w in ("dev", "developer", "terminal", "code")):
@@ -442,24 +471,6 @@ class KnowledgeRouter:
             selected_runtime_packs.append(rt_entry)
 
         # 8. Domain Intelligence Integration (Phase 5 + P1.3)
-        # Deterministic, multi-signal domain classification with explicit user precedence
-        explicit_domain_input = request.get("domain") or repo_profile.get("domain") or repo_profile.get("detected_domain")
-        domain_classification = classify_domain(
-            user_request=user_request,
-            repo_profile=repo_profile,
-            explicit_domain=explicit_domain_input,
-            requested_scope=requested_scope,
-        )
-
-        primary_domain_name = domain_classification.get("primary_domain", "general")
-        secondary_domain_names = domain_classification.get("secondary_domains", [])
-        domain_confidence = domain_classification.get("confidence", 0.0)
-        domain_evidence = domain_classification.get("evidence", [])
-        domain_conflicts = domain_classification.get("conflicts", [])
-        domain_source = domain_classification.get("source", "inferred")
-
-        for conf in domain_conflicts:
-            diagnostics["warnings"].append(conf)
 
         selected_domain_packs: list[dict[str, Any]] = []
         domain_context_primary: dict[str, Any] | None = None
@@ -568,16 +579,22 @@ class KnowledgeRouter:
             "source": domain_source,
         }
 
-        # Domain Subtopics -> Actual Knowledge Mapping (P1.4)
+        # Domain Subtopics -> Actual Knowledge Mapping (P1.4, Hardening #4)
         for subtopic in domain_context["selected_subtopics"]:
             sub_lower = subtopic.lower()
-            if "dashboard" in sub_lower:
+            if any(k in sub_lower for k in ("booking", "room", "date", "guest", "cancellation", "property", "hotel", "travel")):
+                _add_catalog_knowledge("recipe.travel-booking", f"Travel booking architecture recipe for domain subtopic '{subtopic}'.", priority="high")
+                _add_catalog_knowledge("screen.search", f"Destination and room search pattern for domain subtopic '{subtopic}'.", priority="high")
+                _add_catalog_knowledge("screen.checkout", f"Reservation checkout and pricing pattern for domain subtopic '{subtopic}'.", priority="high")
+                _add_catalog_knowledge("component.form-controls", f"Date and room selection form controls for domain subtopic '{subtopic}'.", priority="medium")
+            if "dashboard" in sub_lower and primary_domain_name != "hospitality_travel":
                 _add_catalog_knowledge("recipe.enterprise-dashboard", f"Enterprise dashboard architecture recipe for domain subtopic '{subtopic}'.", priority="high")
                 _add_catalog_knowledge("screen.dashboard", f"Dashboard screen layout pattern for domain subtopic '{subtopic}'.", priority="high")
-            if "pricing" in sub_lower or "billing" in sub_lower or "public_surfaces" in sub_lower or "settings_billing" in sub_lower:
+            if ("pricing" in sub_lower or "billing" in sub_lower or "public_surfaces" in sub_lower or "settings_billing" in sub_lower) and primary_domain_name != "hospitality_travel":
                 _add_catalog_knowledge("screen.pricing", f"Pricing matrix screen pattern for domain subtopic '{subtopic}'.", priority="high")
             if "checkout" in sub_lower or "cart" in sub_lower:
-                _add_catalog_knowledge("recipe.consumer-app", f"Consumer checkout UX flow recipe for domain subtopic '{subtopic}'.", priority="high")
+                if primary_domain_name != "hospitality_travel":
+                    _add_catalog_knowledge("recipe.consumer-app", f"Consumer checkout UX flow recipe for domain subtopic '{subtopic}'.", priority="high")
                 _add_catalog_knowledge("screen.checkout", f"Checkout screen pattern for domain subtopic '{subtopic}'.", priority="high")
             if "terminal" in sub_lower or "cli" in sub_lower:
                 _add_catalog_knowledge("style.developer-tool", f"Developer terminal styling recipe for domain subtopic '{subtopic}'.", priority="medium")

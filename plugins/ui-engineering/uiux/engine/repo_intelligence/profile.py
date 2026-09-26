@@ -264,5 +264,7 @@ def build_repo_profile(snapshot: RepositorySnapshot) -> dict[str, Any]:
             "detector_failures": detector_failures,
             "unsupported_signals": unsupported_signals,
         },
+        "files": snapshot.files,
+        "ui_files": snapshot.ui_files,
         "overall_confidence": overall_confidence,
     }

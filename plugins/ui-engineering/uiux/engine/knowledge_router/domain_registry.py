@@ -355,9 +355,9 @@ def query_domain_subtopics(domain_name: str, user_request: str = "", task_intent
     elif domain_name == "hospitality_travel":
         if any(w in text_lower for w in ("room", "phòng", "select", "rate", "bed")):
             selected.extend(["room_selection", "booking"])
-        elif any(w in text_lower for w in ("date", "calendar", "guest", "ngày", "khách")):
+        if any(w in text_lower for w in ("date", "calendar", "guest", "ngày", "khách")):
             selected.extend(["date_guest", "search"])
-        elif any(w in text_lower for w in ("book", "booking", "đặt", "voucher", "confirm")):
+        if any(w in text_lower for w in ("book", "booking", "đặt", "voucher", "confirm", "summary", "cancellation", "pricing")):
             selected.extend(["booking", "confirmation"])
 
     # SaaS subtopic matching

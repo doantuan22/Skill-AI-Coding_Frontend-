@@ -387,18 +387,96 @@ def retrieve_knowledge(collection: str | None = None, kind: str | None = None, c
                        ids: list[str] | None = None, text: str | None = None, include_content: bool = False) -> dict:
     from uiux.knowledge import registry
 
+    preservation_rows: list[dict] = []
+    domain_rows: list[dict] = []
+    catalog_ids: list[str] = []
+    if ids is not None:
+        for ident in ids:
+            if ident.startswith("preservation."):
+                from uiux.engine.knowledge_router.metadata import PRESERVATION_PACKS
+                if ident in PRESERVATION_PACKS:
+                    p = PRESERVATION_PACKS[ident]
+                    preservation_rows.append({
+                        "id": p["id"],
+                        "kind": "pack",
+                        "collection": "preservation",
+                        "category": "preservation",
+                        "name": p.get("name", "Preservation Invariants"),
+                        "file": p.get("source", "knowledge/preservation/existing_ui_invariants.md"),
+                        "line": 1,
+                        "summary": p.get("reason", "Existing UI preservation invariants"),
+                    })
+                else:
+                    catalog_ids.append(ident)
+            elif ident.startswith("domain."):
+                from uiux.engine.knowledge_router.domain_registry import get_domain_pack
+                domain_key = ident.replace("domain.", "")
+                d = get_domain_pack(domain_key)
+                if d:
+                    domain_rows.append({
+                        "id": d["id"],
+                        "kind": "pack",
+                        "collection": "domains",
+                        "category": "domain",
+                        "name": d.get("name", domain_key),
+                        "file": d.get("source", f"knowledge/domains/{domain_key}.md"),
+                        "line": 1,
+                        "summary": f"Domain design intelligence for {d.get('name')}",
+                    })
+                else:
+                    catalog_ids.append(ident)
+            else:
+                catalog_ids.append(ident)
+
     try:
-        rows = registry.query(collection, kind, category, ids, text)
+        eff_ids = catalog_ids if ids is not None else None
+        if eff_ids or ids is None or (collection is not None):
+            rows = registry.query(collection, kind, category, eff_ids, text)
+        else:
+            rows = []
     except KeyError as exc:
         raise _tool_error(exc) from exc
+
+    all_rows = rows + preservation_rows + domain_rows
     if include_content:
-        rows = [{**row, "content": registry.read(row["id"])} for row in rows]
-    return {"count": len(rows), "entries": rows}
+        all_rows = [
+            {**row, "content": registry.read(row["id"]) if row.get("collection") not in ("preservation", "domains") else ""}
+            for row in all_rows
+        ]
+    return {"count": len(all_rows), "entries": all_rows}
 
 
 def get_knowledge(ident: str) -> dict:
     """One parsed knowledge entry (catalog entries) or component grammar document."""
     from uiux.knowledge import registry
+
+    if ident.startswith("domain."):
+        from uiux.engine.knowledge_router.domain_registry import get_domain_pack
+        domain_key = ident.replace("domain.", "")
+        d = get_domain_pack(domain_key)
+        if d:
+            return {
+                "id": d["id"],
+                "kind": "pack",
+                "collection": "domains",
+                "category": "domain",
+                "name": d.get("name", domain_key),
+                "summary": f"Domain design intelligence for {d.get('name')}",
+                "data": d,
+            }
+    if ident.startswith("preservation."):
+        from uiux.engine.knowledge_router.metadata import PRESERVATION_PACKS
+        if ident in PRESERVATION_PACKS:
+            p = PRESERVATION_PACKS[ident]
+            return {
+                "id": p["id"],
+                "kind": "pack",
+                "collection": "preservation",
+                "category": "preservation",
+                "name": p.get("name", "Preservation Invariants"),
+                "summary": p.get("reason", "Existing UI preservation invariants"),
+                "data": p,
+            }
 
     try:
         return registry.get(ident)

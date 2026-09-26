@@ -91,16 +91,25 @@ def classify_changes(
     has_unauthorized_l3 = False
     has_palette_violation = False
 
+    from uiux.engine.modification_planner.semantic_parser import (
+        parse_action_negation,
+        ACTION_PALETTE,
+        ACTION_REDESIGN,
+        ACTION_STRUCTURE,
+        ACTION_BRAND,
+        ACTION_NAVIGATION,
+    )
+
+    palette_state = parse_action_negation(ACTION_PALETTE, user_goal, explicit_perms)
+    redesign_state = parse_action_negation(ACTION_REDESIGN, user_goal, explicit_perms)
+    structure_state = parse_action_negation(ACTION_STRUCTURE, user_goal, explicit_perms)
+    brand_state = parse_action_negation(ACTION_BRAND, user_goal, explicit_perms)
+    nav_state = parse_action_negation(ACTION_NAVIGATION, user_goal, explicit_perms)
+
     # Check for Palette changes
-    keeps_palette = bool(re.search(
-        r'\b(keep\s+(?:the\s+)?(?:current\s+)?(?:colors?|palette)|giữ\s+(?:nguyên\s+)?(?:hiện\s+tại\s+)?(?:bảng\s+)?màu|không\s+(?:đổi|thay)\s+màu)\b',
-        goal_lower,
-    ))
-    wants_palette_change = (not keeps_palette) and bool(re.search(
-        r'\b(recolor|change\s+(?:the\s+)?(?:\w+\s+)?color|change\s+palette|thay\s+(?:đổi\s+)?màu|đổi\s+màu|primary\s+color|secondary\s+color)\b',
-        goal_lower,
-    ))
-    has_palette_perm = bool(explicit_perms.get("allow_palette_change"))
+    keeps_palette = palette_state["prohibited"]
+    wants_palette_change = palette_state["requested"] and not palette_state["prohibited"]
+    has_palette_perm = palette_state["explicitly_allowed"] or bool(explicit_perms.get("allow_palette_change"))
     if wants_palette_change:
         if palette_perm == "locked" and not has_palette_perm:
             has_palette_violation = True
@@ -136,8 +145,8 @@ def classify_changes(
             })
 
     # Check for Page Architecture / Full Redesign
-    wants_redesign = any(w in goal_lower for w in ("redesign toàn bộ", "full redesign", "rebuild", "xây lại"))
-    has_redesign_perm = bool(
+    wants_redesign = redesign_state["requested"] and not redesign_state["prohibited"]
+    has_redesign_perm = redesign_state["explicitly_allowed"] or bool(
         explicit_perms.get("allow_architecture_change")
         or explicit_perms.get("allow_rebuild")
         or explicit_perms.get("allow_layout_change")
@@ -177,7 +186,7 @@ def classify_changes(
             })
 
     # Check for Local Structural (L2) changes (e.g. form reorganization, section rearrangement)
-    wants_l2 = any(w in goal_lower for w in ("reorganize", "reorder", "group fields", "restructure section", "sắp xếp lại"))
+    wants_l2 = not structure_state["prohibited"] and any(w in goal_lower for w in ("reorganize", "reorder", "group fields", "restructure section", "sắp xếp lại"))
     if wants_l2:
         # Check if justification was provided or extractable
         has_issue_keyword = any(k in goal_lower for k in ("overflow", "usability", "clutter", "cản trở", "tràn màn hình", "lỗi", "friction"))

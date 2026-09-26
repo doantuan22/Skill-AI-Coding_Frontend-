@@ -154,6 +154,15 @@ class CriticEngine:
         preservation_summary = self._build_preservation_summary(session, issues)
         runtime_summary = self._build_runtime_summary(session, issues)
 
+        if overall_status == "pass":
+            next_action = "PASS: Done / Proceed to delivery (all quality gates satisfied)."
+        elif repairable_issues:
+            next_action = "FAIL (repairable): Call build_repair_plan with this critic_report and modification_plan."
+        elif overall_status == "blocked":
+            next_action = "BLOCKED: Obtain missing runtime evidence captures (viewports/scenarios) and re-run run_runtime_validation."
+        else:
+            next_action = "FAIL: Review blocked issues or escalate permissions required for resolution."
+
         return {
             "schema_version": 1,
             "report_id": report_id,
@@ -162,6 +171,7 @@ class CriticEngine:
             "workflow": session.workflow,
             "overall_status": overall_status,
             "summary": _build_summary(issues, overall_status),
+            "next_action": next_action,
             "issues": issues,
             "repairable_count": len(repairable_issues),
             "blocked_count": len(blocked_issues),

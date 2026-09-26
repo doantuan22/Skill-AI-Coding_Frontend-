@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvidenceSet",
+  "description": "Public schema for runtime validation evidence collections, viewports, console logs, interactions, accessibility audits, and before/after comparisons.",
+  "type": "object",
+  "required": ["session_id", "status", "captures"],
+  "properties": {
+    "schema_version": { "type": "integer", "enum": [1] },
+    "session_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETED", "PARTIAL", "FAILED", "BLOCKED", "VALID"]
+    },
+    "role": {
+      "type": "string",
+      "enum": ["before", "after", "baseline", "current", "recapture"]
+    },
+    "workflow": {
+      "type": "string",
+      "enum": ["greenfield", "existing-ui"]
+    },
+    "captures": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/EvidenceCapture" }
+    },
+    "before_after": {
+      "$ref": "#/definitions/BeforeAfterEvidence"
+    },
+    "summary": { "type": "object" }
+  },
+  "definitions": {
+    "ViewportEvidence": {
+      "type": "object",
+      "required": ["name", "width", "height"],
+      "properties": {
+        "name": { "type": "string" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "device_scale_factor": { "type": "number" },
+        "is_mobile": { "type": "boolean" }
+      }
+    },
+    "ConsoleEvidence": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "type": "string", "enum": ["error", "warning", "info", "log"] },
+        "text": { "type": "string" },
+        "location": { "type": "string" },
+        "timestamp": { "type": "string" }
+      }
+    },
+    "InteractionEvidence": {
+      "type": "object",
+      "required": ["scenario", "status"],
+      "properties": {
+        "scenario": { "type": "string" },
+        "status": { "type": "string", "enum": ["passed", "failed", "blocked"] },
+        "step": { "type": "string" },
+        "trigger": { "type": "string" },
+        "expected": { "type": "string" },
+        "actual": { "type": "string" },
+        "duration_ms": { "type": "number" }
+      }
+    },
+    "AccessibilityEvidence": {
+      "type": "object",
+      "required": ["status", "violations_count"],
+      "properties": {
+        "status": { "type": "string", "enum": ["clean", "violations_found", "error"] },
+        "violations_count": { "type": "integer", "minimum": 0 },
+        "violations": { "type": "array", "items": { "type": "object" } },
+        "standards": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "EvidenceCapture": {
+      "type": "object",
+      "required": ["id", "page", "viewport", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "page": { "type": "string" },
+        "route": { "type": "string" },
+        "viewport": { "type": "string" },
+        "scenario": { "type": ["string", "null"] },
+        "capture_type": {
+          "type": "string",
+          "enum": ["visual", "viewport", "interaction", "accessibility", "console", "state"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["CAPTURED", "FAILED", "BLOCKED", "SKIPPED"]
+        },
+        "source": { "type": "string" },
+        "role": {
+          "type": "string",
+          "enum": ["before", "after", "baseline", "current"]
+        },
+        "screenshot_path": { "type": ["string", "null"] },
+        "file": { "type": ["string", "null"] },
+        "viewport_info": { "$ref": "#/definitions/ViewportEvidence" },
+        "console_entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ConsoleEvidence" }
+        },
+        "interaction_result": { "$ref": "#/definitions/InteractionEvidence" },
+        "accessibility_result": { "$ref": "#/definitions/AccessibilityEvidence" },
+        "render_probes": { "type": "object" }
+      }
+    },
+    "BeforeAfterEvidence": {
+      "type": "object",
+      "required": ["before", "after"],
+      "properties": {
+        "before": { "type": ["object", "null"] },
+        "after": { "type": ["object", "null"] },
+        "matched_pairs": { "type": "array", "items": { "type": "object" } },
+        "missing_pairs": { "type": "array", "items": { "type": "object" } }
+      }
+    }
+  }
+}

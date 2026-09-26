@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Registry of executable capabilities. Every entrypoint is a public function in uiux.api; adapters call tools only through uiux.api.call_tool or the unified CLI (python scripts/uiux_cli.py call <id>). `input` is the JSON Schema subset enforced by uiux.core.schema before every call. `output.required` lists the top-level keys every successful result contains. `annotations` are platform-neutral upper bounds over all argument values: read_only, writes_to (none|target-project), may_start_process, deterministic, network_access, filesystem_read (package|target-project|browser-cache), requires_node, requires_browser, long_running.",
+  "description": "Registry of executable capabilities. Every entrypoint is a public function in uiux.api; adapters call tools only through uiux.api.call_tool or the unified CLI (python scripts/uiux_cli.py call <id>). When passing parameters via CLI on Windows, prefer --params \"@path/to/params.json\" to avoid shell quoting issues. `input` is the JSON Schema subset enforced by uiux.core.schema before every call. `output.required` lists the top-level keys every successful result contains. `annotations` are platform-neutral upper bounds over all argument values: read_only, writes_to (none|target-project), may_start_process, deterministic, network_access, filesystem_read (package|target-project|browser-cache), requires_node, requires_browser, long_running.",
   "tools": [
     {
       "id": "resolve_capabilities",

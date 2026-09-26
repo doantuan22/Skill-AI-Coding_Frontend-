@@ -33,8 +33,9 @@ def plan_implementation_steps(
     }
     """
     allowed_files = blast_radius.get("allowed_files", [])
-    primary_file = allowed_files[0] if allowed_files else "src/components/Component.tsx"
-    primary_comp = blast_radius.get("allowed_components", ["Component"])[0] if blast_radius.get("allowed_components") else "Component"
+    planned_file_paths = {pf["path"] for pf in surface.get("planned_files", [])}
+    primary_file = allowed_files[0] if allowed_files else ""
+    primary_comp = blast_radius.get("allowed_components", [""])[0] if blast_radius.get("allowed_components") else ""
 
     overall_level = change_info.get("overall_level", "L1")
     estimated_risk = blast_radius.get("estimated_risk", "low")
@@ -51,11 +52,13 @@ def plan_implementation_steps(
     # 1. Implementation Steps & Batches
     # Batch A: Shared primitives / Tokens / Component definition
     step_1_id = "step_1"
+    is_step_1_create = primary_file in planned_file_paths
     steps.append({
         "id": step_1_id,
         "batch": "batch_a",
         "target": primary_file,
-        "action": "modify",
+        "action": "create" if is_step_1_create else "modify",
+        "planned_create": is_step_1_create,
         "dependencies": [],
         "risk": "medium" if is_shared else "low",
         "expected_result": f"Refine {primary_comp} structure/styles within authorized L1/L2 scope.",
@@ -74,11 +77,13 @@ def plan_implementation_steps(
     if overall_level in ("L2", "L3") or len(allowed_files) > 1 or task_intent in ("page_redesign", "form_ux"):
         step_2_id = "step_2"
         target_file_2 = allowed_files[1] if len(allowed_files) > 1 else primary_file
+        is_step_2_create = target_file_2 in planned_file_paths
         steps.append({
             "id": step_2_id,
             "batch": "batch_b",
             "target": target_file_2,
-            "action": "modify",
+            "action": "create" if is_step_2_create else "modify",
+            "planned_create": is_step_2_create,
             "dependencies": [step_1_id],
             "risk": "medium" if overall_level == "L2" else "high",
             "expected_result": f"Integrate structural layout changes in {target_file_2}.",
@@ -95,11 +100,13 @@ def plan_implementation_steps(
     # Batch C: Interactive states & Edge cases
     step_3_id = f"step_{len(steps) + 1}"
     last_step_id = steps[-1]["id"]
+    is_step_3_create = primary_file in planned_file_paths
     steps.append({
         "id": step_3_id,
         "batch": "batch_c",
         "target": primary_file,
-        "action": "modify",
+        "action": "create" if is_step_3_create else "modify",
+        "planned_create": is_step_3_create,
         "dependencies": [last_step_id],
         "risk": "low",
         "expected_result": "Implement required states (loading, empty, error, disabled, focus-visible).",

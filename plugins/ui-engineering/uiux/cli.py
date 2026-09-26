@@ -53,9 +53,23 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("version")
     sub.add_parser("tools")
     sub.add_parser("architecture")
-    call = sub.add_parser("call")
-    call.add_argument("tool")
-    call.add_argument("--params")
+    call = sub.add_parser(
+        "call",
+        help="Invoke a tool by ID",
+        description=(
+            "Invoke a registered tool by ID with parameters. Parameters can be provided "
+            "as an inline JSON object or read from a JSON file using '@path/to/file.json' "
+            "(recommended on Windows PowerShell / cmd to avoid shell quoting issues)."
+        ),
+    )
+    call.add_argument("tool", help="ID of the tool to invoke (e.g. plan_modification, build_knowledge_plan)")
+    call.add_argument(
+        "--params",
+        help=(
+            "JSON parameter string or '@path/to/file.json' to load arguments from a file. "
+            "Example Windows-safe usage: --params \"@scratch/plan-input.json\""
+        ),
+    )
     args = parser.parse_args(argv)
     try:
         if args.command == "version":

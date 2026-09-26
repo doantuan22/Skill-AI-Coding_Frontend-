@@ -106,6 +106,22 @@ class ModificationPlanner:
                 status_reasons=status_reasons + ["Ambiguous target application in monorepo."],
             )
 
+        # Check for unknown repository structure in existing-ui workflow
+        from uiux.engine.modification_planner.surface_resolver import _collect_repo_files, _collect_repo_components
+        known_files = _collect_repo_files(active_repo)
+        if workflow == "existing-ui" and not known_files and not _collect_repo_components(active_repo) and not active_repo.get("routes"):
+            return self._build_empty_plan(
+                user_goal=user_goal,
+                effective_intent=effective_intent,
+                scope_info=scope_info,
+                workflow=workflow,
+                active_repo=active_repo,
+                active_pres=active_pres,
+                knowledge_plan=knowledge_plan,
+                status="insufficient_context",
+                status_reasons=["insufficient_context: cannot determine repository files from repo_profile."],
+            )
+
         # 2. Surface Resolution
         from uiux.engine.modification_planner.surface_resolver import resolve_surface
         surface = resolve_surface(
@@ -114,7 +130,13 @@ class ModificationPlanner:
             repo_profile=active_repo,
             existing_ui_profile=active_ui,
             preservation_profile=active_pres,
+            workflow=workflow,
         )
+
+        # File Existence Contract Check
+        if not surface.get("is_grounded", True):
+            for uf in surface.get("ungrounded_files", []):
+                violations.append(f"ungrounded_target_file: File '{uf}' does not exist in repository and is not marked planned_create.")
 
         # 3. Change Classification & Permission Gates
         change_info = classify_changes(
@@ -234,7 +256,7 @@ class ModificationPlanner:
             "protected_properties": [
                 k for k, v in active_pres.get("granular_permissions", {}).items() if v in ("locked", "protected")
             ],
-            "permission_level": active_pres.get("allowed_changes", {}).get("max_level", L1),
+            "permission_level": "L3" if (change_info.get("overall_level") == L3 and not change_info.get("has_unauthorized_l3")) else active_pres.get("allowed_changes", {}).get("max_level", L1),
             "granular_permissions": {
                 "palette": active_pres.get("granular_permissions", {}).get("palette", "locked"),
                 "brand": active_pres.get("granular_permissions", {}).get("brand", "locked"),
@@ -245,7 +267,7 @@ class ModificationPlanner:
 
         plan_id = f"plan_{uuid.uuid4().hex[:12]}"
 
-        return {
+        plan_dict = {
             "schema_version": 1,
             "plan_id": plan_id,
             "request": {
@@ -264,6 +286,12 @@ class ModificationPlanner:
                 "components": surface.get("components", []),
                 "tokens": surface.get("tokens", []),
                 "routes": surface.get("routes", []),
+                "allowed_files": surface.get("allowed_files", []),
+                "allowed_components": surface.get("allowed_components", []),
+                "protected_files": surface.get("protected_files", []),
+                "protected_routes": surface.get("protected_routes", []),
+                "protected_tokens": surface.get("protected_tokens", []),
+                "planned_files": surface.get("planned_files", []),
             },
             "change_classification": {
                 "overall_level": change_info.get("overall_level", L1),
@@ -277,6 +305,22 @@ class ModificationPlanner:
             "status": status,
             "status_reasons": status_reasons,
         }
+
+        # Run Plan Consistency Validation
+        from uiux.engine.modification_planner.consistency_validator import validate_plan_consistency
+        plan_val = validate_plan_consistency(plan_dict, repo_profile=active_repo)
+        plan_dict["plan_validation"] = plan_val
+        if not plan_val["valid"]:
+            if plan_dict["status"] == "ready":
+                plan_dict["status"] = "blocked"
+            for issue in plan_val["issues"]:
+                if issue not in plan_dict["status_reasons"]:
+                    plan_dict["status_reasons"].append(issue)
+
+        plan_dict["next_actions"] = [
+            "Pass modification_plan to build_validation_handoff, then execute implementation_steps via controlled editing.",
+        ]
+        return plan_dict
 
     def _build_empty_plan(
         self,

@@ -31,15 +31,20 @@ def build_recapture_plan(
       - rationale: explanation of how scope was determined
       - is_full_site: False (targeted recapture always local/representative)
     """
-    actions = repair_result.get("actions_executed", [])
-    affected_surface = modification_plan.get("affected_surface", {})
-    blast_radius = modification_plan.get("blast_radius", {})
-    validation = modification_plan.get("validation", {})
+    actions = repair_result.get("actions_executed", []) if isinstance(repair_result, dict) else []
+    if not isinstance(actions, list):
+        actions = []
+    affected_surface = modification_plan.get("affected_surface", {}) if isinstance(modification_plan, dict) else {}
+    blast_radius = modification_plan.get("blast_radius", {}) if isinstance(modification_plan, dict) else {}
+    validation = modification_plan.get("validation", {}) if isinstance(modification_plan, dict) else {}
 
     # Collect all files repaired
     repaired_files: set[str] = set()
     for action in actions:
-        repaired_files.update(action.get("files", []))
+        if isinstance(action, dict):
+            files = action.get("files", [])
+            if isinstance(files, list):
+                repaired_files.update(f for f in files if isinstance(f, str))
 
     # Determine if any shared components were touched
     component_inventory = _get_component_inventory(modification_plan)

@@ -48,7 +48,16 @@ def resolve_scope(
     active_profile = repo_profile or {}
 
     # 1. Monorepo application scoping
-    applications = active_profile.get("applications", {})
+    applications = dict(active_profile.get("applications", {}))
+    apps_from_signals = active_profile.get("repository_signals", {}).get("apps", [])
+    if isinstance(apps_from_signals, list):
+        for app in apps_from_signals:
+            if isinstance(app, dict):
+                if "name" in app:
+                    applications[app["name"]] = app
+                if "root" in app:
+                    applications[app["root"]] = app
+
     application_target: str | None = None
     is_insufficient_context = False
 
@@ -59,13 +68,23 @@ def resolve_scope(
             reasons.append(f"Explicit application scope '{requested_scope}' selected.")
         else:
             # Check if user goal mentions an application
-            matched_apps = [name for name in app_names if re.search(r'\b' + re.escape(name) + r'\b', goal_lower)]
-            if len(matched_apps) == 1:
-                application_target = matched_apps[0]
-                reasons.append(f"Inferred application target '{application_target}' from user request.")
-            elif len(matched_apps) > 1:
-                is_insufficient_context = True
-                reasons.append(f"Ambiguous target: request mentions multiple apps ({', '.join(matched_apps)}).")
+            matched_apps = [
+                name for name in app_names
+                if name.lower() in goal_lower or re.search(r'\b' + re.escape(name.lower()) + r'\b', goal_lower)
+            ]
+            if matched_apps:
+                # Disambiguate if roots and names both matched the same app
+                distinct_apps = set()
+                for ma in matched_apps:
+                    meta = applications.get(ma, {})
+                    distinct_apps.add(meta.get("name", ma) if isinstance(meta, dict) else ma)
+                if len(distinct_apps) == 1:
+                    longest_match = max(matched_apps, key=len)
+                    application_target = longest_match
+                    reasons.append(f"Inferred application target '{application_target}' from user request.")
+                elif len(distinct_apps) > 1:
+                    is_insufficient_context = True
+                    reasons.append(f"Ambiguous target: request mentions multiple apps ({', '.join(distinct_apps)}).")
             else:
                 # If requested scope is generic "global" but repo has multiple apps without clear target
                 if requested_scope == "global" and len(app_names) > 1 and not any(k in goal_lower for k in ("toàn bộ", "all apps", "entire monorepo")):
@@ -85,15 +104,21 @@ def resolve_scope(
     page_pattern = r'\b(page|checkout|cart|login|register|dashboard|pricing|landing|profile|settings|home)\b'
     page_match = re.search(page_pattern, goal_lower)
 
-    # Global redesign patterns
-    global_pattern = r'\b(entire|all\s+pages|whole\s+site|toàn\s+bộ|tất\s+cả|system-wide|full\s+redesign)\b'
+    # Global-level keywords
+    global_pattern = r'\b(redesign|full|complete|entire|whole|system|toàn\s+bộ|tất\s+cả)\b'
     global_match = re.search(global_pattern, goal_lower)
+
+    from uiux.engine.modification_planner.semantic_parser import (
+        parse_action_negation,
+        ACTION_REDESIGN,
+    )
+    redesign_state = parse_action_negation(ACTION_REDESIGN, user_goal)
 
     resolved_scope = requested_scope
 
     # If requested_scope was passed as generic "global", refine it based on goal
     if requested_scope == "global":
-        if global_match and not comp_match:
+        if global_match and not comp_match and not redesign_state["prohibited"]:
             resolved_scope = "global"
             reasons.append("Global scope requested for full product redesign.")
         elif page_match and not comp_match:

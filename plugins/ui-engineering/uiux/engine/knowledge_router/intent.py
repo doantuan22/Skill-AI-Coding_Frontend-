@@ -79,8 +79,20 @@ def classify_task_intents(task_text: str, user_intent: str | None = None) -> dic
     matched_intents: list[str] = []
 
     if text:
+        from uiux.engine.modification_planner.semantic_parser import (
+            parse_action_negation,
+            ACTION_REDESIGN,
+            ACTION_PALETTE,
+        )
+        redesign_state = parse_action_negation(ACTION_REDESIGN, text)
+        palette_state = parse_action_negation(ACTION_PALETTE, text)
+
         for intent, pattern in INTENT_PATTERNS:
             if pattern.search(text) and intent not in matched_intents:
+                if intent in (FULL_REDESIGN, PAGE_REDESIGN) and redesign_state["prohibited"]:
+                    continue
+                if intent == DESIGN_SYSTEM_WORK and palette_state["prohibited"] and not any(w in text.lower() for w in ("design system", "tokens", "scale", "typography")):
+                    continue
                 matched_intents.append(intent)
 
     # 1. Resolve Primary Intent

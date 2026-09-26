@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RepairResult",
+  "description": "Public schema for repair results produced by run_targeted_repair and consumed by recapture_evidence.",
+  "type": "object",
+  "required": ["status", "actions_executed"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["repaired", "partially_repaired", "failed", "blocked"]
+    },
+    "repair_id": { "type": "string" },
+    "actions_executed": {
+      "type": "array",
+      "description": "Array of executed repair action objects (must be objects, never plain strings).",
+      "items": {
+        "type": "object",
+        "required": ["action_id", "target", "files"],
+        "properties": {
+          "action_id": { "type": "string" },
+          "issue_id": { "type": "string" },
+          "target": { "type": "string" },
+          "files": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "components": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "change_level": {
+            "type": "string",
+            "enum": ["L1", "L2", "L3"]
+          },
+          "description": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["applied", "skipped", "failed"]
+          }
+        }
+      }
+    },
+    "validation_required": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "recapture_plan": { "type": "object" }
+  },
+  "additionalProperties": true
+}
