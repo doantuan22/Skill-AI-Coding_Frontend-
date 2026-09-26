@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CriticReport",
+  "description": "Machine-readable critic report produced by Phase 7 Runtime Critic Engine.",
+  "type": "object",
+  "required": ["schema_version", "report_id", "session_id", "plan_id", "workflow", "overall_status", "issues"],
+  "properties": {
+    "schema_version": { "type": "integer", "enum": [1] },
+    "report_id": { "type": "string", "pattern": "^critic_" },
+    "session_id": { "type": "string" },
+    "plan_id": { "type": "string" },
+    "workflow": { "type": "string", "enum": ["greenfield", "existing-ui"] },
+    "overall_status": { "type": "string", "enum": ["pass", "warn", "fail", "blocked"] },
+    "summary": { "type": "string" },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "category", "severity", "status", "description", "evidence", "repairable"],
+        "properties": {
+          "issue_id": { "type": "string", "pattern": "^issue_" },
+          "category": {
+            "type": "string",
+            "enum": [
+              "visual_regression", "preservation_violation", "responsive_failure",
+              "interaction_failure", "accessibility_regression", "runtime_error",
+              "plan_drift", "missing_required_state"
+            ]
+          },
+          "severity": { "type": "string", "enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+          "status": { "type": "string", "enum": ["new_regression", "pre_existing", "worsened", "resolved"] },
+          "description": { "type": "string" },
+          "page": { "type": "string" },
+          "viewport": { "type": "string" },
+          "scenario": { "type": "string" },
+          "affected_file": { "type": ["string", "null"] },
+          "affected_component": { "type": ["string", "null"] },
+          "evidence": { "type": "string" },
+          "expected": { "type": "string" },
+          "actual": { "type": "string" },
+          "likely_cause": { "type": "string" },
+          "repairable": { "type": "boolean" },
+          "repair_scope": { "type": ["string", "null"] },
+          "permission_required": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "repairable_count": { "type": "integer" },
+    "blocked_count": { "type": "integer" },
+    "evidence_summary": { "type": "object" },
+    "preservation_summary": { "type": "object" },
+    "runtime_summary": { "type": "object" },
+    "repair_recommendation": {
+      "type": "object",
+      "properties": {
+        "decision": { "type": "string", "enum": ["PASS", "REPAIRABLE", "BLOCKED", "NEEDS_USER_PERMISSION"] },
+        "repairable_issues": { "type": "array", "items": { "type": "string" } },
+        "blocked_issues": { "type": "array", "items": { "type": "string" } },
+        "repair_priority": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "repair_history": { "type": "array" },
+    "loop_iterations": { "type": "integer" },
+    "max_repair_iterations": { "type": "integer" },
+    "loop_stop_reason": { "type": "string" },
+    "validate_only": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

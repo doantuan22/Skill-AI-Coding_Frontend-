@@ -133,6 +133,130 @@
       "annotations": {"read_only": true, "writes_to": "none", "may_start_process": true, "deterministic": false, "network_access": false, "filesystem_read": ["package", "target-project", "browser-cache"], "requires_node": false, "requires_browser": false, "long_running": false}
     },
     {
+      "id": "run_runtime_validation",
+      "visibility": "public",
+      "description": "Phase 7 – Run a complete runtime validation session (critique + repair loop). Accepts a modification plan, change manifest, before/after evidence. Returns a critic_report with overall_status (pass/warn/fail/blocked), categorised issues (visual_regression, preservation_violation, responsive_failure, interaction_failure, accessibility_regression, runtime_error, plan_drift, missing_required_state), pre-existing vs new regression classification, repair recommendations, and repair history.",
+      "entrypoint": "uiux.api:run_runtime_validation",
+      "cli": "python scripts/uiux_cli.py call run_runtime_validation --params '{...}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "modification_plan": {"type": ["object", "null"], "description": "Phase 6 ModificationPlan dict."},
+          "change_manifest": {"type": ["object", "null"], "description": "Phase 6 ChangeManifest dict."},
+          "before_evidence": {"type": ["object", "null"], "description": "Runtime evidence captured before editing."},
+          "after_evidence": {"type": ["object", "null"], "description": "Runtime evidence captured after editing."},
+          "workflow": {"type": "string", "enum": ["greenfield", "existing-ui"], "default": "existing-ui"},
+          "validate_only": {"type": "boolean", "default": false, "description": "If true, no repair attempts are made."},
+          "max_repair_iterations": {"type": "integer", "default": 3, "description": "Maximum repair loop iterations."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "report_id", "overall_status", "issues"], "description": "critic_report: {schema_version, report_id, session_id, plan_id, workflow, overall_status, summary, issues, repair_recommendation, repair_history}"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none (pure analysis; does not write evidence or apply repairs)",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "build_critic_report",
+      "visibility": "public",
+      "description": "Phase 7 – Build a critic report from a pre-assembled session data dict (use when you already have all session components). Returns critic_report.",
+      "entrypoint": "uiux.api:build_critic_report",
+      "cli": "python scripts/uiux_cli.py call build_critic_report --params '{\"session_data\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "session_data": {"type": ["object", "null"], "description": "Dict with modification_plan, change_manifest, before_evidence, after_evidence, workflow, session_id."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "report_id", "overall_status", "issues"], "description": "critic_report"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "evaluate_runtime_result",
+      "visibility": "public",
+      "description": "Phase 7 – Evaluate a critic_report for overall pass/fail/blocked status. Returns authorized_to_proceed flag and key metrics.",
+      "entrypoint": "uiux.api:evaluate_runtime_result",
+      "cli": "python scripts/uiux_cli.py call evaluate_runtime_result --params '{\"critic_report\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "critic_report": {"type": ["object", "null"], "description": "A critic_report produced by run_runtime_validation."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["authorized_to_proceed", "overall_status"], "description": "{authorized_to_proceed, overall_status, critical_issue_count, repair_required, blocked}"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "build_repair_plan",
+      "visibility": "public",
+      "description": "Phase 7 – Build a targeted repair plan from a critic report. All repair actions are validated against Phase 6 blast radius. PRESERVATION_VIOLATION and PLAN_DRIFT issues are never auto-repairable.",
+      "entrypoint": "uiux.api:build_repair_plan",
+      "cli": "python scripts/uiux_cli.py call build_repair_plan --params '{\"critic_report\": {...}, \"modification_plan\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "critic_report": {"type": ["object", "null"], "description": "A critic_report from run_runtime_validation."},
+          "modification_plan": {"type": ["object", "null"], "description": "The original Phase 6 ModificationPlan."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["schema_version", "repair_id", "repair_status", "repair_actions"], "description": "repair_plan: {repair_id, repair_status, repair_actions, blocked_actions, blast_radius_constraint}"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "run_targeted_repair",
+      "visibility": "public",
+      "description": "Phase 7 – Execute a targeted repair plan through Phase 6 Controlled Editing scope gate. Repairs bounded to original blast radius. Scope violations are blocked.",
+      "entrypoint": "uiux.api:run_targeted_repair",
+      "cli": "python scripts/uiux_cli.py call run_targeted_repair --params '{\"repair_plan\": {...}, \"modification_plan\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "repair_plan": {"type": ["object", "null"], "description": "A repair_plan from build_repair_plan."},
+          "modification_plan": {"type": ["object", "null"], "description": "The original Phase 6 ModificationPlan."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["status"], "description": "{status, repair_id, actions_executed, validation_required}"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none (plan-level; actual code edits performed by agent via controlled editor)",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
+      "id": "recapture_evidence",
+      "visibility": "public",
+      "description": "Phase 7 – Compute the minimal targeted evidence recapture surface after a repair. Never full-site for local component fixes. Returns recapture_plan with pages, viewports, scenarios, provenance.",
+      "entrypoint": "uiux.api:recapture_evidence",
+      "cli": "python scripts/uiux_cli.py call recapture_evidence --params '{\"repair_result\": {...}, \"modification_plan\": {...}}'",
+      "input": {
+        "type": "object",
+        "properties": {
+          "repair_result": {"type": ["object", "null"], "description": "A repair result from run_targeted_repair."},
+          "modification_plan": {"type": ["object", "null"], "description": "The original Phase 6 ModificationPlan."},
+          "before_evidence": {"type": ["object", "null"], "description": "Optional baseline evidence for provenance."}
+        },
+        "additionalProperties": false
+      },
+      "output": {"type": "object", "required": ["recapture_pages", "recapture_viewports", "is_full_site"], "description": "recapture_plan: {recapture_pages, recapture_viewports, recapture_scenarios, is_full_site, rationale, provenance}"},
+      "dependencies": {"python": ">=3.9", "packages": []},
+      "runtime_requirements": [],
+      "side_effects": "none",
+      "annotations": {"read_only": true, "writes_to": "none", "may_start_process": false, "deterministic": true, "network_access": false, "filesystem_read": ["package"], "requires_node": false, "requires_browser": false, "long_running": false}
+    },
+    {
       "id": "self_test",
       "visibility": "public",
       "description": "Fast health check of the installed package: version consistency, manifest, tool/knowledge/error registries, public API entrypoints, capability map, error contract and runtime detection. A missing optional runtime is reported as BLOCKED, not as a failure.",

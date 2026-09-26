@@ -39,6 +39,11 @@ __all__ = [
     "analyze_existing_ui", "build_preservation_profile", "evaluate_preservation",
     "route_knowledge", "build_knowledge_plan", "resolve_framework_pack",
     "detect_domain", "resolve_domain_pack",
+    "plan_modification", "validate_modification_plan", "evaluate_plan_permissions",
+    "build_validation_handoff", "compare_plan_to_changes",
+    # Phase 7 – Runtime Critic + Repair Loop
+    "run_runtime_validation", "build_critic_report", "evaluate_runtime_result",
+    "build_repair_plan", "run_targeted_repair", "recapture_evidence",
 ]
 
 API_VERSION = 1
@@ -294,6 +299,78 @@ def resolve_domain_pack(domain_name: str) -> dict | None:
 
     try:
         return knowledge_router.resolve_domain_pack(domain_name)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def plan_modification(
+    user_request: str = "",
+    workflow: str = "existing-ui",
+    repo_profile: dict | None = None,
+    existing_ui_profile: dict | None = None,
+    preservation_profile: dict | None = None,
+    knowledge_plan: dict | None = None,
+    explicit_constraints: dict | None = None,
+    requested_scope: str = "global",
+    task_intent: str | None = None,
+    plan_only: bool = False,
+) -> dict:
+    """Generate a machine-readable Modification Plan for UI tasks."""
+    from uiux.engine import modification_planner
+
+    try:
+        return modification_planner.plan_modification(
+            user_request=user_request,
+            workflow=workflow,
+            repo_profile=repo_profile,
+            existing_ui_profile=existing_ui_profile,
+            preservation_profile=preservation_profile,
+            knowledge_plan=knowledge_plan,
+            explicit_constraints=explicit_constraints,
+            requested_scope=requested_scope,
+            task_intent=task_intent,
+            plan_only=plan_only,
+        )
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def validate_modification_plan(plan: dict) -> dict:
+    """Validate a Modification Plan for structural integrity and policy compliance."""
+    from uiux.engine import modification_planner
+
+    try:
+        return modification_planner.validate_modification_plan(plan)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def evaluate_plan_permissions(plan: dict) -> dict:
+    """Evaluate whether the plan violates any preservation rules or lacks necessary permissions."""
+    from uiux.engine import modification_planner
+
+    try:
+        return modification_planner.evaluate_plan_permissions(plan)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def build_validation_handoff(plan: dict) -> dict:
+    """Extract the validation handoff contract from an approved Modification Plan."""
+    from uiux.engine import modification_planner
+
+    try:
+        return modification_planner.build_validation_handoff(plan)
+    except Exception as exc:
+        raise _tool_error(exc) from exc
+
+
+def compare_plan_to_changes(plan: dict, actual_changes: list | dict) -> dict:
+    """Compare the approved modification plan against actual implementation changes to detect plan drift."""
+    from uiux.engine import modification_planner
+
+    try:
+        return modification_planner.compare_plan_to_changes(plan, actual_changes)
     except Exception as exc:
         raise _tool_error(exc) from exc
 
@@ -642,3 +719,145 @@ def call_tool(tool_id: str, params: dict | None = None) -> dict:
         raise ToolError(f"{tool_id}: {exc}", "FILESYSTEM_ERROR", tool=tool_id) from exc
     except Exception as exc:  # noqa: BLE001 - the public boundary never leaks a raw exception
         raise errors.internal(exc, tool_id) from None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 7 – Runtime Critic + Repair Loop
+# ─────────────────────────────────────────────────────────────────────────────
+
+def run_runtime_validation(
+    modification_plan: dict | None = None,
+    change_manifest: dict | None = None,
+    before_evidence: dict | None = None,
+    after_evidence: dict | None = None,
+    workflow: str = "existing-ui",
+    validate_only: bool = False,
+    max_repair_iterations: int = 3,
+) -> dict:
+    """Run a complete Phase 7 validation session: critique, plan repair, and return critic_report.
+
+    Args:
+        modification_plan: Phase 6 ModificationPlan dict.
+        change_manifest: Phase 6 ChangeManifest dict (actual changes recorded).
+        before_evidence: Runtime evidence captured before editing (for Existing UI baseline).
+        after_evidence: Runtime evidence captured after editing.
+        workflow: "greenfield" or "existing-ui".
+        validate_only: If True, no repair attempts are made.
+        max_repair_iterations: Maximum repair loop iterations (default 3).
+
+    Returns:
+        critic_report dict with schema_version, overall_status, issues, repair_history.
+    """
+    from uiux.engine.runtime_critic import run_runtime_validation as _run
+
+    return _run(
+        modification_plan=modification_plan or {},
+        change_manifest=change_manifest,
+        before_evidence=before_evidence,
+        after_evidence=after_evidence,
+        workflow=workflow,
+        validate_only=validate_only,
+        max_repair_iterations=max_repair_iterations,
+    )
+
+
+def build_critic_report(session_data: dict | None = None) -> dict:
+    """Build a critic report from a pre-assembled session data dict.
+
+    Args:
+        session_data: Dict with modification_plan, change_manifest, before_evidence,
+                      after_evidence, workflow, session_id.
+    Returns:
+        critic_report dict.
+    """
+    from uiux.engine.runtime_critic import build_critic_report as _build
+
+    return _build(session_data or {})
+
+
+def evaluate_runtime_result(critic_report: dict | None = None) -> dict:
+    """Evaluate an already-built critic report for overall pass/fail/blocked status.
+
+    Args:
+        critic_report: A critic_report produced by run_runtime_validation or build_critic_report.
+
+    Returns:
+        Dict with authorized_to_proceed, overall_status, critical_issue_count, repair_required, blocked.
+    """
+    from uiux.engine.runtime_critic import evaluate_runtime_result as _eval
+
+    return _eval(critic_report or {})
+
+
+def build_repair_plan(
+    critic_report: dict | None = None,
+    modification_plan: dict | None = None,
+) -> dict:
+    """Build a targeted repair plan from a critic report and original modification plan.
+
+    All repair actions are validated against Phase 6 blast radius and scope gates.
+
+    Args:
+        critic_report: A critic_report produced by run_runtime_validation.
+        modification_plan: The original Phase 6 ModificationPlan.
+
+    Returns:
+        repair_plan dict with repair_actions, blocked_actions, batches, scope constraints.
+    """
+    from uiux.engine.runtime_critic import build_repair_plan as _build
+
+    return _build(critic_report or {}, modification_plan or {})
+
+
+def run_targeted_repair(
+    repair_plan: dict | None = None,
+    modification_plan: dict | None = None,
+) -> dict:
+    """Execute a targeted repair plan through Phase 6 Controlled Editing gate.
+
+    Repairs are bounded to the original blast radius. Repairs that require scope
+    expansion or L3 permissions are blocked.
+
+    Args:
+        repair_plan: A repair_plan produced by build_repair_plan.
+        modification_plan: The original Phase 6 ModificationPlan (for scope gate).
+
+    Returns:
+        Dict with status, actions_executed, validation_required, and recapture_plan.
+    """
+    from uiux.engine.runtime_critic import run_targeted_repair as _run
+
+    return _run(repair_plan or {}, modification_plan or {})
+
+
+def recapture_evidence(
+    repair_result: dict | None = None,
+    modification_plan: dict | None = None,
+    before_evidence: dict | None = None,
+) -> dict:
+    """Compute the minimal targeted evidence recapture surface after a repair.
+
+    Avoids full-site recapture for local fixes. For shared component repairs,
+    identifies representative dependent pages.
+
+    Args:
+        repair_result: A repair result produced by run_targeted_repair.
+        modification_plan: The original Phase 6 ModificationPlan.
+        before_evidence: Optional baseline evidence for provenance.
+
+    Returns:
+        recapture_plan dict with pages, viewports, scenarios, rationale.
+    """
+    from uiux.engine.runtime_critic import recapture_evidence as _recapture
+
+    return _recapture(repair_result or {}, modification_plan or {}, before_evidence)
+
+
+_DISPATCH.update({
+    "run_runtime_validation": run_runtime_validation,
+    "build_critic_report": build_critic_report,
+    "evaluate_runtime_result": evaluate_runtime_result,
+    "build_repair_plan": build_repair_plan,
+    "run_targeted_repair": run_targeted_repair,
+    "recapture_evidence": recapture_evidence,
+})

@@ -9,6 +9,12 @@ import re
 import unittest
 from pathlib import Path
 from typing import Any
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+import _paths  # noqa: F401
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+_PLUGIN_ROOT = _REPO_ROOT / "plugins" / "ui-engineering"
 
 from uiux import api
 from uiux.engine import knowledge_router
@@ -458,7 +464,7 @@ class DomainRouterIntegrationTests(unittest.TestCase):
     # CASE 27: Domain pack does not duplicate framework/styling rules
     def test_case_27_domain_packs_do_not_duplicate_framework_or_styling(self) -> None:
         for pack_id, pack in DOMAIN_PACKS.items():
-            source_file = Path("plugins/ui-engineering") / pack["source"]
+            source_file = _PLUGIN_ROOT / pack["source"]
             content = source_file.read_text(encoding="utf-8")
             # Verify no framework-specific hooks or Tailwind utilities are mandated
             self.assertNotIn("useState(", content)
@@ -533,7 +539,7 @@ class DomainPackQualityTests(unittest.TestCase):
     def test_case_29_every_domain_resource_file_exists(self) -> None:
         for dom_id, pack in DOMAIN_PACKS.items():
             rel_path = pack["source"]
-            full_path = Path("plugins/ui-engineering") / rel_path
+            full_path = _PLUGIN_ROOT / rel_path
             self.assertTrue(full_path.is_file(), f"Missing markdown file: {full_path}")
 
     # CASE 30: Every subtopic reference resolves
@@ -572,10 +578,30 @@ class DomainPackQualityTests(unittest.TestCase):
         ]
         for dom_id, pack in DOMAIN_PACKS.items():
             rel_path = pack["source"]
-            full_path = Path("plugins/ui-engineering") / rel_path
+            full_path = _PLUGIN_ROOT / rel_path
             text = full_path.read_text(encoding="utf-8").lower()
             for phrase in forbidden_clone_phrases:
                 self.assertNotIn(phrase, text, f"Found forbidden clone phrase '{phrase}' in {rel_path}")
+
+    # CASE 37: Domain packs specify UI state representation only, no business/medical/financial decision logic
+    def test_case_37_domain_packs_do_not_generate_business_logic(self) -> None:
+        health_pack = DOMAIN_PACKS["domain.healthcare"]
+        finance_pack = DOMAIN_PACKS["domain.finance_fintech"]
+
+        # Healthcare: critical_alert / dosage_warning are UI representation states
+        self.assertIn("critical_alert", health_pack["required_states"])
+        self.assertIn("dosage_warning", health_pack["required_states"])
+
+        # Finance: risk_blocked / insufficient_balance are UI representation states
+        self.assertIn("risk_blocked", finance_pack["required_states"])
+        self.assertIn("insufficient_balance", finance_pack["required_states"])
+
+        # Markdown verification: must explicitly prohibit clinical diagnosis or automated trading
+        health_text = (_PLUGIN_ROOT / health_pack["source"]).read_text(encoding="utf-8")
+        self.assertIn("NEVER generate medical diagnoses", health_text)
+
+        finance_text = (_PLUGIN_ROOT / finance_pack["source"]).read_text(encoding="utf-8")
+        self.assertIn("NEVER generate algorithmic financial recommendations", finance_text)
 
 
 class ContextEfficiencyVerification(unittest.TestCase):

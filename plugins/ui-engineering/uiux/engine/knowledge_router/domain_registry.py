@@ -199,7 +199,7 @@ DOMAIN_PACKS: dict[str, dict[str, Any]] = {
             "Lab result inspection against normal reference ranges",
             "Prescription refill request with pharmacy selection",
         ],
-        "required_states": ["loading", "empty", "abnormal_flag", "emergency_notice"],
+        "required_states": ["loading", "empty", "abnormal_flag", "emergency_notice", "critical_alert", "dosage_warning"],
         "trust_patterns": ["Doctor credentials and hospital affiliations", "Standard reference ranges for metrics", "Prominent emergency hotline"],
         "anti_patterns": [
             "Using color alone (green/red) to indicate normal/abnormal medical status",
@@ -232,7 +232,7 @@ DOMAIN_PACKS: dict[str, dict[str, Any]] = {
             "Transaction feed inspection and statement download",
             "Debit/credit card limit adjustment and temporary freeze toggle",
         ],
-        "required_states": ["loading", "masked", "destructive_confirm", "transaction_status"],
+        "required_states": ["loading", "masked", "destructive_confirm", "transaction_status", "risk_blocked", "insufficient_balance"],
         "trust_patterns": ["Two-step confirmation modal with exact amount on button", "Explicit fee transparency before execution", "Masked balance toggles"],
         "anti_patterns": [
             "Generic confirmation button saying 'Submit' instead of 'Transfer $150.00'",

@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ChangeManifest",
+  "description": "Schema for machine-readable Change Manifest tracking actual vs planned modifications in Phase 6.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "plan_id",
+    "modified_files",
+    "created_files",
+    "deleted_files",
+    "changed_components",
+    "changed_tokens",
+    "changed_routes",
+    "actual_change_levels",
+    "unexpected_changes",
+    "validation_required",
+    "drift_detected",
+    "drift_reasons",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "enum": [1]},
+    "manifest_id": {"type": "string"},
+    "plan_id": {"type": "string"},
+    "modified_files": {"type": "array", "items": {"type": "string"}},
+    "created_files": {"type": "array", "items": {"type": "string"}},
+    "deleted_files": {"type": "array", "items": {"type": "string"}},
+    "changed_components": {"type": "array", "items": {"type": "string"}},
+    "changed_tokens": {"type": "array", "items": {"type": "string"}},
+    "changed_routes": {"type": "array", "items": {"type": "string"}},
+    "actual_change_levels": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["L1", "L2", "L3"]}
+    },
+    "unexpected_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "change_type", "reason", "risk"],
+        "properties": {
+          "target": {"type": "string"},
+          "change_type": {"type": "string"},
+          "reason": {"type": "string"},
+          "risk": {"type": "string", "enum": ["low", "medium", "high"]}
+        }
+      }
+    },
+    "validation_required": {"type": "array", "items": {"type": "string"}},
+    "drift_detected": {"type": "boolean"},
+    "drift_reasons": {"type": "array", "items": {"type": "string"}},
+    "status": {
+      "type": "string",
+      "enum": ["passed", "failed_drift", "failed_permission", "stopped"]
+    }
+  }
+}

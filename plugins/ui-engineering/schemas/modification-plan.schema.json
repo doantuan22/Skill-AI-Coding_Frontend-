@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ModificationPlan",
+  "description": "Schema for machine-readable UI Modification Plans produced by Phase 6 Modification Planner.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_id",
+    "request",
+    "workflow",
+    "repository",
+    "constraints",
+    "preservation",
+    "knowledge",
+    "affected_surface",
+    "change_classification",
+    "implementation_steps",
+    "validation",
+    "blast_radius",
+    "rollback",
+    "risks",
+    "status",
+    "status_reasons"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "enum": [1]},
+    "plan_id": {"type": "string"},
+    "request": {
+      "type": "object",
+      "required": ["user_goal", "task_intent", "requested_scope"],
+      "properties": {
+        "user_goal": {"type": "string"},
+        "task_intent": {"type": "string"},
+        "requested_scope": {
+          "type": "string",
+          "enum": ["global", "application", "page", "section", "component", "token", "local"]
+        }
+      }
+    },
+    "workflow": {
+      "type": "string",
+      "enum": ["greenfield", "existing-ui"]
+    },
+    "repository": {
+      "type": "object",
+      "required": ["application_root", "framework", "styling_system"],
+      "properties": {
+        "application_root": {"type": "string"},
+        "framework": {"type": "string"},
+        "styling_system": {"type": "string"},
+        "ui_library": {"type": ["string", "null"]}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["explicit_user_constraints", "repository_constraints", "framework_constraints"],
+      "properties": {
+        "explicit_user_constraints": {"type": "object"},
+        "repository_constraints": {"type": "array", "items": {"type": "string"}},
+        "framework_constraints": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "preservation": {
+      "type": "object",
+      "required": ["required", "protected_properties", "permission_level", "granular_permissions"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "protected_properties": {"type": "array", "items": {"type": "string"}},
+        "permission_level": {"type": "string", "enum": ["L1", "L2", "L3"]},
+        "granular_permissions": {
+          "type": "object",
+          "required": ["palette", "brand", "layout", "navigation"],
+          "properties": {
+            "palette": {"type": "string", "enum": ["locked", "editable"]},
+            "brand": {"type": "string", "enum": ["locked", "editable"]},
+            "layout": {"type": "string", "enum": ["protected", "editable"]},
+            "navigation": {"type": "string", "enum": ["protected", "editable"]}
+          }
+        }
+      }
+    },
+    "knowledge": {
+      "type": "object",
+      "required": ["selected_packs", "selected_skills"],
+      "properties": {
+        "selected_packs": {"type": "object"},
+        "selected_skills": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "affected_surface": {
+      "type": "object",
+      "required": ["files", "pages", "components", "tokens", "routes"],
+      "properties": {
+        "files": {"type": "array", "items": {"type": "string"}},
+        "pages": {"type": "array", "items": {"type": "string"}},
+        "components": {"type": "array", "items": {"type": "string"}},
+        "tokens": {"type": "array", "items": {"type": "string"}},
+        "routes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "change_classification": {
+      "type": "object",
+      "required": ["overall_level", "changes"],
+      "properties": {
+        "overall_level": {"type": "string", "enum": ["L1", "L2", "L3"]},
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "target", "change_type", "level", "reason", "evidence"],
+            "properties": {
+              "id": {"type": "string"},
+              "target": {"type": "string"},
+              "change_type": {"type": "string"},
+              "level": {"type": "string", "enum": ["L1", "L2", "L3"]},
+              "reason": {"type": "string"},
+              "evidence": {"type": "string"},
+              "permission_required": {"type": ["string", "null"]},
+              "justification": {
+                "type": ["object", "null"],
+                "properties": {
+                  "issue": {"type": "string"},
+                  "evidence": {"type": "string"},
+                  "why_L1_is_insufficient": {"type": "string"},
+                  "affected_scope": {"type": "string"},
+                  "expected_improvement": {"type": "string"}
+                }
+              },
+              "permission_trace": {
+                "type": ["object", "null"],
+                "properties": {
+                  "explicit_user_instruction": {"type": "string"},
+                  "allowed_property": {"type": "string"},
+                  "scope": {"type": "string"},
+                  "source": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "implementation_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "batch", "target", "action", "dependencies", "risk", "expected_result"],
+        "properties": {
+          "id": {"type": "string"},
+          "batch": {"type": "string"},
+          "target": {"type": "string"},
+          "action": {"type": "string", "enum": ["modify", "create", "delete"]},
+          "dependencies": {"type": "array", "items": {"type": "string"}},
+          "risk": {"type": "string", "enum": ["low", "medium", "high"]},
+          "expected_result": {"type": "string"}
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["required_checks", "affected_viewports", "interactions", "accessibility", "preservation"],
+      "properties": {
+        "required_checks": {"type": "array", "items": {"type": "string"}},
+        "affected_viewports": {"type": "array", "items": {"type": "string"}},
+        "interactions": {"type": "array", "items": {"type": "string"}},
+        "accessibility": {"type": "array", "items": {"type": "string"}},
+        "preservation": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "blast_radius": {
+      "type": "object",
+      "required": ["allowed_files", "allowed_components", "protected_files", "protected_routes", "protected_tokens", "max_scope", "estimated_risk"],
+      "properties": {
+        "allowed_files": {"type": "array", "items": {"type": "string"}},
+        "allowed_components": {"type": "array", "items": {"type": "string"}},
+        "protected_files": {"type": "array", "items": {"type": "string"}},
+        "protected_routes": {"type": "array", "items": {"type": "string"}},
+        "protected_tokens": {"type": "array", "items": {"type": "string"}},
+        "max_scope": {"type": "string"},
+        "estimated_risk": {"type": "string", "enum": ["low", "medium", "high"]},
+        "cross_app_impact": {"type": "boolean"},
+        "affected_applications": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "required": ["strategy", "checkpoints"],
+      "properties": {
+        "strategy": {"type": "string"},
+        "checkpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "after_steps", "expected_state", "validation_required"],
+            "properties": {
+              "id": {"type": "string"},
+              "after_steps": {"type": "array", "items": {"type": "string"}},
+              "expected_state": {"type": "string"},
+              "validation_required": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      }
+    },
+    "risks": {
+      "type": "object",
+      "required": ["regression", "architecture", "preservation", "runtime"],
+      "properties": {
+        "regression": {"type": "string", "enum": ["low", "medium", "high"]},
+        "architecture": {"type": "string", "enum": ["low", "medium", "high"]},
+        "preservation": {"type": "string", "enum": ["low", "medium", "high"]},
+        "runtime": {"type": "string", "enum": ["low", "medium", "high"]}
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ready", "blocked", "needs_permission", "insufficient_context", "read_only"]
+    },
+    "status_reasons": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

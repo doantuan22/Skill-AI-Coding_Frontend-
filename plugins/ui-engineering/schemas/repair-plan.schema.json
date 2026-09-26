@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RepairPlan",
+  "description": "Machine-readable targeted repair plan produced by Phase 7 RepairEngine.",
+  "type": "object",
+  "required": ["schema_version", "repair_id", "original_plan_id", "repair_status", "repair_actions"],
+  "properties": {
+    "schema_version": { "type": "integer", "enum": [1] },
+    "repair_id": { "type": "string", "pattern": "^repair_" },
+    "original_plan_id": { "type": "string" },
+    "repair_status": {
+      "type": "string",
+      "enum": ["ready", "blocked", "needs_permission", "scope_expansion_required", "nothing_to_repair"]
+    },
+    "repairable_issue_count": { "type": "integer" },
+    "blocked_issue_count": { "type": "integer" },
+    "scope_violations": { "type": "array", "items": { "type": "string" } },
+    "repair_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "target", "files", "change_level"],
+        "properties": {
+          "issue_id": { "type": "string" },
+          "target": { "type": "string" },
+          "files": { "type": "array", "items": { "type": "string" } },
+          "components": { "type": "array", "items": { "type": "string" } },
+          "change_level": { "type": "string", "enum": ["L1", "L2", "L3"] },
+          "reason": { "type": "string" },
+          "evidence": { "type": "string" },
+          "expected_fix": { "type": "string" },
+          "validation_required": { "type": "array", "items": { "type": "string" } },
+          "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+        }
+      }
+    },
+    "blocked_actions": { "type": "array" },
+    "repair_batches": { "type": "array" },
+    "blast_radius_constraint": { "type": "object" }
+  },
+  "additionalProperties": true
+}
