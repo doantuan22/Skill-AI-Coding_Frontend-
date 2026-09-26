@@ -778,9 +778,8 @@ python plugins/ui-engineering/adapters/generic/adapter.py self-test
 | `.github/workflows/{ci,package,release}.yml` | create | P2–P3 |
 | `uiux/tooling/validate.py` | scenario range when E81/E82 are added; new plugin files in the conditional plugin list | P2+ |
 | `CHANGELOG.md`, `docs/plugin-architecture.md`, READMEs | update per phase | all |
- 
- # #   C o d e x   I m p l e m e n t a t i o n   S t a t u s  
- C o d e x   i m p l e m e n t a t i o n   p h a s e :   C O M P L E T E  
- L i v e   h o s t   v e r i f i c a t i o n :   P E N D I N G  
- P u b l i c   d i s t r i b u t i o n   r e a d i n e s s :   N O T   C L A I M E D  
- 
+
+## Codex Implementation Status
+Codex implementation phase: COMPLETE
+Live host verification: PENDING
+Public distribution readiness: NOT CLAIMED

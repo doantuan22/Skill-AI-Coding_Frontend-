@@ -32,7 +32,7 @@ The Codex adapter is a thin metadata overlay. It does not contain any tool defin
 ```text
 Codex
   ↓
-Codex Adapter (mcp.json, plugin.json, skills/ui-ux-workflow/SKILL.md)
+Codex Adapter (mcp.json, plugin.json; skill entry skills/ui-ux-workflow/SKILL.md → SKILL.md)
   ↓
 Common Adapter Framework
   ↓
